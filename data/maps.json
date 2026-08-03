@@ -1,0 +1,8 @@
+[
+  {"id":"qinghe","name":"清河镇","type":"城镇","x":1,"y":1,"desc":"水陆交汇的小镇，客栈、医馆与镖局俱全。","neighbors":["bamboo","ferry","market"],"events":["听书人讲起缉武司近日搜捕夜行客。","茶铺老板提醒你：初入江湖，先保命再逞强。"]},
+  {"id":"bamboo","name":"听雨竹径","type":"野外","x":0,"y":1,"desc":"细雨敲竹，常有采药人和练剑少年经过。","neighbors":["qinghe","mist_gate"],"events":["你在竹叶下拾得一枚旧铜钱。","远处传来破空声，似有人在练轻功。"]},
+  {"id":"ferry","name":"白沙渡","type":"渡口","x":2,"y":1,"desc":"渡船通往南北，江风里混着鱼腥与酒香。","neighbors":["qinghe","salt_road"],"events":["船夫说南海商盟正在招护船武人。"]},
+  {"id":"market","name":"旧瓦市","type":"城镇","x":1,"y":2,"desc":"鱼龙混杂的市集，能买到寻常药材，也能听见隐秘消息。","neighbors":["qinghe"],"events":["摊主向你兜售一本来历可疑的残谱。"]},
+  {"id":"mist_gate","name":"烟岚山门","type":"门派","x":0,"y":0,"desc":"烟岚剑斋外门山道，云雾终年不散。","neighbors":["bamboo"],"events":["守山弟子审视你的身法与悟性。"]},
+  {"id":"salt_road","name":"黑盐古道","type":"野外","x":2,"y":0,"desc":"废弃盐道，夜里常有马蹄与刀光。","neighbors":["ferry"],"events":["你发现一串新鲜脚印通向乱石滩。"]}
+]
