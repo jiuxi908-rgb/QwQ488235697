@@ -56,6 +56,29 @@ http://127.0.0.1:4173/index.html
 5. Branch 选择 **main**，目录选择 **/** root。
 6. 保存后等待部署完成，GitHub 会生成 Pages 访问地址。
 
+
+## 分支冲突时的发布方式
+
+如果 PR 显示“分支有冲突，不能干净地创建合并”，不必先合并 PR 才能预览网页。这个项目是纯静态站点，可以采用以下任一方式发布：
+
+### 方式 A：直接从当前分支发布
+
+1. 将当前分支推送到 GitHub。
+2. 进入 **Settings → Pages**。
+3. 如果使用分支部署，Branch 可选择当前分支，例如 `work`，目录选择 **/** root。
+4. 如果使用 Actions 部署，Source 选择 **GitHub Actions**，本仓库已提供 `.github/workflows/pages.yml`。
+
+### 方式 B：用当前版本覆盖 main
+
+如果你确认远端 `main` 不需要保留旧文件，可以在配置好远端后执行：
+
+```bash
+git branch -M main
+git push -u origin main --force-with-lease
+```
+
+> 注意：强制推送会改写远端分支历史，只建议在你自己的新仓库或确认无协作者依赖旧历史时使用。
+
 ## 后续扩展建议
 
 - 将门派、NPC、武学、物品继续拆成 JSON 数据表。
