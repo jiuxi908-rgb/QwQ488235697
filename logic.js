@@ -169,7 +169,7 @@ function modalNpc(npcId){
   const p=ensurePlayer(state.player);
   const npc=findPerson(npcId);
   if(!npc)return;
-  const talk=npc.talks[Math.floor(Math.random()*npc.talks.length)];
+  const talk=(typeof enrichTalk==="function"?enrichTalk(npc):(npc.talks[Math.floor(Math.random()*npc.talks.length)]));
   openModal(`
     <div class="modal-head"><h2 class="section-title">${npc.name} <span class="tag">${npc.title}</span></h2><button class="modal-close" id="mClose">关闭</button></div>
     <p class="small">${npc.desc}</p>
@@ -261,7 +261,9 @@ function renderWorldDoc(){
     <h3>多级师父</h3>
     <p>入门为外门弟子，积累贡献可求见内门师父、再求见掌门/谷主，解锁更高剧情。</p>
     <h3>悬浮窗</h3>
-    <p>角色、武学、门派、NPC 均以底部悬浮窗打开，主界面不跳转。</p>
+    <p>角色、武学、门派、NPC 均以悬浮窗打开，主界面不跳转。</p>
+    <h3>文案模块</h3>
+    <p>游历与抵达文案集中在 text.js，可独立扩充。</p>
     <button class="btn" id="back">返回</button></section>`;
   qs("#back").onclick=renderStart;
 }

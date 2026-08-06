@@ -37,23 +37,7 @@ const SKILL_DESIGN={qualities:["黄阶","玄阶","地阶","天阶"],types:["内�
 const BASE_STATS={arm:5,agi:5,bone:5,qi:5,wit:5,luck:5};
 const STAT_LABELS={arm:"臂力",agi:"身法",bone:"根骨",qi:"内力",wit:"悟性",luck:"福缘"};
 const STAT_HELP={arm:"外功伤害。",agi:"闪避先手。",bone:"气血抗性。",qi:"内力招式。",wit:"读谱经验。",luck:"奇遇。"};
-const LOCAL_SKILLS={
-  qinghe:["basic_fist","basic_sword","basic_neigong","crush_leg"],
-  bamboo:["basic_qinggong","basic_blade","flow_sword"],
-  market:["throwing_needle","basic_fist","point_finger"],
-  mist_gate:["yanlan_sword","basic_qinggong","cloud_step"],
-  ferry:["basic_blade","flow_sword"],
-  salt_road:["night_shadow","blood_blade","falling_leaf"],
-  hearth:["chilu_blade","iron_shirt","split_cloud"],
-  herb_valley:["huichun_palm","frost_palm"],
-  whale_port:["xuanjing_neigong","cloud_step"],
-  sparrow_den:["baique_qinggong","night_shadow","star_throw"],
-  void_temple:["wuxiang_finger","gold_bell"],
-  cloud_peak:["wan_jian","taixu"],
-  blood_ravine:["blood_blade","split_cloud"],
-  secret_reef:["dragon_neigong","xuanjing_neigong"],
-  secret_cave:["night_shadow","phantom_palm"]
-};
+const LOCAL_SKILLS={qinghe:["basic_fist","basic_sword","basic_neigong","crush_leg"],bamboo:["basic_qinggong","basic_blade","flow_sword"],market:["throwing_needle","basic_fist","point_finger"],mist_gate:["yanlan_sword","basic_qinggong","cloud_step"],ferry:["basic_blade","flow_sword"],salt_road:["night_shadow","blood_blade","falling_leaf"],hearth:["chilu_blade","iron_shirt","split_cloud"],herb_valley:["huichun_palm","frost_palm"],whale_port:["xuanjing_neigong","cloud_step"],sparrow_den:["baique_qinggong","night_shadow","star_throw"],void_temple:["wuxiang_finger","gold_bell"],cloud_peak:["wan_jian","taixu"],blood_ravine:["blood_blade","split_cloud"],secret_reef:["dragon_neigong","xuanjing_neigong"],secret_cave:["night_shadow","phantom_palm"]};
 
 function applyBonus(stats,bonus={}){Object.entries(bonus).forEach(([k,v])=>stats[k]+=v);}
 function createPlayer({name,gender,origin,talent}){
@@ -108,37 +92,63 @@ function movePlayer(player,targetId){
   if(!here||!here.neighbors.includes(targetId))return{ok:false,message:"道路未通。"};
   player.location=targetId;player.day+=1;
   const next=getMapById(targetId);
-  const event=next.events[Math.floor(Math.random()*next.events.length)];
-  player.logs.unshift(`第${player.day}日，你来到【${next.name}】：${event}`);
-  player.logs=player.logs.slice(0,40);
-  return{ok:true,message:event};
+  const base=next.events[Math.floor(Math.random()*next.events.length)];
+  const flavor=(typeof flavorArrival==="function"?flavorArrival(next.id,base):base)||base;
+  player.logs.unshift(`第${player.day}日，你来到【${next.name}】。${flavor}`);
+  player.logs=player.logs.slice(0,50);
+  return{ok:true,message:flavor};
 }
 
 function exploreLocation(player){
   const here=getMapById(player.location);
-  if(!here||!here.explore||!here.explore.length)return{ok:false,message:"此地暂无游历。"};
+  if(!here)return{ok:false,message:"此地不存在。"};
+  const pool=(typeof getExploreEvents==="function"?getExploreEvents(here.id,here.explore):here.explore)||[];
+  if(!pool.length)return{ok:false,message:"此地暂无游历。"};
   player.day+=1;
-  const evt=here.explore[Math.floor(Math.random()*here.explore.length)];
-  let msg=`第${player.day}日，你在【${here.name}】游历：${evt.text}`;
+  const evt=pool[Math.floor(Math.random()*pool.length)];
+  let msg=`第${player.day}日，【${here.name}】${evt.text}`;
   if(evt.type==="damage"||(evt.type==="silver"&&evt.value<0&&evt.diff)){
     const r=resolveThreat(player,evt.diff||30,evt.type==="damage"?evt.value:Math.abs(evt.value));
-    if(r.outcome==="完胜"){msg+=` 【战力${r.power} vs 难度${r.diff} · 完胜】`;if(r.gain){msg+=`（银两+${r.gain.value}`+(r.gain.exp?`，【${r.gain.skill}】经验+${r.gain.exp}`:"")+"）";}}
-    else if(r.outcome==="险胜")msg+=` 【战力${r.power} vs 难度${r.diff} · 险胜】（气血-${r.damage}）`;
-    else if(r.outcome==="受挫"){msg+=` 【战力${r.power} vs 难度${r.diff} · 受挫】（气血-${r.damage}）`;if(evt.type==="silver"&&evt.value<0){player.silver=Math.max(0,player.silver+evt.value);msg+=`（银两${evt.value}）`;}}
-    else{msg+=` 【战力${r.power} vs 难度${r.diff} · 惨败】（气血-${r.damage}）`;if(evt.type==="silver"&&evt.value<0){const loss=Math.floor(Math.abs(evt.value)*1.5);player.silver=Math.max(0,player.silver-loss);msg+=`（银两-${loss}）`;}}
+    const flavor=(typeof flavorThreat==="function"?flavorThreat(r.outcome):"")||"";
+    if(flavor)msg+=" "+flavor;
+    if(r.outcome==="完胜"){
+      msg+=` 【战力${r.power} vs 难度${r.diff} · 完胜】`;
+      if(r.gain){msg+=`（银两+${r.gain.value}`+(r.gain.exp?`，【${r.gain.skill}】经验+${r.gain.exp}`:"")+"）";}
+    }else if(r.outcome==="险胜"){
+      msg+=` 【战力${r.power} vs 难度${r.diff} · 险胜】（气血-${r.damage}）`;
+    }else if(r.outcome==="受挫"){
+      msg+=` 【战力${r.power} vs 难度${r.diff} · 受挫】（气血-${r.damage}）`;
+      if(evt.type==="silver"&&evt.value<0){player.silver=Math.max(0,player.silver+evt.value);msg+=`（银两${evt.value}）`;}
+    }else{
+      msg+=` 【战力${r.power} vs 难度${r.diff} · 惨败】（气血-${r.damage}）`;
+      if(evt.type==="silver"&&evt.value<0){const loss=Math.floor(Math.abs(evt.value)*1.5);player.silver=Math.max(0,player.silver-loss);msg+=`（银两-${loss}）`;}
+    }
   }else{
     switch(evt.type){
       case"silver":player.silver=Math.max(0,player.silver+evt.value);msg+=evt.value>0?`（银两+${evt.value}）`:`（银两${evt.value}）`;break;
       case"heal":player.hp=Math.min(player.maxHp,player.hp+evt.value);msg+=`（气血+${evt.value}）`;break;
       case"mp":player.mp=Math.min(player.maxMp,player.mp+evt.value);msg+=`（内力+${evt.value}）`;break;
       case"exp":
-        if(player.skills&&player.skills.length){const s=player.skills[Math.floor(Math.random()*player.skills.length)];s.exp+=evt.value;msg+=`（【${s.name}】经验+${evt.value}）`;
-          while(s.exp>=s.maxExp&&s.realm<4){s.exp-=s.maxExp;s.realm+=1;s.maxExp=Math.floor(s.maxExp*1.6);s.power=Math.floor((s.power||0)*1.25);msg+=" → 突破！";}}
-        else msg+="（无武学可练）";break;
-      case"stat":if(player.stats[evt.key]!==undefined){player.stats[evt.key]+=evt.value;msg+=`（${evt.key}+${evt.value}）`;}break;
+        if(player.skills&&player.skills.length){
+          const s=player.skills[Math.floor(Math.random()*player.skills.length)];
+          s.exp+=evt.value;msg+=`（【${s.name}】经验+${evt.value}）`;
+          while(s.exp>=s.maxExp&&s.realm<4){
+            s.exp-=s.maxExp;s.realm+=1;s.maxExp=Math.floor(s.maxExp*1.6);
+            s.power=Math.floor((s.power||0)*1.25);msg+=" → 武学突破！";
+          }
+        }else msg+="（尚无武学可练，此行只作见识）";
+        break;
+      case"stat":
+        if(player.stats[evt.key]!==undefined){
+          player.stats[evt.key]+=evt.value;
+          const lab=(typeof STAT_LABELS!=="undefined"&&STAT_LABELS[evt.key])?STAT_LABELS[evt.key]:evt.key;
+          msg+=`（${lab}+${evt.value}）`;
+        }
+        break;
+      default:break;
     }
   }
-  player.logs.unshift(msg);player.logs=player.logs.slice(0,40);
+  player.logs.unshift(msg);player.logs=player.logs.slice(0,50);
   return{ok:true,message:msg};
 }
 
@@ -204,7 +214,7 @@ function doSectTask(player,task){
     if(task.silver)player.silver+=task.silver;
     player.logs.unshift(`完成任务【${task.name}】贡献+${task.contrib}`+(task.silver?` 银两+${task.silver}`:""));
   }
-  player.logs=player.logs.slice(0,40);
+  player.logs=player.logs.slice(0,50);
   return{ok:true};
 }
 function buySectItem(player,sect,item){
