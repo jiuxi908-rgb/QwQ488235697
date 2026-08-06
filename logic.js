@@ -6,8 +6,8 @@ function formatLog(text){
   const dayMatch=text.match(/^(第\d+日)/);const day=dayMatch?dayMatch[1]:"";
   let body=day?text.slice(day.length).replace(/^，/,""):text;
   let cls="log-normal";
-  if(/完胜|银两\+|气血\+|内力\+|经验\+|突破|拜入|贡献\+|完成任务|学会/.test(body))cls="log-gain";
-  else if(/惨败|受挫|气血-|银两-|失败|损失/.test(body))cls="log-loss";
+  if(/完胜|银两\+|气血\+|内力\+|经验\+|突破|拜入|贡献\+|完成任务|学会|购得|指点|休整|求医|赢了/.test(body))cls="log-gain";
+  else if(/惨败|受挫|气血-|银两-|失败|损失|输了/.test(body))cls="log-loss";
   body=body.replace(/（([^）]+)）/g,`<span class="${cls}">（$1）</span>`);
   body=body.replace(/【战力(\d+) vs 难度(\d+) · (完胜|险胜|受挫|惨败)】/g,'<span class="power">【战力$1 vs 难度$2 · $3】</span>');
   return`<div class="log-item"><span class="log-day">${day}</span><span class="${cls}">${body}</span></div>`;
@@ -15,28 +15,28 @@ function formatLog(text){
 function qs(s){return document.querySelector(s);}
 
 function renderStart(){
-  app.innerHTML=`<main class="hero"><section class="hero-card"><h1 class="title">${world.title}</h1><p class="subtitle">像素风文字武侠RPG · 门派 · 大地图 · 战力判定<br>${world.background}</p><div class="row" style="justify-content:center"><button class="btn primary" id="newGame">新入江湖</button><button class="btn" id="continue" ${hasSave()?"":"disabled"}>读取存档</button><button class="btn" id="worldBtn">门派与地图说明</button></div><p class="small">六大门派 · 15处地图 · 秘境可扩展</p></section></main>`;
+  app.innerHTML=`<main class="hero"><section class="hero-card"><h1 class="title">${world.title}</h1><p class="subtitle">像素风文字武侠RPG · 门派 · 大地图 · NPC · 战力判定<br>${world.background}</p><div class="row" style="justify-content:center"><button class="btn primary" id="newGame">新入江湖</button><button class="btn" id="continue" ${hasSave()?"":"disabled"}>读取存档</button><button class="btn" id="worldBtn">门派与地图说明</button></div><p class="small">六大门派 · 15处地图 · 16名NPC</p></section></main>`;
   qs("#newGame").onclick=renderCreate;
-  qs("#continue").onclick=()=>{state=loadGame();if(state.player){if(!state.player.skills)state.player.skills=[];if(state.player.contrib==null)state.player.contrib=0;}renderGame();};
+  qs("#continue").onclick=()=>{state=loadGame();if(state.player){if(!state.player.skills)state.player.skills=[];if(state.player.contrib==null)state.player.contrib=0;if(!state.player.flags)state.player.flags={};}renderGame();};
   qs("#worldBtn").onclick=renderWorldDoc;
 }
 function renderCreate(){
   app.innerHTML=`<section class="panel"><h2 class="section-title">创建角色</h2><div class="grid"><div><div class="form-grid"><label>姓名<input id="name" maxlength="8" placeholder="例如：沈听澜"></label><label>性别<select id="gender"><option>男</option><option>女</option><option>其他</option></select></label></div><h3>出身</h3><div class="row">${origins.map(o=>choice(o,"origin")).join("")}</div><h3>天赋</h3><div class="row">${talents.map(t=>choice(t,"talent")).join("")}</div><div class="row" style="margin-top:10px"><button class="btn primary" id="begin">踏入江湖</button><button class="btn" id="back">返回</button></div></div><aside class="panel"><h3 class="section-title">属性说明</h3>${Object.entries(STAT_LABELS).map(([k,v])=>`<div class="stat"><b>${v}</b><span>${STAT_HELP[k]}</span></div>`).join("")}</aside></div></section>`;
   let selected={origin:origins[0].id,talent:talents[0].id};markChoices(selected);
   document.querySelectorAll(".choice").forEach(el=>el.onclick=()=>{selected[el.dataset.kind]=el.dataset.id;markChoices(selected);});
-  qs("#begin").onclick=()=>{state.player=createPlayer({name:qs("#name").value.trim(),gender:qs("#gender").value,...selected});saveGame(state);renderGame();};
+  qs("#begin").onclick=()=>{state.player=createPlayer({name:qs("#name").value.trim(),gender:qs("#gender").value,...selected});if(!state.player.flags)state.player.flags={};saveGame(state);renderGame();};
   qs("#back").onclick=renderStart;
 }
 function choice(o,kind){return`<div class="choice" data-kind="${kind}" data-id="${o.id}"><b>${o.name}</b><p class="small">${o.desc}</p></div>`;}
 function markChoices(sel){document.querySelectorAll(".choice").forEach(el=>el.classList.toggle("active",sel[el.dataset.kind]===el.dataset.id));}
 
 function renderGame(){
-  const p=state.player;if(!p.skills)p.skills=[];if(p.contrib==null)p.contrib=0;
+  const p=state.player;if(!p.skills)p.skills=[];if(p.contrib==null)p.contrib=0;if(!p.flags)p.flags={};
   const here=getMapById(p.location);const d=derived(p);const power=calcCombatPower(p);
   const local=(LOCAL_SKILLS[p.location]||[]).map(getSkillById).filter(Boolean);
   const sectHere=getSectByLoc(p.location);
   const mySect=p.sect?getSectById(p.sect):null;
-
+  const hereNpcs=typeof getNpcsAt==="function"?getNpcsAt(p.location):[];
   app.innerHTML=`
   <div class="layout">
     <aside class="panel">
@@ -65,6 +65,7 @@ function renderGame(){
       <p class="small">${here.desc} · <span class="tag">${here.type}</span> <span class="tag">${here.region||""}</span></p>
       <div class="pixel-map" style="margin:8px 0">${maps.map(m=>`<div class="map-node ${m.id===p.location?"current":""}" data-id="${m.id}"><b>${m.name}</b><p class="small">${m.type}</p></div>`).join("")}</div>
       ${local.length?`<div class="row" style="margin-top:6px">${local.map(s=>{const owned=p.skills.some(x=>x.id===s.id);return`<button class="btn ${owned?"":"primary"} learn" data-id="${s.id}" ${owned?"disabled":""}>${s.name} <span class="small">${s.cost}两</span></button>`;}).join("")}</div>`:""}
+      ${hereNpcs.length?`<h3 class="section-title" style="margin-top:10px">此地人物</h3><div class="row">${hereNpcs.map(n=>`<button class="btn primary npc-btn" data-id="${n.id}">${n.name}<br><span class="small">${n.title}</span></button>`).join("")}</div>`:""}
     </main>
     <aside class="panel">
       <h3 class="section-title">江湖见闻</h3>
@@ -73,7 +74,6 @@ function renderGame(){
       <div class="row">${here.neighbors.map(id=>`<button class="btn move" data-id="${id}">${getMapById(id).name}</button>`).join("")}</div>
     </aside>
   </div>`;
-
   document.querySelectorAll(".move,.map-node").forEach(el=>el.onclick=()=>{if(movePlayer(p,el.dataset.id).ok){saveGame(state);renderGame();}});
   document.querySelectorAll(".learn").forEach(el=>el.onclick=()=>{const res=learnSkill(p,getSkillById(el.dataset.id));p.logs.unshift(res.msg);saveGame(state);renderGame();});
   qs("#exploreBtn").onclick=()=>{exploreLocation(p);saveGame(state);renderGame();};
@@ -81,6 +81,40 @@ function renderGame(){
   qs("#del").onclick=()=>{deleteSave();renderStart();};
   qs("#skillBtn").onclick=renderSkills;
   if(qs("#sectBtn"))qs("#sectBtn").onclick=()=>renderSect(sectHere);
+  document.querySelectorAll(".npc-btn").forEach(el=>el.onclick=()=>renderNpc(el.dataset.id));
+}
+
+function renderNpc(npcId){
+  const p=state.player;if(!p.flags)p.flags={};
+  const npc=findPerson(npcId);
+  if(!npc){renderGame();return;}
+  const talk=npc.talks[Math.floor(Math.random()*npc.talks.length)];
+  app.innerHTML=`<section class="panel">
+    <h2 class="section-title">${npc.name} <span class="tag">${npc.title}</span></h2>
+    <p class="small">${npc.desc}</p>
+    <p style="color:var(--gold);margin:10px 0">「${talk}」</p>
+    <h3 class="section-title">互动</h3>
+    <div class="row" style="flex-direction:column;gap:6px">
+      ${npc.acts.map(a=>{
+        const flagKey=npc.id+"_"+a.id;
+        const done=a.once&&p.flags[flagKey];
+        const cost=a.cost||0;
+        let extra="";
+        if(a.type==="duel")extra=" · 难度"+a.diff;
+        if(a.type==="skill")extra=" · 学武";
+        if(done)extra=" · 已完成";
+        return `<button class="btn primary npc-act" data-act="${a.id}" ${done?"disabled":""}>${a.name}${cost?`（${cost}两）`:""}<span class="small">${extra}</span></button>`;
+      }).join("")}
+    </div>
+    <div class="row" style="margin-top:12px"><button class="btn" id="back">返回</button></div>
+  </section>`;
+  document.querySelectorAll(".npc-act").forEach(el=>el.onclick=()=>{
+    const r=interactPerson(p,npc,el.dataset.act);
+    if(!r.ok)p.logs.unshift(r.msg);
+    saveGame(state);
+    renderNpc(npcId);
+  });
+  qs("#back").onclick=renderGame;
 }
 
 function renderSect(sect){
@@ -125,8 +159,8 @@ function renderWorldDoc(){
   app.innerHTML=`<section class="panel worlddoc"><h2 class="section-title">门派与地图</h2>
     <h3>六大门派</h3>
     ${sects.map(s=>`<p><b>${s.name}</b>（${s.align}）@${getMapById(s.loc)?.name||s.loc}<br>${s.bg}<br>师父：${s.master.name} · 条件：${Object.entries(s.req).map(([k,v])=>k+">="+v).join(", ")} · 独门：${s.skills.join(", ")}</p>`).join("")}
-    <h3>地图结构（可扩展）</h3>
-    <p>区域：中原 / 南海 / 西陲 / 北境。类型：城镇、渡口、野外、门派、秘境。当前 ${maps.length} 处，通过 neighbors 连接，后续只需追加地点即可扩展。</p>
+    <h3>NPC</h3>
+    <p>各地有人物可对话、疗伤、交易、切磋、请教。部分互动限一次。</p>
     <h3>战力判定</h3>
     <p>战力=攻×2+闪+武学威力×(1+境界×0.25)+根骨+内力/2。有害事件带难度，完胜可反赚。</p>
     <button class="btn" id="back">返回</button></section>`;
