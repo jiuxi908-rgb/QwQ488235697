@@ -4,7 +4,7 @@
     var c=RARITY_COLOR[r]||"#b9a58a";
     return '<span class="tag" style="border-color:'+c+';color:'+c+'">'+r+'</span>';
   }
-  function itemLine(stack,player){
+  function itemLine(stack){
     var def=getItemById(stack.id);if(!def)return"";
     var icon=ITEM_ICON[def.type]||"物";
     var cnt=stack.count>1?(" ×"+stack.count):"";
@@ -16,12 +16,13 @@
     if(def.gift)tip+=" · 礼+"+def.gift;
     if(def.bagExpand)tip+=" · 容+"+def.bagExpand;
     if(def.exp)tip+=" · 经验+"+def.exp;
-    return '<div class="item-row" data-id="'+def.id+'">'+'
-      '<span class="item-icon">'+icon+'</span>'+'
+    return '<div class="item-row" data-id="'+def.id+'">'+
+      '<span class="item-icon">'+icon+'</span>'+
       '<div class="item-meta"><b>'+def.name+'</b>'+cnt+' '+rarityTag(def.rarity)+
       '<p class="small">'+def.type+tip+'</p></div></div>';
   }
   window.modalBag=function(filter){
+    if(!state||!state.player)return;
     var p=ensurePlayer(state.player);ensureBag(p);
     filter=filter||"全部";
     var types=["全部"].concat(ITEM_TYPES);
@@ -37,7 +38,7 @@
     var filtHtml=types.map(function(t){
       return '<button class="btn sm bag-filter'+(t===filter?" primary":"")+'" data-f="'+t+'">'+t+'</button>';
     }).join("");
-    var listHtml=list.length?list.map(function(s){return itemLine(s,p);}).join(""):'<p class="small">背包空空如也。</p>';
+    var listHtml=list.length?list.map(function(s){return itemLine(s);}).join(""):'<p class="small">背包空空如也。</p>';
     openModal(
       '<div class="modal-head"><h2 class="section-title">背包 '+bagUsed(p)+'/'+p.bagCap+'</h2><button class="modal-close" id="mClose">关闭</button></div>'+
       '<div class="equip-row small">'+
@@ -99,7 +100,15 @@
     };
   }
 
-  /* 不再动态插入背包按钮：已在 logic.js 工具栏与角色/武学同列 */
+  /* 工具栏背包按钮已在 logic.js 与角色/武学同列，此处仅确保绑定可靠 */
+  function wireBagBtn(){
+    var btn=qs("#bagBtn");
+    if(btn&&!btn._bagWired){
+      btn._bagWired=true;
+      btn.onclick=function(){if(typeof modalBag==="function")modalBag();};
+    }
+  }
+
   var _ep=ensurePlayer;
   ensurePlayer=function(p){
     p=_ep(p);
@@ -181,9 +190,11 @@
       };
     });
   };
+
   var _rg2=renderGame;
   renderGame=function(){
     _rg2();
+    wireBagBtn();
     var loc=state.player&&state.player.location;
     if(loc&&SHOP_STOCK[loc]){
       var panels=document.querySelectorAll(".panel");
