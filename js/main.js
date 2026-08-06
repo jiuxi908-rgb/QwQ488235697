@@ -21,6 +21,24 @@ const LOCAL_SKILLS = {
   salt_road: ['night_shadow', 'blood_blade']
 };
 
+function formatLog(text) {
+  if (!text) return '';
+  // 提取天数
+  const dayMatch = text.match(/^(第\d+日)/);
+  const day = dayMatch ? dayMatch[1] : '';
+  let body = day ? text.slice(day.length).replace(/^，/, '') : text;
+
+  // 判断收益/损失
+  let cls = 'log-normal';
+  if (/[＋+]\d+|银两\+\d+|气血\+\d+|内力\+\d+|经验\+\d+|突破/.test(body)) cls = 'log-gain';
+  else if (/[－-]\d+|银两-\d+|气血-\d+|损失|受伤|挨揍|被砍|丢命/.test(body)) cls = 'log-loss';
+
+  // 高亮括号内的数值变化
+  body = body.replace(/（([^）]+)）/g, '<span class="$CLS">（$1）</span>'.replace('$CLS', cls));
+
+  return `<div class="log-item"><span class="log-day">${day}</span><span class="${cls}">${body}</span></div>`;
+}
+
 function renderStart() {
   app.innerHTML = `<main class="hero"><section class="hero-card"><h1 class="title">${world.title}</h1><p class="subtitle">像素风文字武侠RPG · 放置养成 · 无唯一主线<br>${world.background}</p><div class="row" style="justify-content:center"><button class="btn primary" id="newGame">新入江湖</button><button class="btn" id="continue" ${hasSave() ? '' : 'disabled'}>读取存档</button><button class="btn" id="worldBtn">查看完整方案</button></div><p class="small">当前版本：角色 · 地图 · 武学 · 游历系统已实装</p></section></main>`;
   qs('#newGame').onclick = renderCreate;
@@ -90,7 +108,7 @@ function renderGame() {
     </main>
     <aside class="panel">
       <h3 class="section-title">江湖见闻</h3>
-      <div class="log">${p.logs.map(l=>`<div>· ${l}</div>`).join('')}</div>
+      <div class="log">${p.logs.map(formatLog).join('')}</div>
       <h3>可前往</h3>
       <div class="row">${here.neighbors.map(id=>`<button class="btn move" data-id="${id}">${getMapById(maps,id).name}</button>`).join('')}</div>
     </aside>
