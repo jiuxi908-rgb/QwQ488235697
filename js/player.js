@@ -7,8 +7,46 @@ export function createPlayer({ name, gender, origin, talent }, origins, talents)
   const stats = { ...BASE_STATS };
   applyBonus(stats, origins.find(o => o.id === origin)?.stats);
   applyBonus(stats, talents.find(t => t.id === talent)?.stats);
-  return { name: name || '无名少侠', gender, age: 16, origin, talent, stats, hp: stats.bone * 20 + 80, maxHp: stats.bone * 20 + 80, mp: stats.qi * 15 + 60, maxMp: stats.qi * 15 + 60, silver: 120, location: 'qinghe', reputation: 0, day: 1, logs: ['十六岁这年，你背起旧包袱，踏入清河镇。'] };
+  return {
+    name: name || '无名少侠',
+    gender,
+    age: 16,
+    origin,
+    talent,
+    stats,
+    hp: stats.bone * 20 + 80,
+    maxHp: stats.bone * 20 + 80,
+    mp: stats.qi * 15 + 60,
+    maxMp: stats.qi * 15 + 60,
+    silver: 120,
+    location: 'qinghe',
+    reputation: 0,
+    day: 1,
+    skills: [],
+    logs: ['十六岁这年，你背起旧包袱，踏入清河镇。']
+  };
 }
 function applyBonus(stats, bonus = {}) { Object.entries(bonus).forEach(([k, v]) => stats[k] += v); }
 export function tickAge(player) { if (player.day > 0 && player.day % 360 === 0) player.age += 1; }
-export function derived(player) { return { attack: player.stats.arm * 2 + Math.floor(player.stats.qi / 2), dodge: player.stats.agi * 2, learn: player.stats.wit * 3, encounter: player.stats.luck * 2 }; }
+export function derived(player) {
+  let dodgeBonus = 0;
+  let attackBonus = 0;
+  for (const s of player.skills || []) {
+    if (s.effect && typeof s.effect === 'string') {
+      if (s.effect.includes('dodge+')) {
+        const m = s.effect.match(/dodge\+(\d+)/);
+        if (m) dodgeBonus += parseInt(m[1]) * (1 + s.realm * 0.15);
+      }
+      if (s.effect.includes('attack+')) {
+        const m = s.effect.match(/attack\+(\d+)/);
+        if (m) attackBonus += parseInt(m[1]) * (1 + s.realm * 0.15);
+      }
+    }
+  }
+  return {
+    attack: Math.floor(player.stats.arm * 2 + player.stats.qi / 2 + attackBonus),
+    dodge: Math.floor(player.stats.agi * 2 + dodgeBonus),
+    learn: player.stats.wit * 3,
+    encounter: player.stats.luck * 2
+  };
+}
