@@ -1,56 +1,54 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>一剑一蓑烟雨录</title>
-<style>
-:root{--gold:#d9ad62;--text:#f5e8cf;--line:#4b3a2d}
-*{box-sizing:border-box}
-body{margin:0;background:#15120f;color:var(--text);font-family:Microsoft YaHei,system-ui,sans-serif}
-#tip{padding:24px;min-height:100vh}
-a{color:var(--gold)}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>一剑一蓑烟雨录</title>
+  <style>
+    :root{--bg:#15120f;--panel:#241d18;--gold:#d9ad62;--text:#f5e8cf;--muted:#b9a58a;--red:#b85b53;--green:#7aae6a;--line:#4b3a2d}
+    *{box-sizing:border-box}
+    body{margin:0;background:radial-gradient(circle at top,#2c211a,#111);color:var(--text);font-family:"Microsoft YaHei",system-ui,sans-serif;min-height:100vh}
+    .app{max-width:1100px;margin:0 auto;padding:12px}
+    .hero{min-height:80vh;display:grid;place-items:center;text-align:center}
+    .hero-card,.panel{background:linear-gradient(180deg,rgba(48,38,31,.96),rgba(29,23,19,.96));border:1px solid var(--line);box-shadow:0 12px 40px rgba(0,0,0,.35);border-radius:12px;padding:14px 16px}
+    .title{font-size:42px;letter-spacing:6px;color:var(--gold);text-shadow:0 2px #000;margin:0 0 6px}
+    .subtitle{color:var(--muted);line-height:1.6;font-size:14px}
+    .row{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{background:#3b2b21;color:var(--text);border:1px solid #6b503a;border-radius:8px;padding:7px 12px;cursor:pointer;font-size:13px}
+    .btn:hover,.btn.primary{background:#6b4630;border-color:var(--gold)}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
+    .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:12px}
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    label{display:grid;gap:4px;color:var(--muted);font-size:13px}
+    input,select{background:#17120f;color:var(--text);border:1px solid var(--line);border-radius:6px;padding:8px}
+    .choice{border:1px solid var(--line);border-radius:10px;padding:10px;background:#1b1512;cursor:pointer}
+    .choice.active{border-color:var(--gold);box-shadow:0 0 0 2px rgba(217,173,98,.2)}
+    .stat{display:flex;justify-content:space-between;border-bottom:1px dashed #4b3a2d;padding:4px 0;font-size:13px}
+    .layout{display:grid;grid-template-columns:220px 1fr 280px;gap:10px;align-items:start}
+    .pixel-map{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+    .map-node{min-height:56px;border:1px solid var(--line);border-radius:8px;background:#1a1512;padding:6px;cursor:pointer;font-size:11px}
+    .map-node b{font-size:12px}
+    .map-node.current{border-color:var(--gold);background:#34271e}
+    .tag{display:inline-block;font-size:11px;padding:1px 5px;border:1px solid var(--line);border-radius:99px;color:var(--muted);margin-right:3px}
+    .log{height:180px;overflow-y:auto;background:#120f0d;border:1px solid var(--line);border-radius:8px;padding:6px 8px;color:#d8c6aa;line-height:1.45;font-size:12px}
+    .log-item{padding:4px 0;border-bottom:1px solid rgba(75,58,45,.3)}
+    .log-item:last-child{border-bottom:none}
+    .log-day{color:var(--gold);font-weight:600;margin-right:3px}
+    .log-gain{color:var(--green)}.log-loss{color:var(--red)}.log-normal{color:#d8c6aa}
+    .section-title{color:var(--gold);margin:0 0 8px;font-size:15px}
+    .worlddoc{line-height:1.7;color:#e8d7bd}.worlddoc h3{color:var(--gold);margin-bottom:0}
+    .small{font-size:11px;color:var(--muted)}
+    .loc-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+    .loc-head .section-title{margin:0}
+    .power{color:var(--gold);font-weight:700}
+    hr{border:none;border-top:1px solid var(--line);margin:8px 0}
+    @media(max-width:900px){.grid,.layout{grid-template-columns:1fr}.title{font-size:30px}.pixel-map{grid-template-columns:repeat(2,1fr)}.log{height:150px}}
+  </style>
 </head>
 <body>
-<p id="tip">正在加载完整游戏…</p>
-<script>
-/* 优先：同目录 data1/data2/logic（源码可读）
-   若缺失：尝试从 GitHub raw 拉取后拼成单页 */
-(async function(){
-  const tip=document.getElementById('tip');
-  const files=['data1.js','data2.js','logic.js'];
-  async function loadLocal(){
-    const texts=[];
-    for(const f of files){
-      const r=await fetch(f);
-      if(!r.ok) throw new Error(f+' '+r.status);
-      texts.push(await r.text());
-    }
-    return texts.join('\n');
-  }
-  async function loadRemote(){
-    const base='https://raw.githubusercontent.com/jiuxi908-rgb/QwQ488235697/main/';
-    const texts=[];
-    for(const f of files){
-      const r=await fetch(base+f);
-      if(!r.ok) throw new Error('remote '+f);
-      texts.push(await r.text());
-    }
-    return texts.join('\n');
-  }
-  try{
-    let code;
-    try{ code=await loadLocal(); }
-    catch(e){ tip.textContent='本地脚本未找到，尝试在线拉取…'; code=await loadRemote(); }
-    const s=document.createElement('script');
-    s.textContent=code;
-    document.body.appendChild(s);
-    tip.remove();
-  }catch(e){
-    tip.innerHTML='加载失败：'+e+'<br><br>请确保 <b>index.html、data1.js、data2.js、logic.js</b> 在同一目录，或联网后刷新。<br><br>仓库：<a href="https://github.com/jiuxi908-rgb/QwQ488235697">github.com/jiuxi908-rgb/QwQ488235697</a>';
-  }
-})();
-</script>
+<div id="app" class="app"></div>
+<script src="./data1.js"></script>
+<script src="./data2.js"></script>
+<script src="./logic.js"></script>
 </body>
 </html>
