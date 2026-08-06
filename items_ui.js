@@ -99,18 +99,7 @@
     };
   }
 
-  var _rg=renderGame;
-  renderGame=function(){
-    _rg();
-    var bar=document.querySelector(".toolbar");
-    if(bar&&!qs("#bagBtn",bar)){
-      var b=document.createElement("button");
-      b.className="btn sm";b.id="bagBtn";b.textContent="背包";
-      b.onclick=function(){modalBag();};
-      var save=qs("#save",bar);
-      if(save)bar.insertBefore(b,save);else bar.appendChild(b);
-    }
-  };
+  /* 不再动态插入背包按钮：已在 logic.js 工具栏与角色/武学同列 */
   var _ep=ensurePlayer;
   ensurePlayer=function(p){
     p=_ep(p);
@@ -135,11 +124,8 @@
       div.className="small";
       div.style.marginTop="8px";
       div.innerHTML='<hr><p class="section-title" style="font-size:13px;margin:4px 0">装备</p>'+
-        '<p>'+eqLine("weapon","武器")+' · '+eqLine("armor","防具")+' · '+eqLine("accessory","饰品")+'</p>'+
-        '<button class="btn sm primary" id="openBagFromChar">打开背包</button>';
+        '<p>'+eqLine("weapon","武器")+' · '+eqLine("armor","防具")+' · '+eqLine("accessory","饰品")+'</p>';
       panel.appendChild(div);
-      var btn=qs("#openBagFromChar");
-      if(btn)btn.onclick=function(){modalBag();};
     };
   }
 

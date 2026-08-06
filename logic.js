@@ -80,6 +80,7 @@ function renderGame(){
     <div class="toolbar">
       <button class="btn primary sm" id="charBtn">角色</button>
       <button class="btn sm" id="skillBtn">武学</button>
+      <button class="btn sm" id="bagBtn">背包</button>
       ${sectHere?`<button class="btn sm" id="sectBtn">门派</button>`:""}
       <button class="btn sm" id="save">保存</button>
       <button class="btn sm" id="exploreBtn">游历</button>
@@ -120,6 +121,7 @@ function renderGame(){
   qs("#save").onclick=()=>{saveGame(state);p.logs.unshift("保存了江湖足迹。");renderGame();};
   qs("#skillBtn").onclick=()=>modalSkills();
   qs("#charBtn").onclick=()=>modalChar();
+  if(qs("#bagBtn"))qs("#bagBtn").onclick=()=>{if(typeof modalBag==="function")modalBag();};
   if(qs("#sectBtn"))qs("#sectBtn").onclick=()=>modalSect(sectHere);
   qsa(".npc-btn").forEach(el=>el.onclick=()=>modalNpc(el.dataset.id));
 }
@@ -146,11 +148,13 @@ function modalChar(){
     </div>
     <div class="row" style="margin-top:12px">
       <button class="btn" id="mSkill">武学</button>
+      <button class="btn" id="mBag">背包</button>
       <button class="btn" id="mSave">保存</button>
       <button class="btn" id="mDel">删档</button>
     </div>`);
   qs("#mClose").onclick=closeModal;
   qs("#mSkill").onclick=()=>modalSkills();
+  if(qs("#mBag"))qs("#mBag").onclick=()=>{if(typeof modalBag==="function")modalBag();};
   qs("#mSave").onclick=()=>{saveGame(state);p.logs.unshift("保存了江湖足迹。");closeModal();renderGame();};
   qs("#mDel").onclick=()=>{deleteSave();closeModal();renderStart();};
 }
