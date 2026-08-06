@@ -1,4 +1,4 @@
-/* 背包 UI */
+/* 背包 · 装备 · 商店 UI */
 (function(){
   function rarityTag(r){
     var c=RARITY_COLOR[r]||"#b9a58a";
@@ -8,10 +8,18 @@
     var def=getItemById(stack.id);if(!def)return"";
     var icon=ITEM_ICON[def.type]||"物";
     var cnt=stack.count>1?(" ×"+stack.count):"";
+    var tip="";
+    if(def.atk)tip+=" · 攻+"+def.atk;
+    if(def.def)tip+=" · 防+"+def.def;
+    if(def.heal)tip+=" · 血+"+def.heal;
+    if(def.mp)tip+=" · 内+"+def.mp;
+    if(def.gift)tip+=" · 礼+"+def.gift;
+    if(def.bagExpand)tip+=" · 容+"+def.bagExpand;
+    if(def.exp)tip+=" · 经验+"+def.exp;
     return '<div class="item-row" data-id="'+def.id+'">'+'
       '<span class="item-icon">'+icon+'</span>'+'
       '<div class="item-meta"><b>'+def.name+'</b>'+cnt+' '+rarityTag(def.rarity)+
-      '<p class="small">'+def.type+(def.atk?" · 攻+"+def.atk:"")+(def.def?" · 防+"+def.def:"")+(def.heal?" · 血+"+def.heal:"")+(def.mp?" · 内+"+def.mp:"")+(def.gift?" · 礼+"+def.gift:"")+'</p></div></div>';
+      '<p class="small">'+def.type+tip+'</p></div></div>';
   }
   window.modalBag=function(filter){
     var p=ensurePlayer(state.player);ensureBag(p);
@@ -66,10 +74,17 @@
     if(def.exp)stats+="武学经验+"+def.exp+" ";
     if(def.gift)stats+="赠礼好感+"+def.gift+" ";
     if(def.temp)stats+="临时增益 ";
+    if(def.bagExpand)stats+="背包容量+"+def.bagExpand+" ";
+    if(def.mpBonus)stats+="内力上限+"+def.mpBonus+" ";
+    if(def.arm)stats+="臂力+"+def.arm+" ";
+    if(def.agi)stats+="身法+"+def.agi+" ";
+    if(def.wit)stats+="悟性+"+def.wit+" ";
+    if(def.luck)stats+="福缘+"+def.luck+" ";
     var actions="";
     if(def.type==="武器"||def.type==="防具"||def.type==="饰品")actions+='<button class="btn primary sm" id="btnEquip">装备</button> ';
     else if(def.type==="消耗品"&&!def.gift)actions+='<button class="btn primary sm" id="btnUse">使用</button> ';
     else if(def.type==="书卷")actions+='<button class="btn primary sm" id="btnUse">研读</button> ';
+    else if(def.quest&&def.flag)actions+='<button class="btn primary sm" id="btnUse">使用</button> ';
     if(!def.quest)actions+='<button class="btn sm" id="btnDrop">丢弃</button>';
     box.innerHTML='<b>'+def.name+'</b> '+rarityTag(def.rarity)+' <span class="tag">'+def.type+'</span>'+
       '<p>'+def.desc+'</p><p>'+stats+'</p><div class="row">'+actions+'</div>';
@@ -102,6 +117,31 @@
     ensureBag(p);
     return p;
   };
+
+  /* 角色面板追加装备信息 */
+  var _mChar=modalChar;
+  if(typeof modalChar==="function"){
+    modalChar=function(){
+      _mChar();
+      var p=ensurePlayer(state.player);ensureBag(p);
+      var panel=qs("#modalPanel");if(!panel)return;
+      var eq=p.equip;
+      function eqLine(slot,label){
+        if(!eq[slot])return label+"：空";
+        var d=getItemById(eq[slot]);
+        return label+"：<b>"+(d?d.name:eq[slot])+"</b>";
+      }
+      var div=document.createElement("div");
+      div.className="small";
+      div.style.marginTop="8px";
+      div.innerHTML='<hr><p class="section-title" style="font-size:13px;margin:4px 0">装备</p>'+
+        '<p>'+eqLine("weapon","武器")+' · '+eqLine("armor","防具")+' · '+eqLine("accessory","饰品")+'</p>'+
+        '<button class="btn sm primary" id="openBagFromChar">打开背包</button>';
+      panel.appendChild(div);
+      var btn=qs("#openBagFromChar");
+      if(btn)btn.onclick=function(){modalBag();};
+    };
+  }
 
   var _mNpc=modalNpc;
   modalNpc=function(npcId){
@@ -139,6 +179,7 @@
     }).join("");
     openModal(
       '<div class="modal-head"><h2 class="section-title">购入</h2><button class="modal-close" id="mClose">关闭</button></div>'+
+      '<p class="small">银两：'+p.silver+' · 时价×'+priceMod.toFixed(2)+'</p>'+
       '<div class="row">'+html+'</div>'
     );
     qs("#mClose").onclick=function(){closeModal();renderGame();};
@@ -159,7 +200,8 @@
     _rg2();
     var loc=state.player&&state.player.location;
     if(loc&&SHOP_STOCK[loc]){
-      var panel=document.querySelectorAll(".panel")[1];
+      var panels=document.querySelectorAll(".panel");
+      var panel=panels[1];
       if(panel&&!qs("#shopBtn")){
         var row=document.createElement("div");
         row.className="row compact-block";

@@ -1,66 +1,85 @@
-/* 物品 · 背包 · 装备 */
+/* 物品 · 背包 · 装备 · 掉落 · 商店 */
 const ITEM_TYPES=["武器","防具","饰品","消耗品","材料","书卷","任务"];
 const ITEM_RARITY=["凡品","良品","精品","绝品"];
 const RARITY_COLOR={"凡品":"#b9a58a","良品":"#7aae6a","精品":"#6a9ecf","绝品":"#d9ad62"};
 const ITEM_ICON={"武器":"剑","防具":"甲","饰品":"佩","消耗品":"丹","材料":"材","书卷":"卷","任务":"令"};
 
 const ITEMS=[
+  /* 武器 */
   {id:"wood_sword",name:"木剑",type:"武器",rarity:"凡品",desc:"练手用的木剑，聊胜于无。",atk:3,price:15,stack:1},
   {id:"iron_blade",name:"精铁刀",type:"武器",rarity:"良品",desc:"市集常见的精铁刀，分量足。",atk:8,price:60,stack:1},
   {id:"qingfeng_sword",name:"青锋剑",type:"武器",rarity:"精品",desc:"剑身映青，出鞘有风声。",atk:15,price:180,stack:1},
   {id:"yanlan_jian",name:"烟岚剑",type:"武器",rarity:"绝品",desc:"烟岚剑斋外传的佩剑，云纹缠柄。",atk:28,price:500,stack:1},
   {id:"chilu_dao",name:"赤炉刀",type:"武器",rarity:"绝品",desc:"赤炉刀社试刀所出，刃口仍带热气。",atk:30,price:520,stack:1},
+  {id:"bamboo_spear",name:"青竹枪",type:"武器",rarity:"良品",desc:"竹径所出，轻而韧。",atk:7,price:55,stack:1},
+  {id:"night_dagger",name:"夜行短匕",type:"武器",rarity:"精品",desc:"白雀坞暗器师所铸，便于贴身。",atk:12,agi:1,price:160,stack:1},
+  /* 防具 */
   {id:"cloth_robe",name:"粗布衣",type:"防具",rarity:"凡品",desc:"寻常粗布，挡风而已。",def:2,price:10,stack:1},
   {id:"leather_armor",name:"软甲",type:"防具",rarity:"良品",desc:"牛皮软甲，可卸部分刀劲。",def:7,price:70,stack:1},
   {id:"iron_guard",name:"铁护心",type:"防具",rarity:"精品",desc:"护住心口要害，走镖人爱用。",def:14,price:160,stack:1},
   {id:"mist_cloak",name:"烟罗披风",type:"防具",rarity:"绝品",desc:"薄如蝉翼，却能卸力。",def:22,price:400,stack:1},
+  {id:"monk_robe",name:"无相僧衣",type:"防具",rarity:"精品",desc:"无相寺外门僧衣，略增定力。",def:10,wit:1,price:140,stack:1},
+  /* 饰品 */
   {id:"copper_ring",name:"铜指环",type:"饰品",rarity:"凡品",desc:"一枚旧铜环，略增气机。",atk:1,def:1,price:20,stack:1},
   {id:"jade_pendant",name:"平安玉佩",type:"饰品",rarity:"良品",desc:"温润玉佩，心神略定。",mpBonus:15,price:80,stack:1},
   {id:"luck_bead",name:"福缘珠",type:"饰品",rarity:"精品",desc:"据说能招来机缘。",luck:1,price:200,stack:1},
   {id:"void_bead",name:"定心珠",type:"饰品",rarity:"绝品",desc:"无相寺所出，压得住心魔。",def:5,mpBonus:30,wit:1,price:450,stack:1},
+  {id:"blood_talisman",name:"血符",type:"饰品",rarity:"精品",desc:"血谷遗物，增臂力却伤神。",arm:2,price:180,stack:1},
+  /* 消耗品 */
   {id:"jinchuang",name:"金创药",type:"消耗品",rarity:"凡品",desc:"常见金创药，止血生肌。",heal:35,price:20,stack:99},
   {id:"huichun_san",name:"回春散",type:"消耗品",rarity:"良品",desc:"回春谷制法，药效更稳。",heal:60,price:45,stack:99},
   {id:"qingxin_dan",name:"清心丹",type:"消耗品",rarity:"良品",desc:"清心宁神，回复内力。",mp:40,price:40,stack:99},
   {id:"dali_wan",name:"大力丸",type:"消耗品",rarity:"精品",desc:"一时臂力暴涨，半日后消退。",temp:{arm:2},duration:3,price:80,stack:20},
   {id:"shenxing_san",name:"神行散",type:"消耗品",rarity:"精品",desc:"身法轻灵数日。",temp:{agi:2},duration:3,price:80,stack:20},
   {id:"tide_pearl",name:"潮珠",type:"消耗品",rarity:"良品",desc:"玄鲸港的潮珠，含一口海息。",mp:50,price:50,stack:30},
+  {id:"big_heal",name:"九转还魂丹",type:"消耗品",rarity:"绝品",desc:"起死回生之药，极为珍贵。",heal:150,mp:80,price:300,stack:5},
+  {id:"gift_tea",name:"雨前茶",type:"消耗品",rarity:"凡品",desc:"一包雨前茶，送人正好。",gift:6,price:18,stack:20},
+  {id:"gift_wine",name:"陈年烧刀",type:"消耗品",rarity:"良品",desc:"烈酒，刀客和船夫都爱。",gift:12,price:35,stack:10},
+  {id:"gift_jade",name:"小玉坠",type:"消耗品",rarity:"精品",desc:"精致玉坠，可作厚礼。",gift:20,price:90,stack:5},
+  /* 材料 */
   {id:"herb_stop",name:"止血草",type:"材料",rarity:"凡品",desc:"竹径常见药草。",price:8,stack:99},
   {id:"iron_ore",name:"精铁矿",type:"材料",rarity:"良品",desc:"赤炉山庄常用矿石。",price:25,stack:99},
   {id:"beast_bone",name:"兽骨",type:"材料",rarity:"凡品",desc:"野外猎得的骨头。",price:12,stack:99},
   {id:"silk_thread",name:"金丝线",type:"材料",rarity:"精品",desc:"绣软甲的细线。",price:40,stack:50},
+  {id:"spirit_herb",name:"灵芝草",type:"材料",rarity:"精品",desc:"回春谷深处偶得。",price:60,stack:20},
+  /* 书卷 */
   {id:"note_fist",name:"拳谱残页",type:"书卷",rarity:"凡品",desc:"半页拳谱，可增武学经验。",exp:20,price:30,stack:10},
   {id:"note_sword",name:"剑诀抄本",type:"书卷",rarity:"良品",desc:"基础剑意摘录。",exp:40,price:70,stack:10},
+  {id:"note_neigong",name:"内功心得",type:"书卷",rarity:"精品",desc:"吐纳要诀，经验丰厚。",exp:60,price:120,stack:5},
+  /* 任务 */
   {id:"sect_token",name:"门派令牌",type:"任务",rarity:"良品",desc:"证明身份的令牌，不可交易。",price:0,stack:1,quest:true},
-  {id:"secret_letter",name:"密信",type:"任务",rarity:"精品",desc:"封口完好的密信，不知写给谁。",price:0,stack:1,quest:true},
-  {id:"gift_tea",name:"雨前茶",type:"消耗品",rarity:"凡品",desc:"一包雨前茶，送人正好。",gift:6,price:18,stack:20},
-  {id:"gift_wine",name:"陈年烧刀",type:"消耗品",rarity:"良品",desc:"烈酒，刀客和船夫都爱。",gift:12,price:35,stack:10},
-  {id:"gift_jade",name:"小玉坠",type:"消耗品",rarity:"精品",desc:"精致玉坠，可作厚礼。",gift:20,price:90,stack:5}
+  {id:"secret_letter",name:"密信",type:"任务",rarity:"精品",desc:"封口完好的密信，不知写给谁。",price:0,stack:1,quest:true,flag:"has_secret_letter"},
+  {id:"jade_box",name:"玉匣",type:"任务",rarity:"绝品",desc:"上锁的玉匣，需特定之人开启。",price:0,stack:1,quest:true,flag:"has_jade_box"},
+  /* 背包扩展 */
+  {id:"qiankun_bag",name:"小乾坤袋",type:"消耗品",rarity:"精品",desc:"使用后永久增加背包容量+5。",bagExpand:5,price:250,stack:3}
 ];
 
 const BAG_DEFAULT_CAP=20;
 const DROP_TABLE={
   qinghe:[{id:"jinchuang",w:3},{id:"wood_sword",w:1},{id:"gift_tea",w:2},{id:"herb_stop",w:2}],
-  bamboo:[{id:"herb_stop",w:4},{id:"jinchuang",w:2},{id:"note_fist",w:1}],
+  bamboo:[{id:"herb_stop",w:4},{id:"jinchuang",w:2},{id:"note_fist",w:1},{id:"bamboo_spear",w:1}],
   market:[{id:"copper_ring",w:1},{id:"jinchuang",w:2},{id:"note_sword",w:1},{id:"gift_tea",w:2}],
   ferry:[{id:"tide_pearl",w:1},{id:"jinchuang",w:2},{id:"beast_bone",w:2}],
-  salt_road:[{id:"iron_blade",w:1},{id:"beast_bone",w:3},{id:"jinchuang",w:2}],
-  mist_gate:[{id:"qingxin_dan",w:2},{id:"note_sword",w:2}],
-  hearth:[{id:"iron_ore",w:3},{id:"iron_blade",w:1}],
-  herb_valley:[{id:"huichun_san",w:2},{id:"herb_stop",w:3},{id:"qingxin_dan",w:1}],
+  salt_road:[{id:"iron_blade",w:1},{id:"beast_bone",w:3},{id:"jinchuang",w:2},{id:"night_dagger",w:1}],
+  mist_gate:[{id:"qingxin_dan",w:2},{id:"note_sword",w:2},{id:"qingfeng_sword",w:1}],
+  hearth:[{id:"iron_ore",w:3},{id:"iron_blade",w:1},{id:"chilu_dao",w:1}],
+  herb_valley:[{id:"huichun_san",w:2},{id:"herb_stop",w:3},{id:"qingxin_dan",w:1},{id:"spirit_herb",w:1}],
   whale_port:[{id:"tide_pearl",w:3},{id:"gift_wine",w:1}],
-  sparrow_den:[{id:"silk_thread",w:2},{id:"secret_letter",w:1}],
-  void_temple:[{id:"qingxin_dan",w:2},{id:"void_bead",w:1}],
-  cloud_peak:[{id:"jade_pendant",w:1},{id:"luck_bead",w:1}],
-  blood_ravine:[{id:"iron_blade",w:2},{id:"beast_bone",w:2}],
-  secret_reef:[{id:"tide_pearl",w:3},{id:"jade_pendant",w:1}],
-  secret_cave:[{id:"silk_thread",w:2},{id:"note_sword",w:1}]
+  sparrow_den:[{id:"silk_thread",w:2},{id:"secret_letter",w:1},{id:"night_dagger",w:1}],
+  void_temple:[{id:"qingxin_dan",w:2},{id:"void_bead",w:1},{id:"monk_robe",w:1}],
+  cloud_peak:[{id:"jade_pendant",w:1},{id:"luck_bead",w:1},{id:"note_neigong",w:1}],
+  blood_ravine:[{id:"iron_blade",w:2},{id:"beast_bone",w:2},{id:"blood_talisman",w:1}],
+  secret_reef:[{id:"tide_pearl",w:3},{id:"jade_pendant",w:1},{id:"big_heal",w:1}],
+  secret_cave:[{id:"silk_thread",w:2},{id:"note_sword",w:1},{id:"qiankun_bag",w:1}]
 };
 const SHOP_STOCK={
   qinghe:["jinchuang","wood_sword","cloth_robe","gift_tea"],
-  market:["jinchuang","qingxin_dan","iron_blade","leather_armor","copper_ring","gift_wine","note_fist"],
-  herb_valley:["huichun_san","qingxin_dan","herb_stop"],
+  market:["jinchuang","qingxin_dan","iron_blade","leather_armor","copper_ring","gift_wine","note_fist","qiankun_bag"],
+  herb_valley:["huichun_san","qingxin_dan","herb_stop","spirit_herb"],
   whale_port:["tide_pearl","gift_wine"],
-  hearth:["iron_ore","iron_blade"]
+  hearth:["iron_ore","iron_blade"],
+  mist_gate:["qingfeng_sword","jade_pendant"],
+  void_temple:["qingxin_dan","monk_robe"]
 };
 
 function getItemById(id){return ITEMS.find(function(i){return i.id===id;});}
@@ -154,21 +173,34 @@ function equipItem(player,itemId){
   if(!hasItem(player,itemId,1))return{ok:false,msg:"背包中没有"};
   if(player.equip[slot]){
     const old=player.equip[slot];
+    const oldDef=getItemById(old);
+    if(oldDef&&oldDef.mpBonus){
+      player.maxMp=Math.max(20,player.maxMp-oldDef.mpBonus);
+      player.mp=Math.min(player.mp,player.maxMp);
+    }
     const r=addItem(player,old,1);
     if(!r.ok)return{ok:false,msg:"背包满，无法卸下旧装备"};
   }
   removeItem(player,itemId,1);
   player.equip[slot]=itemId;
+  if(def.mpBonus){
+    player.maxMp=(player.maxMp||60)+def.mpBonus;
+    player.mp=Math.min(player.mp+def.mpBonus,player.maxMp);
+  }
   return{ok:true,msg:"装备【"+def.name+"】"};
 }
 function unequipItem(player,slot){
   ensureBag(player);
   const id=player.equip[slot];
   if(!id)return{ok:false,msg:"该栏位空"};
+  const def=getItemById(id);
+  if(def&&def.mpBonus){
+    player.maxMp=Math.max(20,player.maxMp-def.mpBonus);
+    player.mp=Math.min(player.mp,player.maxMp);
+  }
   const r=addItem(player,id,1);
   if(!r.ok)return r;
   player.equip[slot]=null;
-  const def=getItemById(id);
   return{ok:true,msg:"卸下【"+(def?def.name:id)+"】"};
 }
 function useItem(player,itemId){
@@ -177,20 +209,36 @@ function useItem(player,itemId){
   if(!def)return{ok:false,msg:"无效物品"};
   if(def.type==="武器"||def.type==="防具"||def.type==="饰品")return equipItem(player,itemId);
   if(!hasItem(player,itemId,1))return{ok:false,msg:"没有此物"};
-  if(def.quest)return{ok:false,msg:"任务物品不可使用"};
+  if(def.quest){
+    if(def.flag){
+      player.flags=player.flags||{};
+      player.flags[def.flag]=1;
+      removeItem(player,itemId,1);
+      return{ok:true,msg:"使用【"+def.name+"】，留下了线索。"};
+    }
+    return{ok:false,msg:"任务物品不可直接使用"};
+  }
   if(def.type==="材料")return{ok:false,msg:"材料需在打造时使用"};
+  if(def.gift)return{ok:false,msg:"礼物请在NPC处赠送"};
   let msg="使用【"+def.name+"】";
+  if(def.bagExpand){
+    player.bagCap=(player.bagCap||BAG_DEFAULT_CAP)+def.bagExpand;
+    msg+="，背包容量+"+def.bagExpand+"（现"+player.bagCap+"格）";
+  }
   if(def.heal){player.hp=Math.min(player.maxHp,player.hp+def.heal);msg+="，气血+"+def.heal;}
   if(def.mp){player.mp=Math.min(player.maxMp,player.mp+def.mp);msg+="，内力+"+def.mp;}
   if(def.exp&&player.skills&&player.skills.length){
     const s=player.skills[Math.floor(Math.random()*player.skills.length)];
     s.exp=(s.exp||0)+def.exp;msg+="，【"+s.name+"】经验+"+def.exp;
+    while(s.exp>=s.maxExp&&s.realm<4){
+      s.exp-=s.maxExp;s.realm+=1;s.maxExp=Math.floor(s.maxExp*1.6);
+      s.power=Math.floor((s.power||0)*1.25);msg+=" → 武学突破！";
+    }
   }
   if(def.temp){
     player.tempBuffs.push({temp:def.temp,left:def.duration||3,name:def.name});
     msg+="，获得临时增益";
   }
-  if(def.gift)return{ok:false,msg:"礼物请在NPC处赠送"};
   removeItem(player,itemId,1);
   return{ok:true,msg:msg};
 }
@@ -267,7 +315,7 @@ function tryGiveDrop(player,locId){
     calcCombatPower=function(player){
       var base=_pow(player);
       var b=getEquipBonuses(player);
-      return base+Math.floor((b.atk||0)*2+(b.def||0)*1.5+(b.luck||0)*3);
+      return base+Math.floor((b.atk||0)*2+(b.def||0)*1.5+(b.luck||0)*3+(b.wit||0));
     };
   }
   if(typeof resolveThreat==="function"){
