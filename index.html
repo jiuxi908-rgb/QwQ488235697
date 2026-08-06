@@ -2,13 +2,13 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>一剑一蓑烟雨录</title>
   <style>
-    :root{--bg:#15120f;--panel:#241d18;--gold:#d9ad62;--text:#f5e8cf;--muted:#b9a58a;--red:#b85b53;--green:#7aae6a;--line:#4b3a2d}
+    :root{--bg:#15120f;--panel:#241d18;--gold:#d9ad62;--text:#f5e8cf;--muted:#b9a58a;--red:#b85b53;--green:#7aae6a;--line:#4b3a2d;--safe-bottom:max(96px, env(safe-area-inset-bottom, 0px) + 72px)}
     *{box-sizing:border-box}
-    body{margin:0;background:radial-gradient(circle at top,#2c211a,#111);color:var(--text);font-family:"Microsoft YaHei",system-ui,sans-serif;min-height:100vh}
-    .app{max-width:1100px;margin:0 auto;padding:12px}
+    body{margin:0;background:radial-gradient(circle at top,#2c211a,#111);color:var(--text);font-family:"Microsoft YaHei",system-ui,sans-serif;min-height:100vh;padding-bottom:var(--safe-bottom)}
+    .app{max-width:1100px;margin:0 auto;padding:12px 12px var(--safe-bottom)}
     .hero{min-height:80vh;display:grid;place-items:center;text-align:center}
     .hero-card,.panel{background:linear-gradient(180deg,rgba(48,38,31,.96),rgba(29,23,19,.96));border:1px solid var(--line);box-shadow:0 12px 40px rgba(0,0,0,.35);border-radius:12px;padding:14px 16px}
     .title{font-size:42px;letter-spacing:6px;color:var(--gold);text-shadow:0 2px #000;margin:0 0 6px}
@@ -24,7 +24,7 @@
     .choice{border:1px solid var(--line);border-radius:10px;padding:10px;background:#1b1512;cursor:pointer}
     .choice.active{border-color:var(--gold);box-shadow:0 0 0 2px rgba(217,173,98,.2)}
     .stat{display:flex;justify-content:space-between;border-bottom:1px dashed #4b3a2d;padding:4px 0;font-size:13px}
-    .layout{display:grid;grid-template-columns:220px 1fr 280px;gap:10px;align-items:start}
+    .layout{display:grid;grid-template-columns:220px 1fr 280px;gap:10px;align-items:start;padding-bottom:24px}
     .pixel-map{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
     .map-node{min-height:56px;border:1px solid var(--line);border-radius:8px;background:#1a1512;padding:6px;cursor:pointer;font-size:11px}
     .map-node b{font-size:12px}
@@ -42,7 +42,15 @@
     .loc-head .section-title{margin:0}
     .power{color:var(--gold);font-weight:700}
     hr{border:none;border-top:1px solid var(--line);margin:8px 0}
-    @media(max-width:900px){.grid,.layout{grid-template-columns:1fr}.title{font-size:30px}.pixel-map{grid-template-columns:repeat(2,1fr)}.log{height:150px}}
+    .bottom-spacer{height:var(--safe-bottom);pointer-events:none}
+    @media(max-width:900px){
+      .grid,.layout{grid-template-columns:1fr}
+      .title{font-size:30px}
+      .pixel-map{grid-template-columns:repeat(2,1fr)}
+      .log{height:150px}
+      .app{padding-bottom:calc(var(--safe-bottom) + 24px)}
+      body{padding-bottom:calc(var(--safe-bottom) + 24px)}
+    }
   </style>
 </head>
 <body>
