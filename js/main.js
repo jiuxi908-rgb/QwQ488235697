@@ -1,6 +1,6 @@
 import { createPlayer, STAT_LABELS, STAT_HELP, derived } from './player.js';
 import { saveGame, loadGame, hasSave, deleteSave } from './save.js';
-import { getMapById, movePlayer } from './map.js';
+import { getMapById, movePlayer, exploreLocation } from './map.js';
 import { SKILL_DESIGN, learnSkill, trainSkill, getSkillById } from './skill.js';
 import { NPC_DESIGN } from './npc.js';
 import { ITEM_DESIGN } from './item.js';
@@ -12,7 +12,6 @@ const [world, maps, origins, talents, skills] = await Promise.all(
 );
 let state = { player: null };
 
-// 各地可学的基础武学
 const LOCAL_SKILLS = {
   qinghe: ['basic_fist', 'basic_sword', 'basic_neigong'],
   bamboo: ['basic_qinggong', 'basic_blade'],
@@ -23,7 +22,7 @@ const LOCAL_SKILLS = {
 };
 
 function renderStart() {
-  app.innerHTML = `<main class="hero"><section class="hero-card"><h1 class="title">${world.title}</h1><p class="subtitle">像素风文字武侠RPG · 放置养成 · 无唯一主线<br>${world.background}</p><div class="row" style="justify-content:center"><button class="btn primary" id="newGame">新入江湖</button><button class="btn" id="continue" ${hasSave() ? '' : 'disabled'}>读取存档</button><button class="btn" id="worldBtn">查看完整方案</button></div><p class="small">当前版本：角色创建 · 地图移动 · 存档 · 武学学习/修炼系统已实装</p></section></main>`;
+  app.innerHTML = `<main class="hero"><section class="hero-card"><h1 class="title">${world.title}</h1><p class="subtitle">像素风文字武侠RPG · 放置养成 · 无唯一主线<br>${world.background}</p><div class="row" style="justify-content:center"><button class="btn primary" id="newGame">新入江湖</button><button class="btn" id="continue" ${hasSave() ? '' : 'disabled'}>读取存档</button><button class="btn" id="worldBtn">查看完整方案</button></div><p class="small">当前版本：角色 · 地图 · 武学 · 游历系统已实装</p></section></main>`;
   qs('#newGame').onclick = renderCreate;
   qs('#continue').onclick = () => {
     state = loadGame();
@@ -80,6 +79,9 @@ function renderGame() {
       <h2 class="section-title">${here.name}</h2>
       <p>${here.desc}</p>
       <p><span class="tag">${here.type}</span><span class="tag">坐标 ${here.x},${here.y}</span></p>
+      <div class="row" style="margin:12px 0">
+        <button class="btn primary" id="exploreBtn">游历此地</button>
+      </div>
       <div class="pixel-map">${maps.map(m => `<div class="map-node ${m.id===p.location?'current':''}" data-id="${m.id}"><b>${m.name}</b><p class="small">${m.type}</p><p class="small">${m.desc}</p></div>`).join('')}</div>
       ${local.length ? `<h3 class="section-title" style="margin-top:16px">此地可学武学</h3><div class="row">${local.map(s => {
         const owned = p.skills.some(x => x.id === s.id);
@@ -104,6 +106,16 @@ function renderGame() {
     saveGame(state);
     renderGame();
   });
+  qs('#exploreBtn').onclick = () => {
+    const res = exploreLocation(p, maps);
+    if (res.ok) {
+      saveGame(state);
+      renderGame();
+    } else {
+      p.logs.unshift(res.message);
+      renderGame();
+    }
+  };
   qs('#save').onclick = () => { saveGame(state); p.logs.unshift('你整理行囊，保存了当前江湖足迹。'); renderGame(); };
   qs('#del').onclick = () => { deleteSave(); renderStart(); };
   qs('#skillBtn').onclick = renderSkills;
