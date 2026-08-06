@@ -24,7 +24,6 @@
     .choice{border:1px solid var(--line);border-radius:10px;padding:10px;background:#1b1512;cursor:pointer}
     .choice.active{border-color:var(--gold);box-shadow:0 0 0 2px rgba(217,173,98,.2)}
     .stat{display:flex;justify-content:space-between;border-bottom:1px dashed #4b3a2d;padding:4px 0;font-size:13px}
-    /* 核心紧凑布局 */
     .layout{display:grid;grid-template-columns:220px 1fr 280px;gap:10px;align-items:start}
     .pixel-map{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
     .map-node{min-height:64px;border:1px solid var(--line);border-radius:8px;background:#1a1512;padding:8px;cursor:pointer;font-size:12px}
@@ -45,127 +44,214 @@
     .small{font-size:11px;color:var(--muted)}
     .loc-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
     .loc-head .section-title{margin:0}
+    .power{color:var(--gold);font-weight:700}
     hr{border:none;border-top:1px solid var(--line);margin:8px 0}
-    @media(max-width:900px){
-      .grid,.layout{grid-template-columns:1fr}
-      .title{font-size:30px}
-      .form-grid{grid-template-columns:1fr}
-      .log{height:160px}
-    }
+    @media(max-width:900px){.grid,.layout{grid-template-columns:1fr}.title{font-size:30px}.form-grid{grid-template-columns:1fr}.log{height:160px}}
   </style>
 </head>
 <body>
   <div id="app" class="app"></div>
   <script>
-const world = {"title":"一剑一蓑烟雨录","background":"大雍末年，朝廷以缉武司统辖江湖，商路、盐铁与漕运被诸侯暗中争夺。武人不再只问胜负，也要在门规、恩义、名声与生计之间做选择。","states":["大雍朝廷：名义上的天下共主，依赖缉武司制衡门派。","北庭节镇：边军自治，尚武重诺，常招募游侠。","南海商盟：以航路与银票影响江湖，亦正亦邪。"],"rules":["杀人留痕：恶名会被NPC记住并传播。","拜师有门：门派重视出身、属性与声望。","武无定法：内功、招式、轻功组合决定打法。","无唯一主线：玩家可做捕快、镖师、隐士、掌门候选或江湖散人。"],"factions":["守序正道：重名声与门规。","逐利中道：重契约与收益。","幽暗邪道：重秘术与个人力量。"]};
+const world={"title":"一剑一蓑烟雨录","background":"大雍末年，朝廷以缉武司统辖江湖，商路、盐铁与漕运被诸侯暗中争夺。武人不再只问胜负，也要在门规、恩义、名声与生计之间做选择。","states":["大雍朝廷：名义上的天下共主，依赖缉武司制衡门派。","北庭节镇：边军自治，尚武重诺，常招募游侠。","南海商盟：以航路与银票影响江湖，亦正亦邪。"],"rules":["杀人留痕：恶名会被NPC记住并传播。","拜师有门：门派重视出身、属性与声望。","武无定法：内功、招式、轻功组合决定打法。","无唯一主线：玩家可做捕快、镖师、隐士、掌门候选或江湖散人。"],"factions":["守序正道：重名声与门规。","逐利中道：重契约与收益。","幽暗邪道：重秘术与个人力量。"]};
 
-const maps = [{"id":"qinghe","name":"清河镇","type":"城镇","x":1,"y":1,"desc":"水陆交汇的小镇，客栈、医馆与镖局俱全。","neighbors":["bamboo","ferry","market"],"events":["听书人讲起缉武司近日搜捕夜行客。","茶铺老板提醒你：初入江湖，先保命再逞强。","客栈里有人在打听会轻功的少年。","医馆门口贴着高价收购稀有药材的告示。"],"explore":[{"text":"你在市井闲逛，听了不少江湖传闻。","type":"log"},{"text":"帮客栈搬货，赚了几两银子。","type":"silver","value":8},{"text":"在医馆帮忙采药，气血稍有恢复。","type":"heal","value":15},{"text":"与本地拳师切磋，略有心得。","type":"exp","value":12},{"text":"被人认错身份，差点挨揍，好在跑得快。","type":"damage","value":10}]},{"id":"bamboo","name":"听雨竹径","type":"野外","x":0,"y":1,"desc":"细雨敲竹，常有采药人和练剑少年经过。","neighbors":["qinghe","mist_gate"],"events":["你在竹叶下拾得一枚旧铜钱。","远处传来破空声，似有人在练轻功。","雨雾中隐约有剑光闪过。","药农警告：竹林深处有毒蛇。"],"explore":[{"text":"你在竹林中采到几株药草，卖了点银子。","type":"silver","value":12},{"text":"独自练剑，身法有所精进。","type":"exp","value":18},{"text":"被毒蛇咬了一口，气血受损。","type":"damage","value":20},{"text":"偶遇练剑少年，交流心得，悟性微升。","type":"stat","key":"wit","value":1},{"text":"雨中静坐，内息运转更为顺畅。","type":"mp","value":20}]},{"id":"ferry","name":"白沙渡","type":"渡口","x":2,"y":1,"desc":"渡船通往南北，江风里混着鱼腥与酒香。","neighbors":["qinghe","salt_road"],"events":["船夫说南海商盟正在招护船武人。","江面上有人在比试水上轻功。","渡口酒肆里有人喝醉后大谈秘籍。"],"explore":[{"text":"帮船夫拉纤，赚了辛苦钱。","type":"silver","value":10},{"text":"在江边练轻功，身法略有提升。","type":"exp","value":15},{"text":"被水贼盯上，交手后小伤。","type":"damage","value":18},{"text":"听老船工讲水路秘闻，福缘微增。","type":"stat","key":"luck","value":1},{"text":"江风吹拂，内力略有恢复。","type":"mp","value":15}]},{"id":"market","name":"旧瓦市","type":"城镇","x":1,"y":2,"desc":"鱼龙混杂的市集，能买到寻常药材，也能听见隐秘消息。","neighbors":["qinghe"],"events":["摊主向你兜售一本来历可疑的残谱。","黑市有人在交易来路不明的兵器。","有捕快正在盘查可疑人物。"],"explore":[{"text":"在市集淘到便宜货，小赚一笔。","type":"silver","value":15},{"text":"帮人鉴定残谱，获得少许武学心得。","type":"exp","value":20},{"text":"被扒手盯上，银两有所损失。","type":"silver","value":-12},{"text":"与江湖散人喝酒，听了不少秘闻。","type":"log"},{"text":"购买药材调理身体，气血恢复。","type":"heal","value":25}]},{"id":"mist_gate","name":"烟岚山门","type":"门派","x":0,"y":0,"desc":"烟岚剑斋外门山道，云雾终年不散。","neighbors":["bamboo"],"events":["守山弟子审视你的身法与悟性。","山门前有人在比试剑法。","云雾中传来隐约的剑鸣。"],"explore":[{"text":"在山道旁观摩剑法，颇有感悟。","type":"exp","value":25},{"text":"帮守山弟子打扫，获得一点好感与银两。","type":"silver","value":6},{"text":"山路湿滑，不慎滑倒受伤。","type":"damage","value":12},{"text":"云雾中静心吐纳，内力精进。","type":"mp","value":25},{"text":"被外门弟子指点，身法微升。","type":"stat","key":"agi","value":1}]},{"id":"salt_road","name":"黑盐古道","type":"野外","x":2,"y":0,"desc":"废弃盐道，夜里常有马蹄与刀光。","neighbors":["ferry"],"events":["你发现一串新鲜脚印通向乱石滩。","远处传来刀兵相交之声。","盐车残骸旁散落着几枚银两。"],"explore":[{"text":"搜刮盐车残骸，找到一些银两。","type":"silver","value":20},{"text":"遭遇劫匪，激战后受伤不轻。","type":"damage","value":30},{"text":"在乱石中发现残破刀谱，修炼有得。","type":"exp","value":30},{"text":"夜行遇袭，险些丢命，好在身法救了你。","type":"damage","value":25},{"text":"古道清冷，你独自吐纳，内力有所增长。","type":"mp","value":18}]}];
+const maps=[{"id":"qinghe","name":"清河镇","type":"城镇","x":1,"y":1,"desc":"水陆交汇的小镇，客栈、医馆与镖局俱全。","neighbors":["bamboo","ferry","market"],"events":["听书人讲起缉武司近日搜捕夜行客。","茶铺老板提醒你：初入江湖，先保命再逞强。","客栈里有人在打听会轻功的少年。","医馆门口贴着高价收购稀有药材的告示。"],"explore":[{"text":"你在市井闲逛，听了不少江湖传闻。","type":"log"},{"text":"帮客栈搬货，赚了几两银子。","type":"silver","value":8},{"text":"在医馆帮忙采药，气血稍有恢复。","type":"heal","value":15},{"text":"与本地拳师切磋，略有心得。","type":"exp","value":12},{"text":"被人认错身份，差点挨揍。","type":"damage","value":10,"diff":25}]},{"id":"bamboo","name":"听雨竹径","type":"野外","x":0,"y":1,"desc":"细雨敲竹，常有采药人和练剑少年经过。","neighbors":["qinghe","mist_gate"],"events":["你在竹叶下拾得一枚旧铜钱。","远处传来破空声，似有人在练轻功。","雨雾中隐约有剑光闪过。","药农警告：竹林深处有毒蛇。"],"explore":[{"text":"你在竹林中采到几株药草，卖了点银子。","type":"silver","value":12},{"text":"独自练剑，身法有所精进。","type":"exp","value":18},{"text":"被毒蛇咬了一口。","type":"damage","value":20,"diff":35},{"text":"偶遇练剑少年，交流心得，悟性微升。","type":"stat","key":"wit","value":1},{"text":"雨中静坐，内息运转更为顺畅。","type":"mp","value":20}]},{"id":"ferry","name":"白沙渡","type":"渡口","x":2,"y":1,"desc":"渡船通往南北，江风里混着鱼腥与酒香。","neighbors":["qinghe","salt_road"],"events":["船夫说南海商盟正在招护船武人。","江面上有人在比试水上轻功。","渡口酒肆里有人喝醉后大谈秘籍。"],"explore":[{"text":"帮船夫拉纤，赚了辛苦钱。","type":"silver","value":10},{"text":"在江边练轻功，身法略有提升。","type":"exp","value":15},{"text":"被水贼盯上，交手。","type":"damage","value":18,"diff":40},{"text":"听老船工讲水路秘闻，福缘微增。","type":"stat","key":"luck","value":1},{"text":"江风吹拂，内力略有恢复。","type":"mp","value":15}]},{"id":"market","name":"旧瓦市","type":"城镇","x":1,"y":2,"desc":"鱼龙混杂的市集，能买到寻常药材，也能听见隐秘消息。","neighbors":["qinghe"],"events":["摊主向你兜售一本来历可疑的残谱。","黑市有人在交易来路不明的兵器。","有捕快正在盘查可疑人物。"],"explore":[{"text":"在市集淘到便宜货，小赚一笔。","type":"silver","value":15},{"text":"帮人鉴定残谱，获得少许武学心得。","type":"exp","value":20},{"text":"被扒手盯上。","type":"silver","value":-12,"diff":30},{"text":"与江湖散人喝酒，听了不少秘闻。","type":"log"},{"text":"购买药材调理身体，气血恢复。","type":"heal","value":25}]},{"id":"mist_gate","name":"烟岚山门","type":"门派","x":0,"y":0,"desc":"烟岚剑斋外门山道，云雾终年不散。","neighbors":["bamboo"],"events":["守山弟子审视你的身法与悟性。","山门前有人在比试剑法。","云雾中传来隐约的剑鸣。"],"explore":[{"text":"在山道旁观摩剑法，颇有感悟。","type":"exp","value":25},{"text":"帮守山弟子打扫，获得一点好感与银两。","type":"silver","value":6},{"text":"山路湿滑，不慎滑倒。","type":"damage","value":12,"diff":20},{"text":"云雾中静心吐纳，内力精进。","type":"mp","value":25},{"text":"被外门弟子指点，身法微升。","type":"stat","key":"agi","value":1}]},{"id":"salt_road","name":"黑盐古道","type":"野外","x":2,"y":0,"desc":"废弃盐道，夜里常有马蹄与刀光。","neighbors":["ferry"],"events":["你发现一串新鲜脚印通向乱石滩。","远处传来刀兵相交之声。","盐车残骸旁散落着几枚银两。"],"explore":[{"text":"搜刮盐车残骸，找到一些银两。","type":"silver","value":20},{"text":"遭遇劫匪，激战。","type":"damage","value":30,"diff":55},{"text":"在乱石中发现残破刀谱，修炼有得。","type":"exp","value":30},{"text":"夜行遇袭。","type":"damage","value":25,"diff":50},{"text":"古道清冷，你独自吐纳，内力有所增长。","type":"mp","value":18}]}];
 
-const origins = [{"id":"farmer","name":"田舍少年","desc":"耐苦，根骨较高。","stats":{"arm":1,"agi":0,"bone":3,"qi":0,"wit":0,"luck":1}},{"id":"merchant","name":"行商子弟","desc":"见多识广，福缘较高。","stats":{"arm":0,"agi":1,"bone":0,"qi":0,"wit":1,"luck":3}},{"id":"orphan","name":"市井孤儿","desc":"机敏善逃，身法较高。","stats":{"arm":0,"agi":3,"bone":0,"qi":0,"wit":1,"luck":1}},{"id":"scholar","name":"寒窗书生","desc":"悟性出众，体魄稍弱。","stats":{"arm":0,"agi":0,"bone":0,"qi":1,"wit":4,"luck":0}}];
-const talents = [{"id":"quick_learner","name":"过目不忘","desc":"武学修炼经验+10%，悟性+2。","stats":{"wit":2}},{"id":"iron_body","name":"铁骨","desc":"气血成长更高，根骨+2。","stats":{"bone":2}},{"id":"wind_step","name":"踏风","desc":"移动探索更容易触发轻功事件，身法+2。","stats":{"agi":2}},{"id":"lucky_star","name":"天眷","desc":"奇遇触发率提高，福缘+2。","stats":{"luck":2}}];
+const origins=[{"id":"farmer","name":"田舍少年","desc":"耐苦，根骨较高。","stats":{"arm":1,"agi":0,"bone":3,"qi":0,"wit":0,"luck":1}},{"id":"merchant","name":"行商子弟","desc":"见多识广，福缘较高。","stats":{"arm":0,"agi":1,"bone":0,"qi":0,"wit":1,"luck":3}},{"id":"orphan","name":"市井孤儿","desc":"机敏善逃，身法较高。","stats":{"arm":0,"agi":3,"bone":0,"qi":0,"wit":1,"luck":1}},{"id":"scholar","name":"寒窗书生","desc":"悟性出众，体魄稍弱。","stats":{"arm":0,"agi":0,"bone":0,"qi":1,"wit":4,"luck":0}}];
+const talents=[{"id":"quick_learner","name":"过目不忘","desc":"武学修炼经验+10%，悟性+2。","stats":{"wit":2}},{"id":"iron_body","name":"铁骨","desc":"气血成长更高，根骨+2。","stats":{"bone":2}},{"id":"wind_step","name":"踏风","desc":"移动探索更容易触发轻功事件，身法+2。","stats":{"agi":2}},{"id":"lucky_star","name":"天眷","desc":"奇遇触发率提高，福缘+2。","stats":{"luck":2}}];
+const skills=[{"id":"basic_fist","name":"破风拳","type":"拳掌","quality":"黄阶","desc":"入门拳法。","req":{"arm":6},"cost":0,"mp":0,"power":8,"effect":"破绽","maxExp":50},{"id":"basic_sword","name":"青锋剑诀","type":"剑法","quality":"黄阶","desc":"基础剑招。","req":{"agi":6},"cost":0,"mp":5,"power":12,"effect":null,"maxExp":60},{"id":"basic_blade","name":"开山刀法","type":"刀法","quality":"黄阶","desc":"力大势沉。","req":{"arm":8},"cost":0,"mp":6,"power":15,"effect":"流血","maxExp":70},{"id":"basic_qinggong","name":"踏雪无痕","type":"轻功","quality":"黄阶","desc":"轻盈步法。","req":{"agi":7},"cost":0,"mp":0,"power":0,"effect":"dodge+3","maxExp":50},{"id":"basic_neigong","name":"养气诀","type":"内功","quality":"黄阶","desc":"基础内息。","req":{"qi":6},"cost":0,"mp":0,"power":0,"effect":"maxMp+20","maxExp":80},{"id":"throwing_needle","name":"飞星针","type":"暗器","quality":"黄阶","desc":"细小银针。","req":{"agi":8,"wit":5},"cost":20,"mp":3,"power":10,"effect":"破绽","maxExp":55},{"id":"yanlan_sword","name":"烟岚十三剑","type":"剑法","quality":"玄阶","desc":"剑意如烟。","req":{"agi":12,"wit":10},"cost":80,"mp":12,"power":28,"effect":"迟滞","maxExp":120},{"id":"chilu_blade","name":"赤炉烈刀","type":"刀法","quality":"玄阶","desc":"刀势如火。","req":{"arm":14,"qi":8},"cost":100,"mp":15,"power":35,"effect":"流血","maxExp":140},{"id":"huichun_palm","name":"回春掌","type":"拳掌","quality":"玄阶","desc":"医武同源。","req":{"bone":12,"qi":10},"cost":90,"mp":18,"power":22,"effect":"heal","maxExp":130},{"id":"xuanjing_neigong","name":"玄鲸息海","type":"内功","quality":"玄阶","desc":"内力如海。","req":{"qi":15,"bone":10},"cost":120,"mp":0,"power":0,"effect":"maxMp+60,qi+2","maxExp":160},{"id":"baique_qinggong","name":"白雀掠影","type":"轻功","quality":"玄阶","desc":"身如雀影。","req":{"agi":16},"cost":110,"mp":8,"power":0,"effect":"dodge+8","maxExp":150},{"id":"wuxiang_finger","name":"无相指","type":"拳掌","quality":"地阶","desc":"无招胜有招。","req":{"wit":18,"qi":16},"cost":250,"mp":25,"power":45,"effect":"内伤","maxExp":250},{"id":"jiwu_sword","name":"缉武断罪剑","type":"剑法","quality":"地阶","desc":"专克邪道。","req":{"arm":16,"wit":14,"luck":8},"cost":280,"mp":22,"power":50,"effect":"破绽","maxExp":280},{"id":"night_shadow","name":"夜行影步","type":"轻功","quality":"地阶","desc":"无声无息。","req":{"agi":20,"luck":10},"cost":260,"mp":12,"power":0,"effect":"dodge+12,first+5","maxExp":260},{"id":"blood_blade","name":"血海狂刀","type":"刀法","quality":"地阶","desc":"杀意极重。","req":{"arm":20,"bone":12},"cost":300,"mp":30,"power":60,"effect":"流血","maxExp":300},{"id":"tian_jian","name":"天问一剑","type":"剑法","quality":"天阶","desc":"一剑问天。","req":{"agi":25,"wit":22,"qi":20},"cost":800,"mp":50,"power":100,"effect":"破绽","maxExp":500},{"id":"dragon_neigong","name":"潜龙吐息","type":"内功","quality":"天阶","desc":"内力如龙。","req":{"qi":28,"bone":20},"cost":900,"mp":0,"power":0,"effect":"maxMp+150,attack+15","maxExp":550},{"id":"phantom_palm","name":"千影幻掌","type":"拳掌","quality":"天阶","desc":"掌影千变。","req":{"agi":24,"wit":20},"cost":850,"mp":40,"power":80,"effect":"迟滞","maxExp":520},{"id":"star_throw","name":"摘星手","type":"暗器","quality":"地阶","desc":"暗器秘传。","req":{"agi":18,"wit":15},"cost":220,"mp":15,"power":38,"effect":"破绽","maxExp":240},{"id":"iron_shirt","name":"铁布衫","type":"内功","quality":"玄阶","desc":"外家硬功。","req":{"bone":14,"arm":10},"cost":100,"mp":0,"power":0,"effect":"maxHp+80,bone+1","maxExp":140}];
 
-const skills = [{"id":"basic_fist","name":"破风拳","type":"拳掌","quality":"黄阶","desc":"江湖最常见的入门拳法，拳势如风，专破对方架势。","req":{"arm":6},"cost":0,"mp":0,"power":8,"effect":"破绽","maxExp":50},{"id":"basic_sword","name":"青锋剑诀","type":"剑法","quality":"黄阶","desc":"清河镇剑客常练的基础剑招，剑势凌厉。","req":{"agi":6},"cost":0,"mp":5,"power":12,"effect":null,"maxExp":60},{"id":"basic_blade","name":"开山刀法","type":"刀法","quality":"黄阶","desc":"力大势沉，一刀可断木，适合臂力强者。","req":{"arm":8},"cost":0,"mp":6,"power":15,"effect":"流血","maxExp":70},{"id":"basic_qinggong","name":"踏雪无痕","type":"轻功","quality":"黄阶","desc":"轻盈步法，提升闪避与先手。","req":{"agi":7},"cost":0,"mp":0,"power":0,"effect":"dodge+3","maxExp":50},{"id":"basic_neigong","name":"养气诀","type":"内功","quality":"黄阶","desc":"最基础的内息运行法，缓慢提升内力上限。","req":{"qi":6},"cost":0,"mp":0,"power":0,"effect":"maxMp+20","maxExp":80},{"id":"throwing_needle","name":"飞星针","type":"暗器","quality":"黄阶","desc":"细小银针，专攻破绽，消耗少。","req":{"agi":8,"wit":5},"cost":20,"mp":3,"power":10,"effect":"破绽","maxExp":55},{"id":"yanlan_sword","name":"烟岚十三剑","type":"剑法","quality":"玄阶","desc":"烟岚剑斋入门剑法，剑意如烟，飘忽难测。","req":{"agi":12,"wit":10},"cost":80,"mp":12,"power":28,"effect":"迟滞","maxExp":120},{"id":"chilu_blade","name":"赤炉烈刀","type":"刀法","quality":"玄阶","desc":"赤炉刀社猛烈刀法，刀势如火，专破防御。","req":{"arm":14,"qi":8},"cost":100,"mp":15,"power":35,"effect":"流血","maxExp":140},{"id":"huichun_palm","name":"回春掌","type":"拳掌","quality":"玄阶","desc":"回春谷医武同源掌法，可伤可疗。","req":{"bone":12,"qi":10},"cost":90,"mp":18,"power":22,"effect":"heal","maxExp":130},{"id":"xuanjing_neigong","name":"玄鲸息海","type":"内功","quality":"玄阶","desc":"玄鲸帮水行内功，内力如海，绵长不绝。","req":{"qi":15,"bone":10},"cost":120,"mp":0,"power":0,"effect":"maxMp+60,qi+2","maxExp":160},{"id":"baique_qinggong","name":"白雀掠影","type":"轻功","quality":"玄阶","desc":"白雀楼绝技，身如雀影，闪避极高。","req":{"agi":16},"cost":110,"mp":8,"power":0,"effect":"dodge+8","maxExp":150},{"id":"wuxiang_finger","name":"无相指","type":"拳掌","quality":"地阶","desc":"无相寺高深指法，无招胜有招，专破内息。","req":{"wit":18,"qi":16},"cost":250,"mp":25,"power":45,"effect":"内伤","maxExp":250},{"id":"jiwu_sword","name":"缉武断罪剑","type":"剑法","quality":"地阶","desc":"缉武司秘传剑法，专克邪道武功。","req":{"arm":16,"wit":14,"luck":8},"cost":280,"mp":22,"power":50,"effect":"破绽","maxExp":280},{"id":"night_shadow","name":"夜行影步","type":"轻功","quality":"地阶","desc":"邪道常用轻功，夜间几乎无声无息。","req":{"agi":20,"luck":10},"cost":260,"mp":12,"power":0,"effect":"dodge+12,first+5","maxExp":260},{"id":"blood_blade","name":"血海狂刀","type":"刀法","quality":"地阶","desc":"以血养刀的邪道刀法，杀意极重。","req":{"arm":20,"bone":12},"cost":300,"mp":30,"power":60,"effect":"流血","maxExp":300},{"id":"tian_jian","name":"天问一剑","type":"剑法","quality":"天阶","desc":"传说中的绝世剑法，一剑问天，势不可挡。","req":{"agi":25,"wit":22,"qi":20},"cost":800,"mp":50,"power":100,"effect":"破绽","maxExp":500},{"id":"dragon_neigong","name":"潜龙吐息","type":"内功","quality":"天阶","desc":"上古内功残篇，内力如龙潜渊，爆发惊人。","req":{"qi":28,"bone":20},"cost":900,"mp":0,"power":0,"effect":"maxMp+150,attack+15","maxExp":550},{"id":"phantom_palm","name":"千影幻掌","type":"拳掌","quality":"天阶","desc":"掌影千变，真假难辨，专克重攻。","req":{"agi":24,"wit":20},"cost":850,"mp":40,"power":80,"effect":"迟滞","maxExp":520},{"id":"star_throw","name":"摘星手","type":"暗器","quality":"地阶","desc":"暗器高手秘传，可空手接物，亦可弹射暗器。","req":{"agi":18,"wit":15},"cost":220,"mp":15,"power":38,"effect":"破绽","maxExp":240},{"id":"iron_shirt","name":"铁布衫","type":"内功","quality":"玄阶","desc":"外家硬功，显著提升气血与抗性。","req":{"bone":14,"arm":10},"cost":100,"mp":0,"power":0,"effect":"maxHp+80,bone+1","maxExp":140}];
+const SKILL_DESIGN={qualities:['黄阶','玄阶','地阶','天阶'],types:['内功','剑法','刀法','拳掌','轻功','暗器'],realms:['初窥门径','登堂入室','融会贯通','炉火纯青','返璞归真']};
+const BASE_STATS={arm:5,agi:5,bone:5,qi:5,wit:5,luck:5};
+const STAT_LABELS={arm:'臂力',agi:'身法',bone:'根骨',qi:'内力',wit:'悟性',luck:'福缘'};
+const STAT_HELP={arm:'影响外功伤害。',agi:'影响闪避、先手。',bone:'影响气血、抗性。',qi:'影响内力、招式。',wit:'影响读谱、经验。',luck:'影响奇遇。'};
 
-const SKILL_DESIGN = {qualities:['黄阶','玄阶','地阶','天阶'],types:['内功','剑法','刀法','拳掌','轻功','暗器'],realms:['初窥门径','登堂入室','融会贯通','炉火纯青','返璞归真'],combo:'内功提供资源与属性倾向，招式决定输出，轻功改变先手和闪避。'};
-const NPC_DESIGN = {relation:['师徒','朋友','敌对','萍水相逢'],memory:'NPC记录玩家行为并影响后续。'};
-const ITEM_DESIGN = {currencies:['银两'],categories:['装备','药材','矿石','残页','信物'],trade:'城镇商店稳定供应。'};
-const BATTLE_DESIGN = {mode:'回合制',logic:'每回合按身法判定先手，选择普攻或武学。',states:['流血','内伤','破绽','迟滞','振奋'],counters:'剑克笨重、刀破防守。'};
-
-const BASE_STATS = {arm:5,agi:5,bone:5,qi:5,wit:5,luck:5};
-const STAT_LABELS = {arm:'臂力',agi:'身法',bone:'根骨',qi:'内力',wit:'悟性',luck:'福缘'};
-const STAT_HELP = {arm:'影响外功伤害、负重。',agi:'影响闪避、先手、轻功。',bone:'影响气血上限、抗性。',qi:'影响内力上限、招式次数。',wit:'影响读谱、武学经验。',luck:'影响奇遇、掉落。'};
-
-function applyBonus(stats, bonus = {}) { Object.entries(bonus).forEach(([k,v]) => stats[k] += v); }
-function createPlayer({name, gender, origin, talent}) {
-  const stats = {...BASE_STATS};
-  applyBonus(stats, origins.find(o => o.id === origin)?.stats);
-  applyBonus(stats, talents.find(t => t.id === talent)?.stats);
-  return {name: name||'无名少侠', gender, age:16, origin, talent, stats, hp:stats.bone*20+80, maxHp:stats.bone*20+80, mp:stats.qi*15+60, maxMp:stats.qi*15+60, silver:120, location:'qinghe', reputation:0, day:1, skills:[], logs:['十六岁这年，你背起旧包袱，踏入清河镇。']};
+function applyBonus(stats,bonus={}){Object.entries(bonus).forEach(([k,v])=>stats[k]+=v);}
+function createPlayer({name,gender,origin,talent}){
+  const stats={...BASE_STATS};
+  applyBonus(stats,origins.find(o=>o.id===origin)?.stats);
+  applyBonus(stats,talents.find(t=>t.id===talent)?.stats);
+  return{name:name||'无名少侠',gender,age:16,origin,talent,stats,hp:stats.bone*20+80,maxHp:stats.bone*20+80,mp:stats.qi*15+60,maxMp:stats.qi*15+60,silver:120,location:'qinghe',reputation:0,day:1,skills:[],logs:['十六岁这年，你背起旧包袱，踏入清河镇。']};
 }
-function derived(player) {
-  let dodgeBonus=0, attackBonus=0;
-  for (const s of player.skills||[]) {
-    if (s.effect && typeof s.effect==='string') {
-      const dm=s.effect.match(/dodge\+(\d+)/); if(dm) dodgeBonus+=parseInt(dm[1])*(1+s.realm*0.15);
-      const am=s.effect.match(/attack\+(\d+)/); if(am) attackBonus+=parseInt(am[1])*(1+s.realm*0.15);
+function derived(player){
+  let dodgeBonus=0,attackBonus=0;
+  for(const s of player.skills||[]){
+    if(s.effect&&typeof s.effect==='string'){
+      const dm=s.effect.match(/dodge\+(\d+)/);if(dm)dodgeBonus+=parseInt(dm[1])*(1+s.realm*0.15);
+      const am=s.effect.match(/attack\+(\d+)/);if(am)attackBonus+=parseInt(am[1])*(1+s.realm*0.15);
     }
   }
-  return {attack:Math.floor(player.stats.arm*2+player.stats.qi/2+attackBonus), dodge:Math.floor(player.stats.agi*2+dodgeBonus), learn:player.stats.wit*3, encounter:player.stats.luck*2};
+  return{attack:Math.floor(player.stats.arm*2+player.stats.qi/2+attackBonus),dodge:Math.floor(player.stats.agi*2+dodgeBonus)};
 }
 
-const SAVE_KEY = 'yijian_yisuo_save_v1';
+/* ========== 战力体系 ==========
+   战力 = 攻击*2 + 闪避 + 武学威力总和*(1+境界*0.25) + 根骨 + 内力/2
+   用于判定有害事件能否化解、战斗胜负
+*/
+function calcCombatPower(player){
+  const d=derived(player);
+  let skillPower=0;
+  for(const s of player.skills||[]){
+    skillPower += (s.power||0) * (1 + s.realm * 0.25);
+  }
+  return Math.floor(d.attack*2 + d.dodge + skillPower + player.stats.bone + player.stats.qi/2);
+}
+
+/* 战斗/威胁判定
+   power >= diff*1.2  → 完胜/完全化解，可能反赚
+   power >= diff      → 险胜/减伤一半
+   power >= diff*0.6  → 受挫/正常受伤
+   power <  diff*0.6  → 惨败/伤害加重
+*/
+function resolveThreat(player, diff, baseDamage){
+  const power = calcCombatPower(player);
+  const ratio = power / Math.max(diff, 1);
+  let result = {power, diff, damage:0, outcome:'', gain:null};
+
+  if(ratio >= 1.2){
+    result.damage = 0;
+    result.outcome = '完胜';
+    // 反杀奖励
+    const bonus = Math.floor(5 + Math.random()*10);
+    player.silver += bonus;
+    result.gain = {type:'silver', value:bonus};
+    if(player.skills && player.skills.length){
+      const s = player.skills[Math.floor(Math.random()*player.skills.length)];
+      s.exp += 8;
+      result.gain.exp = 8;
+      result.gain.skill = s.name;
+    }
+  } else if(ratio >= 1.0){
+    result.damage = Math.max(1, Math.floor(baseDamage * 0.4));
+    result.outcome = '险胜';
+  } else if(ratio >= 0.6){
+    result.damage = baseDamage;
+    result.outcome = '受挫';
+  } else {
+    result.damage = Math.floor(baseDamage * 1.5);
+    result.outcome = '惨败';
+  }
+  player.hp = Math.max(1, player.hp - result.damage);
+  return result;
+}
+
+const SAVE_KEY='yijian_yisuo_save_v1';
 function saveGame(state){localStorage.setItem(SAVE_KEY,JSON.stringify({...state,savedAt:new Date().toISOString()}));}
 function loadGame(){const raw=localStorage.getItem(SAVE_KEY);return raw?JSON.parse(raw):null;}
 function hasSave(){return Boolean(localStorage.getItem(SAVE_KEY));}
 function deleteSave(){localStorage.removeItem(SAVE_KEY);}
 
 function getMapById(id){return maps.find(m=>m.id===id);}
-function movePlayer(player, targetId){
+function movePlayer(player,targetId){
   const here=getMapById(player.location);
-  if(!here||!here.neighbors.includes(targetId)) return {ok:false,message:'道路未通，无法前往。'};
-  player.location=targetId; player.day+=1;
+  if(!here||!here.neighbors.includes(targetId))return{ok:false,message:'道路未通，无法前往。'};
+  player.location=targetId;player.day+=1;
   const next=getMapById(targetId);
   const event=next.events[Math.floor(Math.random()*next.events.length)];
   player.logs.unshift(`第${player.day}日，你来到【${next.name}】：${event}`);
   player.logs=player.logs.slice(0,40);
-  return {ok:true,message:event};
+  return{ok:true,message:event};
 }
+
 function exploreLocation(player){
   const here=getMapById(player.location);
-  if(!here||!here.explore||!here.explore.length) return {ok:false,message:'此地暂无游历内容。'};
+  if(!here||!here.explore||!here.explore.length)return{ok:false,message:'此地暂无游历内容。'};
   player.day+=1;
   const evt=here.explore[Math.floor(Math.random()*here.explore.length)];
   let msg=`第${player.day}日，你在【${here.name}】游历：${evt.text}`;
-  switch(evt.type){
-    case 'silver': player.silver=Math.max(0,player.silver+evt.value); msg+=evt.value>0?`（银两+${evt.value}）`:`（银两${evt.value}）`; break;
-    case 'heal': player.hp=Math.min(player.maxHp,player.hp+evt.value); msg+=`（气血+${evt.value}）`; break;
-    case 'damage': player.hp=Math.max(1,player.hp-evt.value); msg+=`（气血-${evt.value}）`; break;
-    case 'mp': player.mp=Math.min(player.maxMp,player.mp+evt.value); msg+=`（内力+${evt.value}）`; break;
-    case 'exp':
-      if(player.skills&&player.skills.length){
-        const s=player.skills[Math.floor(Math.random()*player.skills.length)];
-        s.exp+=evt.value; msg+=`（【${s.name}】经验+${evt.value}）`;
-        while(s.exp>=s.maxExp&&s.realm<4){s.exp-=s.maxExp;s.realm+=1;s.maxExp=Math.floor(s.maxExp*1.6);s.power=Math.floor((s.power||0)*1.25);msg+=' → 突破！';}
-      } else msg+='（无武学可练）';
-      break;
-    case 'stat': if(player.stats[evt.key]!==undefined){player.stats[evt.key]+=evt.value;msg+=`（${evt.key}+${evt.value}）`;} break;
+
+  // 有害事件走战力判定
+  if(evt.type==='damage' || (evt.type==='silver' && evt.value<0 && evt.diff)){
+    const diff = evt.diff || 30;
+    const baseDmg = evt.type==='damage' ? evt.value : Math.abs(evt.value);
+    const r = resolveThreat(player, diff, baseDmg);
+
+    if(r.outcome==='完胜'){
+      msg += ` 【战力${r.power} vs 难度${r.diff} · 完胜】`;
+      if(r.gain){
+        msg += ` 反手制服对方（银两+${r.gain.value}`;
+        if(r.gain.exp) msg += `，【${r.gain.skill}】经验+${r.gain.exp}`;
+        msg += '）';
+      }
+    } else if(r.outcome==='险胜'){
+      msg += ` 【战力${r.power} vs 难度${r.diff} · 险胜】（气血-${r.damage}）`;
+    } else if(r.outcome==='受挫'){
+      msg += ` 【战力${r.power} vs 难度${r.diff} · 受挫】（气血-${r.damage}）`;
+      if(evt.type==='silver' && evt.value<0){
+        player.silver = Math.max(0, player.silver + evt.value);
+        msg += `（银两${evt.value}）`;
+      }
+    } else {
+      msg += ` 【战力${r.power} vs 难度${r.diff} · 惨败】（气血-${r.damage}）`;
+      if(evt.type==='silver' && evt.value<0){
+        const loss = Math.floor(Math.abs(evt.value)*1.5);
+        player.silver = Math.max(0, player.silver - loss);
+        msg += `（银两-${loss}）`;
+      }
+    }
+  } else {
+    // 普通事件
+    switch(evt.type){
+      case 'silver':
+        player.silver=Math.max(0,player.silver+evt.value);
+        msg+=evt.value>0?`（银两+${evt.value}）`:`（银两${evt.value}）`;
+        break;
+      case 'heal':
+        player.hp=Math.min(player.maxHp,player.hp+evt.value);
+        msg+=`（气血+${evt.value}）`;
+        break;
+      case 'mp':
+        player.mp=Math.min(player.maxMp,player.mp+evt.value);
+        msg+=`（内力+${evt.value}）`;
+        break;
+      case 'exp':
+        if(player.skills&&player.skills.length){
+          const s=player.skills[Math.floor(Math.random()*player.skills.length)];
+          s.exp+=evt.value; msg+=`（【${s.name}】经验+${evt.value}）`;
+          while(s.exp>=s.maxExp&&s.realm<4){s.exp-=s.maxExp;s.realm+=1;s.maxExp=Math.floor(s.maxExp*1.6);s.power=Math.floor((s.power||0)*1.25);msg+=' → 突破！';}
+        } else msg+='（无武学可练）';
+        break;
+      case 'stat':
+        if(player.stats[evt.key]!==undefined){player.stats[evt.key]+=evt.value;msg+=`（${evt.key}+${evt.value}）`;}
+        break;
+    }
   }
-  player.logs.unshift(msg); player.logs=player.logs.slice(0,40);
-  return {ok:true,message:msg};
+
+  player.logs.unshift(msg);player.logs=player.logs.slice(0,40);
+  return{ok:true,message:msg};
 }
 
 function getSkillById(id){return skills.find(s=>s.id===id);}
-function canLearn(player, skill){
-  if(player.skills.some(s=>s.id===skill.id)) return {ok:false,msg:'你已学会此武学。'};
-  if(player.silver<skill.cost) return {ok:false,msg:`银两不足，需要${skill.cost}两。`};
-  for(const [k,v] of Object.entries(skill.req||{})){if((player.stats[k]||0)<v) return {ok:false,msg:`属性不足：${k}需要${v}。`};}
-  return {ok:true};
+function canLearn(player,skill){
+  if(player.skills.some(s=>s.id===skill.id))return{ok:false,msg:'你已学会此武学。'};
+  if(player.silver<skill.cost)return{ok:false,msg:`银两不足，需要${skill.cost}两。`};
+  for(const[k,v]of Object.entries(skill.req||{})){if((player.stats[k]||0)<v)return{ok:false,msg:`属性不足：${k}需要${v}。`};}
+  return{ok:true};
 }
-function learnSkill(player, skill){
-  const check=canLearn(player,skill); if(!check.ok) return check;
+function learnSkill(player,skill){
+  const check=canLearn(player,skill);if(!check.ok)return check;
   player.silver-=skill.cost;
   player.skills.push({id:skill.id,name:skill.name,type:skill.type,quality:skill.quality,realm:0,exp:0,maxExp:skill.maxExp||100,power:skill.power,mp:skill.mp,effect:skill.effect});
   applyPassive(player,skill);
   player.logs.unshift(`你学会了【${skill.name}】（${skill.quality}${skill.type}）！`);
-  return {ok:true,msg:`学会【${skill.name}】`};
+  return{ok:true,msg:`学会【${skill.name}】`};
 }
-function applyPassive(player, skill){
-  if(!skill.effect||typeof skill.effect!=='string') return;
+function applyPassive(player,skill){
+  if(!skill.effect||typeof skill.effect!=='string')return;
   skill.effect.split(',').forEach(p=>{
-    const m=p.trim().match(/(\w+)\+(\d+)/); if(!m) return;
-    const [,key,val]=m; const n=parseInt(val);
+    const m=p.trim().match(/(\w+)\+(\d+)/);if(!m)return;
+    const[,key,val]=m;const n=parseInt(val);
     if(key==='maxHp'){player.maxHp+=n;player.hp=Math.min(player.hp+n,player.maxHp);}
     else if(key==='maxMp'){player.maxMp+=n;player.mp=Math.min(player.mp+n,player.maxMp);}
-    else if(player.stats[key]!==undefined) player.stats[key]+=n;
+    else if(player.stats[key]!==undefined)player.stats[key]+=n;
   });
 }
-function trainSkill(player, skillId, amount=10){
+function trainSkill(player,skillId,amount=10){
   const s=player.skills.find(x=>x.id===skillId);
-  if(!s) return {ok:false,msg:'未学会此武学。'};
-  if(s.realm>=4) return {ok:false,msg:'已达返璞归真。'};
+  if(!s)return{ok:false,msg:'未学会此武学。'};
+  if(s.realm>=4)return{ok:false,msg:'已达返璞归真。'};
   s.exp+=amount;
   while(s.exp>=s.maxExp&&s.realm<4){s.exp-=s.maxExp;s.realm+=1;s.maxExp=Math.floor(s.maxExp*1.6);s.power=Math.floor((s.power||0)*1.25);player.logs.unshift(`【${s.name}】突破至【${SKILL_DESIGN.realms[s.realm]}】！`);}
-  return {ok:true,msg:`修炼【${s.name}】`};
+  return{ok:true,msg:`修炼【${s.name}】`};
 }
 
 const app=document.querySelector('#app');
@@ -173,25 +259,25 @@ let state={player:null};
 const LOCAL_SKILLS={qinghe:['basic_fist','basic_sword','basic_neigong'],bamboo:['basic_qinggong','basic_blade'],market:['throwing_needle','basic_fist'],mist_gate:['yanlan_sword','basic_qinggong'],ferry:['basic_blade'],salt_road:['night_shadow','blood_blade']};
 
 function formatLog(text){
-  if(!text) return '';
+  if(!text)return'';
   const dayMatch=text.match(/^(第\d+日)/);
   const day=dayMatch?dayMatch[1]:'';
   let body=day?text.slice(day.length).replace(/^，/,''):text;
   let cls='log-normal';
-  if(/[＋+]\d+|银两\+\d+|气血\+\d+|内力\+\d+|经验\+\d+|突破/.test(body)) cls='log-gain';
-  else if(/[－-]\d+|银两-\d+|气血-\d+|损失|受伤|挨揍|被砍|丢命/.test(body)) cls='log-loss';
+  if(/完胜|银两\+|气血\+|内力\+|经验\+|突破/.test(body))cls='log-gain';
+  else if(/惨败|受挫|气血-|银两-|损失|受伤/.test(body))cls='log-loss';
   body=body.replace(/（([^）]+)）/g,`<span class="${cls}">（$1）</span>`);
-  return `<div class="log-item"><span class="log-day">${day}</span><span class="${cls}">${body}</span></div>`;
+  body=body.replace(/【战力(\d+) vs 难度(\d+) · (完胜|险胜|受挫|惨败)】/g,'<span class="power">【战力$1 vs 难度$2 · $3】</span>');
+  return`<div class="log-item"><span class="log-day">${day}</span><span class="${cls}">${body}</span></div>`;
 }
 function qs(s){return document.querySelector(s);}
 
 function renderStart(){
-  app.innerHTML=`<main class="hero"><section class="hero-card"><h1 class="title">${world.title}</h1><p class="subtitle">像素风文字武侠RPG · 放置养成 · 无唯一主线<br>${world.background}</p><div class="row" style="justify-content:center"><button class="btn primary" id="newGame">新入江湖</button><button class="btn" id="continue" ${hasSave()?'':'disabled'}>读取存档</button><button class="btn" id="worldBtn">查看完整方案</button></div><p class="small">单文件版 · 紧凑UI</p></section></main>`;
+  app.innerHTML=`<main class="hero"><section class="hero-card"><h1 class="title">${world.title}</h1><p class="subtitle">像素风文字武侠RPG · 放置养成 · 无唯一主线<br>${world.background}</p><div class="row" style="justify-content:center"><button class="btn primary" id="newGame">新入江湖</button><button class="btn" id="continue" ${hasSave()?'':'disabled'}>读取存档</button><button class="btn" id="worldBtn">查看完整方案</button></div><p class="small">单文件版 · 战力判定已实装</p></section></main>`;
   qs('#newGame').onclick=renderCreate;
   qs('#continue').onclick=()=>{state=loadGame();if(state.player&&!state.player.skills)state.player.skills=[];renderGame();};
   qs('#worldBtn').onclick=renderWorldDoc;
 }
-
 function renderCreate(){
   app.innerHTML=`<section class="panel"><h2 class="section-title">创建角色</h2><div class="grid"><div><div class="form-grid"><label>姓名<input id="name" maxlength="8" placeholder="例如：沈听澜"></label><label>性别<select id="gender"><option>男</option><option>女</option><option>其他</option></select></label></div><h3>出身</h3><div class="row">${origins.map(o=>choice(o,'origin')).join('')}</div><h3>天赋</h3><div class="row">${talents.map(t=>choice(t,'talent')).join('')}</div><div class="row" style="margin-top:10px"><button class="btn primary" id="begin">踏入江湖</button><button class="btn" id="back">返回</button></div></div><aside class="panel"><h3 class="section-title">属性说明</h3>${Object.entries(STAT_LABELS).map(([k,v])=>`<div class="stat"><b>${v}</b><span>${STAT_HELP[k]}</span></div>`).join('')}</aside></div></section>`;
   let selected={origin:origins[0].id,talent:talents[0].id};markChoices(selected);
@@ -199,12 +285,12 @@ function renderCreate(){
   qs('#begin').onclick=()=>{state.player=createPlayer({name:qs('#name').value.trim(),gender:qs('#gender').value,...selected});saveGame(state);renderGame();};
   qs('#back').onclick=renderStart;
 }
-function choice(o,kind){return `<div class="choice" data-kind="${kind}" data-id="${o.id}"><b>${o.name}</b><p class="small">${o.desc}</p></div>`;}
+function choice(o,kind){return`<div class="choice" data-kind="${kind}" data-id="${o.id}"><b>${o.name}</b><p class="small">${o.desc}</p></div>`;}
 function markChoices(sel){document.querySelectorAll('.choice').forEach(el=>el.classList.toggle('active',sel[el.dataset.kind]===el.dataset.id));}
 
 function renderGame(){
-  const p=state.player; if(!p.skills)p.skills=[];
-  const here=getMapById(p.location); const d=derived(p);
+  const p=state.player;if(!p.skills)p.skills=[];
+  const here=getMapById(p.location);const d=derived(p);const power=calcCombatPower(p);
   const local=(LOCAL_SKILLS[p.location]||[]).map(getSkillById).filter(Boolean);
 
   app.innerHTML=`
@@ -218,6 +304,7 @@ function renderGame(){
       <div class="stat"><b>内力</b><span>${p.mp}/${p.maxMp}</span></div>
       <div class="stat"><b>银两</b><span>${p.silver}</span></div>
       <div class="stat"><b>攻/闪</b><span>${d.attack}/${d.dodge}</span></div>
+      <div class="stat"><b>战力</b><span class="power">${power}</span></div>
       <div class="row" style="margin-top:8px">
         <button class="btn" id="save">保存</button>
         <button class="btn" id="del">删档</button>
@@ -231,7 +318,7 @@ function renderGame(){
       </div>
       <p class="small">${here.desc} · <span class="tag">${here.type}</span></p>
       <div class="pixel-map" style="margin:8px 0">${maps.map(m=>`<div class="map-node ${m.id===p.location?'current':''}" data-id="${m.id}"><b>${m.name}</b><p class="small">${m.type}</p></div>`).join('')}</div>
-      ${local.length?`<div class="row" style="margin-top:6px">${local.map(s=>{const owned=p.skills.some(x=>x.id===s.id);return `<button class="btn ${owned?'':'primary'} learn" data-id="${s.id}" ${owned?'disabled':''}>${s.name} <span class="small">${s.cost}两</span></button>`;}).join('')}</div>`:''}
+      ${local.length?`<div class="row" style="margin-top:6px">${local.map(s=>{const owned=p.skills.some(x=>x.id===s.id);return`<button class="btn ${owned?'':'primary'} learn" data-id="${s.id}" ${owned?'disabled':''}>${s.name} <span class="small">${s.cost}两</span></button>`;}).join('')}</div>`:''}
     </main>
     <aside class="panel">
       <h3 class="section-title">江湖见闻</h3>
@@ -250,8 +337,8 @@ function renderGame(){
 }
 
 function renderSkills(){
-  const p=state.player; if(!p.skills)p.skills=[];
-  app.innerHTML=`<section class="panel"><h2 class="section-title">已学武学（${p.skills.length}）</h2>
+  const p=state.player;if(!p.skills)p.skills=[];
+  app.innerHTML=`<section class="panel"><h2 class="section-title">已学武学（${p.skills.length}） · 战力 ${calcCombatPower(p)}</h2>
     ${p.skills.length===0?'<p class="small">你还不会任何武学。</p>':`<div class="row" style="flex-direction:column;gap:8px">${p.skills.map(s=>`<div class="choice" style="display:flex;justify-content:space-between;align-items:center"><div><b>${s.name}</b> <span class="tag">${s.quality}</span> <span class="tag">${s.type}</span><p class="small">${SKILL_DESIGN.realms[s.realm]} · ${s.exp}/${s.maxExp} · 威力${s.power||0}</p></div><button class="btn train" data-id="${s.id}" ${s.realm>=4?'disabled':''}>修炼</button></div>`).join('')}</div>`}
     <div class="row" style="margin-top:12px"><button class="btn" id="back">返回</button></div></section>`;
   document.querySelectorAll('.train').forEach(el=>el.onclick=()=>{const res=trainSkill(p,el.dataset.id,15+Math.floor(p.stats.wit/2));p.logs.unshift(res.msg);saveGame(state);renderSkills();});
@@ -260,10 +347,10 @@ function renderSkills(){
 
 function renderWorldDoc(){
   app.innerHTML=`<section class="panel worlddoc"><h2 class="section-title">完整游戏方案</h2>
-    <h3>1. 世界观</h3><p>${world.background}</p><ul>${world.states.concat(world.rules,world.factions).map(x=>`<li>${x}</li>`).join('')}</ul>
-    <h3>2. 玩家系统</h3><p>16岁开局，出身+天赋形成差异。</p>
-    <h3>3. 武学系统</h3><p>${SKILL_DESIGN.qualities.join('、')} · ${SKILL_DESIGN.types.join('、')} · ${SKILL_DESIGN.realms.join('、')}</p>
-    <h3>4-10</h3><p>${BATTLE_DESIGN.logic} 经济：${ITEM_DESIGN.categories.join('、')}</p>
+    <h3>1. 世界观</h3><p>${world.background}</p>
+    <h3>2. 战力体系</h3><p>战力 = 攻击×2 + 闪避 + 武学威力×(1+境界×0.25) + 根骨 + 内力/2。<br>
+    有害事件带难度值：战力≥难度×1.2完胜并反赚；≥难度险胜减伤；≥0.6受挫正常伤；<0.6惨败加重伤害。</p>
+    <h3>3. 武学</h3><p>${SKILL_DESIGN.qualities.join('、')} · ${SKILL_DESIGN.types.join('、')}</p>
     <button class="btn" id="back">返回</button></section>`;
   qs('#back').onclick=renderStart;
 }
