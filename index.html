@@ -60,6 +60,14 @@
     .favor-row{display:flex;align-items:center;gap:8px;margin:8px 0;flex-wrap:wrap}
     .favor-bar{flex:1;min-width:80px;height:8px;background:#1a1512;border:1px solid var(--line);border-radius:99px;overflow:hidden}
     .favor-fill{height:100%;border-radius:99px;transition:width .25s ease}
+    .item-list{max-height:40vh;overflow-y:auto}
+    .item-row{display:flex;gap:8px;align-items:flex-start;padding:6px 4px;border-bottom:1px dashed rgba(75,58,45,.35);cursor:pointer}
+    .item-row:active,.item-row:hover{background:rgba(217,173,98,.08)}
+    .item-icon{width:28px;height:28px;border:1px solid var(--line);border-radius:6px;display:grid;place-items:center;font-size:11px;color:var(--gold);background:#1a1512;flex-shrink:0}
+    .item-meta{flex:1;min-width:0}
+    .item-meta b{font-size:13px}
+    .item-detail{margin-top:8px;padding:8px;border:1px solid var(--line);border-radius:8px;background:#1a1512}
+    .equip-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
     .rank-tag{font-size:10px;padding:1px 6px;border-radius:99px;border:1px solid var(--gold);color:var(--gold)}
     @media(max-width:600px){
       .title{font-size:26px}
@@ -81,10 +89,12 @@
 <script src="./favor.js"></script>
 <script src="./npc.js"></script>
 <script src="./data2.js"></script>
+<script src="./items.js"></script>
 <script src="./npc_logic.js"></script>
 <script src="./time.js"></script>
 <script src="./logic.js"></script>
 <script src="./favor_ui.js"></script>
 <script src="./time_ui.js"></script>
+<script src="./items_ui.js"></script>
 </body>
 </html>
