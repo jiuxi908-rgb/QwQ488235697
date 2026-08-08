@@ -3,11 +3,6 @@
   const QUEST_BOARD_LOCS=["qinghe","market","ferry","mist_gate","hearth","herb_valley","whale_port"];
   const MAX_ACTIVE=5;
 
-  /**
-   * type: talk | deliver | explore | duel | collect | visit
-   * target: npcId / locId / itemId
-   * need: 数量
-   */
   const QUESTS=[
     {id:"q_zhou_rest",name:"客栈帮忙",giver:"zhou",loc:"qinghe",desc:"老周店里缺人手，帮他搬一趟货。",type:"talk",target:"zhou",need:1,
       reward:{silver:15,favor:{zhou:5}},text:"搬完货，老周塞给你几两碎银。"},
@@ -131,13 +126,11 @@
     var q=getQuestById(questId);
     if(!act||!q)return{ok:false,msg:"任务无效"};
     if(act.progress<(act.need||1))return{ok:false,msg:"进度未满"};
-
     if(q.type==="collect"){
       if(typeof hasItem!=="function"||!hasItem(player,q.target,q.need||1))
         return{ok:false,msg:"物品不足，请先备齐"};
       removeItem(player,q.target,q.need||1);
     }
-
     player.quests.active=player.quests.active.filter(function(a){return a.id!==questId;});
     if(player.quests.done.indexOf(questId)<0)player.quests.done.push(questId);
     var rw=applyReward(player,q.reward);
@@ -147,7 +140,6 @@
     return{ok:true,msg:msg};
   };
 
-  /** 推进任务进度（自动触发） */
   function bumpQuest(player,type,targetId,amount){
     ensureQuests(player);
     amount=amount||1;
@@ -159,28 +151,16 @@
       if(a.progress>=(a.need||1))return;
       a.progress=Math.min(a.need||1,a.progress+amount);
       changed=true;
-      if(a.progress>=(a.need||1)){
-        player.logs.unshift("任务【"+q.name+"】已可交付。");
-      }
+      if(a.progress>=(a.need||1))player.logs.unshift("任务【"+q.name+"】已可交付。");
     });
     return changed;
   }
 
-  window.questOnTalk=function(player,npcId){
-    bumpQuest(player,"talk",npcId,1);
-  };
-  window.questOnVisit=function(player,locId){
-    bumpQuest(player,"visit",locId,1);
-    bumpQuest(player,"explore",locId,1);
-  };
-  window.questOnExplore=function(player,locId){
-    bumpQuest(player,"explore",locId,1);
-  };
-  window.questOnDuel=function(player,npcId,won){
-    if(won)bumpQuest(player,"duel",npcId,1);
-  };
+  window.questOnTalk=function(player,npcId){bumpQuest(player,"talk",npcId,1);};
+  window.questOnVisit=function(player,locId){bumpQuest(player,"visit",locId,1);bumpQuest(player,"explore",locId,1);};
+  window.questOnExplore=function(player,locId){bumpQuest(player,"explore",locId,1);};
+  window.questOnDuel=function(player,npcId,won){if(won)bumpQuest(player,"duel",npcId,1);};
   window.questOnCollect=function(player,itemId){
-    /* collect 在交付时检查持有，也可在获得时提示 */
     ensureQuests(player);
     player.quests.active.forEach(function(a){
       var q=getQuestById(a.id);
@@ -190,7 +170,6 @@
       a.progress=Math.min(a.need||1,have);
     });
   };
-
   function tryAutoCompleteCollect(player){
     ensureQuests(player);
     player.quests.active.forEach(function(a){
@@ -202,7 +181,6 @@
     });
   }
 
-  /* —— 钩入现有系统 —— */
   function installHooks(){
     if(typeof movePlayer==="function"){
       var _mv=movePlayer;
@@ -226,12 +204,8 @@
         var r=_ip(player,npc,actId);
         if(r&&r.ok){
           questOnTalk(player,npc.id);
-          if(actId&&(npc.acts||[]).some(function(a){return a.id===actId&&a.type==="duel";})){
-            /* duel 胜负在 interact 内，简化：只要交手且 ok 算推进一半——用 logs 无法判断，按 ok 且非惨败难以取
-               简化：交手即 +1 若 act 为 duel */
-            var act=(npc.acts||[]).find(function(a){return a.id===actId;});
-            if(act&&act.type==="duel")questOnDuel(player,npc.id,true);
-          }
+          var act=(npc.acts||[]).find(function(a){return a.id===actId;});
+          if(act&&act.type==="duel")questOnDuel(player,npc.id,true);
         }
         return r;
       };
@@ -321,7 +295,7 @@
       return '<div class="quest-card">'+
         '<div class="quest-head"><b>'+q.name+'</b> <span class="tag">'+typeLabel(q.type)+'</span></div>'+
         '<p class="small">'+q.desc+'</p>'+
-        '<p class="small">目标：'+targetName(q)+(rw.length?(" · 奖励 "+rw.join("/")":":"))+'</p>'+
+        '<p class="small">目标：'+targetName(q)+(rw.length?(" · 奖励 "+rw.join("/")):"")+'</p>'+
         '<button class="btn primary sm q-accept" data-id="'+q.id+'">接取</button></div>';
     }).join(""):'<p class="small">此地暂无新任务，或已全部接取/完成。</p>';
 
@@ -381,7 +355,6 @@
     }else{
       qs("#questBtn",bar).onclick=function(){modalQuests("active");};
     }
-    /* HUD 角标 */
     var p=state&&state.player?ensurePlayer(state.player):null;
     if(p){
       ensureQuests(p);
