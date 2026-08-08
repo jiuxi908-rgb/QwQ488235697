@@ -1,7 +1,6 @@
-/* 像素风格 UI · 精细化 32×32 头像 */
+/* 像素风格 UI · 参考立绘精细化头像 */
 (function(){
 
-  /* —— 注入像素风样式 —— */
   if(!document.getElementById("pixel-ui-style")){
     var css=document.createElement("style");
     css.id="pixel-ui-style";
@@ -26,15 +25,14 @@
       "body.pixel-ui .section-title{text-shadow:1px 1px 0 #000}",
       "body.pixel-ui .favor-bar,body.pixel-ui .quest-bar{border-radius:0 !important;border-width:2px !important;height:10px !important}",
       "body.pixel-ui .favor-fill,body.pixel-ui .quest-fill{border-radius:0 !important}",
-      "body.pixel-ui .modal-mask{background:rgba(0,0,0,.65)}",
       "body.pixel-ui .hud{align-items:center;gap:8px}",
       ".px-avatar{display:inline-block;vertical-align:middle;image-rendering:pixelated;image-rendering:crisp-edges;",
-      "  border:2px solid #4b3a2d;box-shadow:2px 2px 0 #0a0806;background:#12100e;flex-shrink:0;overflow:hidden}",
-      ".px-avatar svg{display:block;width:100%;height:100%}",
+      "  border:2px solid #4b3a2d;box-shadow:2px 2px 0 #0a0806;background:#0a0806;flex-shrink:0;overflow:hidden}",
+      ".px-avatar img,.px-avatar svg{display:block;width:100%;height:100%;object-fit:cover;image-rendering:pixelated}",
       ".px-avatar.sm{width:28px;height:28px}",
-      ".px-avatar.md{width:44px;height:44px}",
-      ".px-avatar.lg{width:64px;height:64px}",
-      ".px-avatar.xl{width:80px;height:80px}",
+      ".px-avatar.md{width:48px;height:48px}",
+      ".px-avatar.lg{width:72px;height:72px}",
+      ".px-avatar.xl{width:96px;height:96px}",
       ".px-npc-btn{display:inline-flex;align-items:center;gap:4px}",
       ".px-npc-btn .px-avatar{width:24px;height:24px}",
       ".px-modal-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}"
@@ -44,75 +42,55 @@
   document.body.classList.add("pixel-ui");
 
   function hash(str){
-    str=String(str||"x");
-    var h=2166136261;
+    str=String(str||"x");var h=2166136261;
     for(var i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}
     return h>>>0;
   }
   function pick(h,arr){return arr[h%arr.length];}
   function shade(hex,amt){
-    hex=hex.replace("#","");
+    hex=String(hex).replace("#","");
     if(hex.length===3)hex=hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
     var n=parseInt(hex,16);
+    if(isNaN(n))return hex;
     var r=Math.max(0,Math.min(255,((n>>16)&255)+amt));
     var g=Math.max(0,Math.min(255,((n>>8)&255)+amt));
     var b=Math.max(0,Math.min(255,(n&255)+amt));
     return"#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
   }
 
-  var SKINS=["#f0d0b0","#e8c4a0","#d4a574","#c68642","#b07a50","#a06740","#8d5524"];
-  var HAIRS=["#0d0d0d","#1a120c","#2c1810","#3d2b1f","#4a3728","#5c4033","#6b4423","#8b6914","#c8b8a0","#e0d8c8"];
-  var CLOTH=["#3b2b21","#4a3a2a","#5a3a22","#2a3a4a","#3a2a3a","#2a4a3a","#4a2a2a","#2a2a4a","#1a2a1a","#6b4630","#5a4a3a","#3a4a5a"];
-  var ACC=["#d9ad62","#e8c878","#b85b53","#7aae6a","#6a9eae","#c47a5a","#e8a0a0","#c0c8d0","#8a6a45"];
-  var BG=["#1a1512","#15120f","#12181a","#1a1218","#121a14"];
+  /* 参考立绘色板：浅色开领劲装 + 褐绦 + 墨发 */
+  var SKINS=["#f2d2b4","#e8c4a0","#dcb089","#c9956a","#b07a50","#9a6840"];
+  var HAIRS=["#0a0a0c","#121018","#1a1410","#221810","#2a1c14","#3a2818"];
+  var ROBES=["#e8e0d4","#d4cfc4","#c8c0b4","#f0ebe4","#d0c8bc","#e0d8cc"];
+  var SASHES=["#8a5a3a","#6b4423","#a07048","#5a3a22","#9a6040"];
+  var CLOTH_DARK=["#3b2b21","#2a3a4a","#3a2a3a","#2a4a3a","#4a2a2a","#1a2a1a","#2a2a4a"];
 
-  /* NPC 专属外观预设（覆盖随机） */
   var PRESETS={
-    zhou:{skin:2,hair:5,cloth:0,acc:0,hairStyle:"top",beard:1,hat:"none",extra:"key"},
-    su:{skin:1,hair:3,cloth:10,acc:2,hairStyle:"short",beard:0,hat:"none",extra:"herb"},
-    shishu:{skin:3,hair:8,cloth:1,acc:0,hairStyle:"elder",beard:2,hat:"none",extra:"wood"},
-    aqing:{skin:0,hair:2,cloth:5,acc:3,hairStyle:"long",beard:0,hat:"leaf",extra:"none",gender:"女"},
-    jian_tong:{skin:0,hair:1,cloth:3,acc:6,hairStyle:"young",beard:0,hat:"none",extra:"sword",gender:"男"},
-    yubo:{skin:4,hair:8,cloth:0,acc:0,hairStyle:"elder",beard:2,hat:"none",extra:"rope"},
-    shuizei:{skin:5,hair:0,cloth:7,acc:2,hairStyle:"short",beard:1,hat:"none",extra:"patch"},
-    qianliu:{skin:1,hair:1,cloth:4,acc:0,hairStyle:"slick",beard:0,hat:"none",extra:"coin"},
-    stall:{skin:2,hair:8,cloth:10,acc:0,hairStyle:"bun",beard:0,hat:"none",extra:"none",gender:"女"},
-    luyun:{skin:0,hair:0,cloth:3,acc:6,hairStyle:"sword",beard:0,hat:"none",extra:"tassel",gender:"男"},
-    shen_wai:{skin:1,hair:2,cloth:3,acc:0,hairStyle:"neat",beard:0,hat:"none",extra:"none"},
-    tieba:{skin:4,hair:0,cloth:0,acc:2,hairStyle:"wild",beard:1,hat:"none",extra:"scar"},
-    helie_npc:{skin:3,hair:3,cloth:0,acc:0,hairStyle:"short",beard:0,hat:"none",extra:"burn"},
-    he_forge:{skin:4,hair:8,cloth:1,acc:0,hairStyle:"elder",beard:2,hat:"none",extra:"none"},
-    yaotong:{skin:0,hair:4,cloth:5,acc:3,hairStyle:"young",beard:0,hat:"none",extra:"basket",gender:"男"},
-    ao_sailor:{skin:5,hair:0,cloth:3,acc:4,hairStyle:"short",beard:0,hat:"none",extra:"shell"},
-    que_shadow:{skin:3,hair:0,cloth:7,acc:5,hairStyle:"hidden",beard:0,hat:"mask",extra:"none",role:"shadow"},
-    monk_jing:{skin:1,hair:9,cloth:10,acc:0,hairStyle:"monk",beard:0,hat:"none",extra:"beads",role:"monk"},
-    hermit:{skin:2,hair:9,cloth:10,acc:0,hairStyle:"elder",beard:2,hat:"none",extra:"none",role:"elder"},
-    xie_ren:{skin:3,hair:0,cloth:6,acc:2,hairStyle:"wild",beard:1,hat:"none",extra:"blood",role:"evil"},
-    reef_ghost:{skin:6,hair:5,cloth:3,acc:4,hairStyle:"hidden",beard:0,hat:"none",extra:"none",role:"shadow"},
-    cave_guard:{skin:6,hair:0,cloth:7,acc:5,hairStyle:"hidden",beard:0,hat:"mask",extra:"metal",role:"shadow"},
-    yanlan_mei:{skin:0,hair:1,cloth:3,acc:6,hairStyle:"long",beard:0,hat:"none",extra:"tassel",gender:"女"},
-    huichun_lan:{skin:0,hair:4,cloth:5,acc:3,hairStyle:"twin",beard:0,hat:"flower",extra:"none",gender:"女"},
-    xuan_zhu:{skin:1,hair:2,cloth:3,acc:4,hairStyle:"neat",beard:0,hat:"none",extra:"pearl",gender:"女"},
-    su_wanqing:{skin:0,hair:3,cloth:5,acc:3,hairStyle:"long",beard:0,hat:"none",extra:"herb",gender:"女"},
-    shen_shuheng:{skin:0,hair:1,cloth:3,acc:6,hairStyle:"sword",beard:0,hat:"none",extra:"tassel",gender:"男"},
-    shen_tingyun:{skin:0,hair:0,cloth:3,acc:6,hairStyle:"long",beard:0,hat:"none",extra:"tassel",gender:"女",role:"elder"},
-    he_lie:{skin:4,hair:2,cloth:0,acc:0,hairStyle:"wild",beard:1,hat:"none",extra:"burn"},
-    su_qingluo:{skin:0,hair:3,cloth:5,acc:3,hairStyle:"long",beard:0,hat:"none",extra:"herb",gender:"女"},
-    ao_cang:{skin:5,hair:8,cloth:3,acc:4,hairStyle:"elder",beard:2,hat:"none",extra:"shell"},
-    que_wuying:{skin:3,hair:0,cloth:7,acc:5,hairStyle:"hidden",beard:0,hat:"mask",extra:"none",role:"shadow"},
-    que_san:{skin:2,hair:0,cloth:7,acc:5,hairStyle:"hidden",beard:0,hat:"veil",extra:"none",role:"shadow"},
-    baique_si:{skin:1,hair:0,cloth:7,acc:5,hairStyle:"hidden",beard:0,hat:"mask",extra:"none",role:"shadow"},
-    kong_guan:{skin:2,hair:9,cloth:10,acc:0,hairStyle:"monk",beard:1,hat:"none",extra:"beads",role:"monk"},
-    liao_yin:{skin:3,hair:9,cloth:10,acc:0,hairStyle:"monk",beard:0,hat:"none",extra:"beads",role:"monk"},
-    wuxiang_chen:{skin:0,hair:9,cloth:10,acc:0,hairStyle:"monk",beard:0,hat:"none",extra:"beads",role:"monk"},
-    chilu_huo:{skin:3,hair:3,cloth:0,acc:0,hairStyle:"young",beard:0,hat:"none",extra:"burn"},
-    jin_duanshi:{skin:4,hair:1,cloth:0,acc:2,hairStyle:"short",beard:1,hat:"none",extra:"scar"},
-    hai_lie:{skin:5,hair:0,cloth:3,acc:4,hairStyle:"short",beard:1,hat:"none",extra:"shell"}
+    zhou:{skin:3,hair:3,robe:1,sash:1,style:"elder",beard:2},
+    su:{skin:1,hair:2,robe:0,sash:0,style:"neat",gender:"女"},
+    aqing:{skin:0,hair:1,robe:0,sash:3,style:"long",gender:"女",acc:"leaf"},
+    jian_tong:{skin:0,hair:0,robe:0,sash:0,style:"hero",gender:"男"},
+    yubo:{skin:4,hair:4,robe:5,sash:1,style:"elder",beard:2},
+    luyun:{skin:0,hair:0,robe:0,sash:0,style:"hero",gender:"男",acc:"tassel"},
+    yanlan_mei:{skin:0,hair:0,robe:0,sash:0,style:"long",gender:"女",acc:"tassel"},
+    huichun_lan:{skin:0,hair:2,robe:0,sash:2,style:"twin",gender:"女",acc:"flower"},
+    tieba:{skin:4,hair:0,robe:5,sash:1,style:"wild",beard:1,acc:"scar"},
+    que_shadow:{skin:2,hair:0,robe:5,sash:1,style:"mask",role:"shadow"},
+    monk_jing:{skin:1,hair:0,robe:1,sash:1,style:"monk",role:"monk"},
+    hermit:{skin:2,hair:0,robe:5,sash:1,style:"elder",beard:2,role:"elder"},
+    xie_ren:{skin:3,hair:0,robe:5,sash:4,style:"wild",role:"evil",acc:"blood"},
+    su_wanqing:{skin:0,hair:2,robe:0,sash:2,style:"long",gender:"女"},
+    shen_shuheng:{skin:0,hair:0,robe:0,sash:0,style:"hero",gender:"男"},
+    shen_tingyun:{skin:0,hair:0,robe:0,sash:0,style:"long",gender:"女",role:"elder"},
+    baique_si:{skin:1,hair:0,robe:5,sash:1,style:"mask",role:"shadow"},
+    wuxiang_chen:{skin:0,hair:0,robe:1,sash:1,style:"monk",role:"monk"},
+    xuan_zhu:{skin:1,hair:1,robe:0,sash:0,style:"neat",gender:"女",acc:"pearl"},
+    ao_sailor:{skin:4,hair:0,robe:2,sash:0,style:"short",gender:"男",acc:"shell"},
+    helie_npc:{skin:3,hair:2,robe:5,sash:1,style:"short",acc:"burn"}
   };
 
   /**
-   * 32×32 精细像素头像
-   * opts: seed, gender, role, presetId
+   * 40×48 半身像风格像素头像（参考用户立绘：墨发、凌厉眼、开领浅衫、褐绦）
    */
   function pixelAvatarSvg(opts){
     opts=opts||{};
@@ -126,303 +104,237 @@
     }
 
     var h=hash(seed+"|"+g+"|"+role);
-    var h2=hash(seed+"*face");
-    var h3=hash(seed+"*style");
+    var h2=hash(seed+":face");
+    var h3=hash(seed+":style");
 
     var skin=preset?SKINS[preset.skin%SKINS.length]:pick(h,SKINS);
     var hair=preset?HAIRS[preset.hair%HAIRS.length]:pick(h2,HAIRS);
-    var cloth=preset?CLOTH[preset.cloth%CLOTH.length]:pick(h>>>4,CLOTH);
-    var acc=preset?ACC[preset.acc%ACC.length]:pick(h>>>8,ACC);
-    var bg=pick(h>>>12,BG);
-    var skinD=shade(skin,-22);
-    var skinL=shade(skin,18);
-    var hairL=shade(hair,25);
-    var clothL=shade(cloth,20);
-    var clothD=shade(cloth,-25);
-
-    if(role==="monk"){cloth="#6a6558";clothL="#7a7568";clothD="#4a4538";hair="#e8e0d0";hairL="#f0ebe0";}
-    if(role==="shadow"){cloth="#1a1a28";clothL="#2a2a38";clothD="#0a0a12";hair="#0a0a0a";}
-    if(role==="elder"&&!preset){hair="#d8d0c0";hairL="#e8e4dc";}
-    if(role==="evil"){cloth="#4a1a1a";clothL="#5a2a2a";clothD="#2a0a0a";acc="#b85b53";}
-    if(role==="player"){
-      cloth=pick(h,["#5a3a22","#3a4a5a","#4a3a4a","#3a5a3a","#5a4a2a"]);
-      clothL=shade(cloth,22);clothD=shade(cloth,-22);
+    var robe,sash;
+    if(role==="monk"){robe="#c8c4b8";sash="#6a6558";hair="#e8e0d0";}
+    else if(role==="shadow"){robe="#1a1a28";sash="#2a2a38";hair="#0a0a0a";}
+    else if(role==="evil"){robe="#3a1a1a";sash="#6a2020";}
+    else if(role==="player"||(preset&&preset.style==="hero")||g==="男"&&!preset){
+      /* 参考立绘：浅色开领 */
+      robe=preset?ROBES[preset.robe%ROBES.length]:pick(h,ROBES);
+      sash=preset?SASHES[preset.sash%SASHES.length]:pick(h>>>4,SASHES);
+    }else if(g==="女"){
+      robe=preset?ROBES[preset.robe%ROBES.length]:pick(h,["#e8e0d4","#d4c8c0","#e0d0d8","#d0d8d0"]);
+      sash=preset?SASHES[preset.sash%SASHES.length]:pick(h>>>4,SASHES);
+    }else{
+      robe=preset?ROBES[(preset.robe||0)%ROBES.length]:pick(h,CLOTH_DARK);
+      sash=preset?SASHES[(preset.sash||0)%SASHES.length]:pick(h>>>4,SASHES);
     }
 
-    var hairStyle=preset&&preset.hairStyle?preset.hairStyle:null;
-    if(!hairStyle){
-      if(role==="monk")hairStyle="monk";
-      else if(role==="elder")hairStyle="elder";
-      else if(role==="shadow")hairStyle="hidden";
-      else if(g==="女")hairStyle=pick(h3,["long","twin","bun","long","neat"]);
-      else if(g==="男")hairStyle=pick(h3,["short","neat","sword","young","wild"]);
-      else hairStyle=pick(h3,["neat","short","long","hidden"]);
-    }
-    var beard=preset?preset.beard:(role==="elder"?2:(g==="男"&&h%5===0?1:0));
-    var hat=preset&&preset.hat?preset.hat:"none";
-    var extra=preset&&preset.extra?preset.extra:(h%7===0?"tassel":"none");
+    var skinD=shade(skin,-28), skinL=shade(skin,20), skinM=shade(skin,-12);
+    var hairL=shade(hair,30), hairD=shade(hair,-15);
+    var robeL=shade(robe,18), robeD=shade(robe,-22);
+    var sashD=shade(sash,-20);
 
-    var S=32;
+    var style=preset&&preset.style?preset.style:null;
+    if(!style){
+      if(role==="monk")style="monk";
+      else if(role==="shadow")style="mask";
+      else if(role==="elder")style="elder";
+      else if(role==="player")style="hero";
+      else if(g==="女")style=pick(h3,["long","twin","neat","long"]);
+      else style=pick(h3,["hero","short","wild","neat"]);
+    }
+    var beard=preset&&preset.beard!=null?preset.beard:(style==="elder"?2:0);
+    var acc=preset&&preset.acc?preset.acc:"none";
+
+    var W=40, H=48;
     var cells={};
-    function set(x,y,c){if(x>=0&&x<S&&y>=0&&y<S)cells[x+","+y]=c;}
-    function fill(x0,y0,x1,y1,c){
-      for(var y=y0;y<=y1;y++)for(var x=x0;x<=x1;x++)set(x,y,c);
-    }
+    function set(x,y,c){if(x>=0&&x<W&&y>=0&&y<H)cells[x+","+y]=c;}
+    function fill(x0,y0,x1,y1,c){for(var y=y0;y<=y1;y++)for(var x=x0;x<=x1;x++)set(x,y,c);}
     function hline(x0,x1,y,c){for(var x=x0;x<=x1;x++)set(x,y,c);}
     function vline(x,y0,y1,c){for(var y=y0;y<=y1;y++)set(x,y,c);}
 
-    /* 背景渐变感 */
-    fill(0,0,31,31,bg);
-    fill(1,1,30,30,shade(bg,8));
+    /* 纯黑背景（参考立绘） */
+    fill(0,0,W-1,H-1,"#0a0806");
 
-    /* ===== 衣领/肩 ===== */
-    fill(6,26,25,31,cloth);
-    fill(5,28,26,31,cloth);
-    fill(4,29,27,31,clothD);
-    hline(8,23,26,clothL);
-    /* 领口 */
-    fill(13,25,18,27,skin);
-    fill(12,26,19,26,clothL);
+    /* ===== 肩与衣 ===== */
+    fill(6,34,33,47,robe);
+    fill(4,38,35,47,robe);
+    fill(3,42,36,47,robeD);
+    /* 开领 —— 参考图核心特征 */
+    fill(15,32,24,38,skin);
+    fill(14,34,16,40,robe);
+    fill(23,34,25,40,robe);
+    hline(15,24,33,robeL);
+    /* 左襟高光 */
+    vline(8,36,46,robeL);
+    vline(9,35,40,robeL);
+    /* 右襟阴影 */
+    vline(31,36,46,robeD);
+    /* 褐绦斜跨（参考图） */
+    for(var i=0;i<14;i++){
+      var sx=10+i, sy=36+Math.floor(i*0.55);
+      set(sx,sy,sash);set(sx,sy+1,sash);set(sx+1,sy,sashD);
+    }
+    fill(22,40,28,43,sash);
+    fill(24,42,30,45,sashD);
 
-    /* ===== 脖子 ===== */
-    fill(13,22,18,26,skin);
-    vline(13,22,25,skinD);vline(18,22,25,skinD);
+    /* ===== 颈 ===== */
+    fill(16,28,23,34,skin);
+    vline(16,28,33,skinD);vline(23,28,33,skinD);
+    fill(17,33,22,34,skinM);
 
-    /* ===== 脸型 ===== */
-    fill(10,8,21,22,skin);
-    fill(11,7,20,7,skin);
-    fill(12,6,19,6,skin);
-    fill(11,23,20,23,skin);
-    fill(12,24,19,24,skin);
-    /* 颧骨高光/阴影 */
-    fill(11,12,12,16,skinL);
-    fill(19,12,20,16,skinD);
-    fill(13,20,18,21,skinD);
+    /* ===== 脸 ===== */
+    fill(12,10,27,28,skin);
+    fill(13,9,26,9,skin);
+    fill(14,8,25,8,skin);
+    fill(13,29,26,29,skin);
+    fill(14,30,25,30,skin);
+    /* 颧骨与下颌 */
+    fill(12,14,14,20,skinL);
+    fill(25,14,27,20,skinD);
+    fill(15,26,24,28,skinM);
+    fill(18,27,21,28,skinD);
 
-    /* ===== 发型 ===== */
+    /* ===== 发型（参考：额前碎发、两侧蓬起、后发压黑） ===== */
     drawHair();
     function drawHair(){
-      if(hairStyle==="monk"){
-        fill(12,4,19,7,skin);
-        fill(13,3,18,4,skinL);
-        /* 戒疤三点 */
-        set(14,5,"#c0a090");set(16,5,"#c0a090");set(15,4,"#c0a090");
-        fill(11,6,12,8,hair);fill(19,6,20,8,hair);
+      if(style==="monk"){
+        fill(14,6,25,12,skin);
+        fill(15,5,24,7,skinL);
+        set(17,7,"#c0a090");set(20,7,"#c0a090");set(18,6,"#c0a090");
+        fill(13,8,14,12,hair);fill(25,8,26,12,hair);
         return;
       }
-      if(hairStyle==="hidden"){
-        fill(9,5,22,10,hair);
-        fill(8,6,9,14,hair);fill(22,6,23,14,hair);
+      if(style==="mask"){
+        fill(11,6,28,14,hair);
+        fill(10,8,12,22,hair);fill(27,8,29,22,hair);
+        fill(12,14,27,22,"#1a1a22");
+        fill(13,15,26,20,"#2a2a32");
+        fill(22,16,25,19,skin);
+        set(23,17,"#e8e8e8");set(24,17,"#1a120c");set(23,18,"#1a120c");
         return;
       }
-      if(hairStyle==="elder"){
-        fill(10,5,21,9,hair);
-        fill(9,6,10,10,hair);fill(21,6,22,10,hair);
-        fill(11,4,20,5,hairL);
-        fill(12,3,19,4,hair);
-        return;
-      }
-      if(hairStyle==="long"){
-        fill(9,4,22,10,hair);
-        fill(8,6,9,22,hair);fill(22,6,23,22,hair);
-        fill(7,10,8,20,hair);fill(23,10,24,20,hair);
-        fill(11,3,20,5,hairL);
-        /* 刘海 */
-        fill(11,7,14,9,hair);fill(17,7,20,9,hair);
-        return;
-      }
-      if(hairStyle==="twin"){
-        fill(10,5,21,9,hair);
-        fill(8,4,11,8,hair);fill(20,4,23,8,hair); /* 双髻 */
-        fill(7,5,9,7,hairL);fill(22,5,24,7,hairL);
-        fill(8,8,9,16,hair);fill(22,8,23,16,hair);
-        fill(12,6,19,8,hair);
-        return;
-      }
-      if(hairStyle==="bun"){
-        fill(12,3,19,6,hair);
-        fill(13,2,18,3,hairL);
-        fill(10,6,21,9,hair);
-        fill(9,7,10,12,hair);fill(21,7,22,12,hair);
-        return;
-      }
-      if(hairStyle==="sword"||hairStyle==="neat"){
-        fill(10,4,21,8,hair);
-        fill(11,3,20,4,hairL);
-        fill(9,5,10,9,hair);fill(21,5,22,9,hair);
-        if(hairStyle==="sword"){
-          fill(14,2,17,3,acc); /* 冠/簪 */
+      /* 通用发顶 */
+      fill(12,4,27,11,hair);
+      fill(13,3,26,4,hair);
+      fill(14,2,25,3,hairD);
+      fill(11,6,12,14,hair);fill(27,6,28,14,hair);
+      fill(10,8,11,16,hair);fill(28,8,29,16,hair);
+
+      if(style==="hero"||style==="short"||style==="wild"){
+        /* 参考立绘：头顶尖簇、额前中分碎发 */
+        set(18,1,hair);set(19,1,hairD);set(20,1,hair);
+        set(17,2,hair);set(21,2,hair);
+        set(15,2,hair);set(23,2,hair);
+        /* 额前 */
+        fill(14,8,17,12,hair);
+        fill(22,8,25,12,hair);
+        fill(18,9,21,11,hair);
+        set(16,11,hairD);set(23,11,hairD);
+        /* 侧发贴脸 */
+        fill(11,12,13,20,hair);fill(26,12,28,20,hair);
+        fill(12,18,13,24,hair);fill(26,18,27,24,hair);
+        if(style==="wild"){
+          set(9,6,hair);set(8,8,hair);set(30,6,hair);set(31,8,hair);
+          set(14,1,hair);set(25,1,hair);
         }
-        /* 整齐刘海 */
-        hline(11,20,8,hair);
+        if(style==="hero"){
+          /* 发丝高光 */
+          set(16,4,hairL);set(22,4,hairL);set(19,3,hairL);
+        }
         return;
       }
-      if(hairStyle==="wild"){
-        fill(9,3,22,8,hair);
-        set(8,4,hair);set(7,5,hair);set(23,4,hair);set(24,5,hair);
-        set(10,2,hair);set(21,2,hair);
-        fill(9,8,10,12,hair);fill(21,8,22,12,hair);
+      if(style==="long"||style==="twin"){
+        fill(10,6,12,28,hair);fill(27,6,29,28,hair);
+        fill(9,12,10,26,hair);fill(29,12,30,26,hair);
+        fill(14,8,18,12,hair);fill(21,8,25,12,hair);
+        if(style==="twin"){
+          fill(9,4,13,10,hair);fill(26,4,30,10,hair);
+          fill(10,3,12,5,hairL);fill(27,3,29,5,hairL);
+        }else{
+          fill(13,3,26,5,hairL);
+        }
         return;
       }
-      if(hairStyle==="slick"){
-        fill(10,5,21,8,hair);
-        fill(11,4,20,5,hairL);
-        fill(9,6,10,9,hair);fill(21,6,22,9,hair);
+      if(style==="elder"){
+        fill(12,4,27,10,hairL);
+        fill(11,6,12,12,hairL);fill(27,6,28,12,hairL);
+        fill(14,3,25,4,"#e8e4dc");
         return;
       }
-      if(hairStyle==="young"||hairStyle==="short"||hairStyle==="top"){
-        fill(10,4,21,8,hair);
-        fill(11,3,20,4,hair);
-        fill(9,5,10,8,hair);fill(21,5,22,8,hair);
-        if(h3%2===0){fill(12,7,15,8,hair);fill(16,7,19,8,hair);}
-        else hline(11,20,7,hair);
+      if(style==="neat"||style==="twin"){
+        fill(13,3,26,5,hairL);
+        fill(14,8,25,10,hair);
         return;
       }
-      /* default */
-      fill(10,4,21,8,hair);
-      fill(9,5,10,9,hair);fill(21,5,22,9,hair);
+      fill(14,8,17,11,hair);fill(22,8,25,11,hair);
     }
 
-    /* ===== 帽子/面罩 ===== */
-    if(hat==="mask"){
-      fill(10,10,21,16,"#1a1a22");
-      fill(11,11,20,15,"#2a2a32");
-      /* 单眼露出 */
-      fill(17,12,19,14,skin);
-      set(18,13,"#e8e8e8");set(17,13,"#1a120c");
-    }else if(hat==="veil"){
-      fill(10,9,21,14,"#3a4a4a");
-      fill(11,10,20,13,"#4a5a5a");
-      hline(12,19,11,"#6a7a7a");
-    }else if(hat==="leaf"){
-      set(15,3,"#5a8a4a");set(16,2,"#6a9a5a");set(17,3,"#5a8a4a");
-      set(14,4,"#4a7a3a");
-    }else if(hat==="flower"){
-      set(8,6,"#e8a0a0");set(7,7,"#d08080");set(9,7,"#d08080");set(8,8,"#e8a0a0");
-      set(8,7,"#e8c878");
-    }
-
-    /* ===== 眉毛 ===== */
-    if(hat!=="mask"&&hat!=="veil"){
-      var brow=shade(hair,-10);
+    /* ===== 眉（参考：剑眉） ===== */
+    if(style!=="mask"){
+      var brow=hairD;
       if(g==="女"){
-        hline(11,13,11,brow);hline(18,20,11,brow);
+        hline(13,16,12,brow);hline(23,26,12,brow);
+        set(16,11,brow);set(23,11,brow);
       }else{
-        hline(11,14,11,brow);hline(17,20,11,brow);
-        if(role==="elder"||beard>=1){hline(11,14,10,brow);hline(17,20,10,brow);}
+        hline(13,17,12,brow);hline(22,26,12,brow);
+        set(17,11,brow);set(22,11,brow);
+        hline(13,16,11,brow);hline(23,26,11,brow);
       }
     }
 
-    /* ===== 眼睛 ===== */
-    if(hat!=="mask"&&hat!=="veil"){
-      var eyeWhite="#f0e8e0";
-      var iris=role==="evil"?"#b85b53":(h2%3===0?"#3a5a4a":"#2a2018");
+    /* ===== 眼（参考：大而锐利、有高光） ===== */
+    if(style!=="mask"){
+      var eyeW="#f5f0ea";
+      var iris=role==="evil"?"#8a3030":"#2a2218";
       var pupil="#0a0806";
-      /* 左眼 */
-      fill(11,12,13,14,eyeWhite);
-      set(12,13,iris);set(12,12,pupil);
-      set(13,12,skinL); /* 高光旁 */
-      /* 右眼 */
-      fill(18,12,20,14,eyeWhite);
-      set(19,13,iris);set(19,12,pupil);
-      if(role==="evil"){
-        set(11,13,"#b85b53");set(20,13,"#b85b53");
-      }
-      /* 下眼睑 */
-      hline(11,13,15,skinD);hline(18,20,15,skinD);
-    }else if(hat==="veil"){
-      set(12,12,"#1a120c");set(19,12,"#1a120c");
+      /* 左 */
+      fill(13,13,17,16,eyeW);
+      fill(14,14,16,15,iris);
+      set(15,14,pupil);set(16,13,"#ffffff");
+      hline(13,17,17,skinD);
+      /* 右 */
+      fill(22,13,26,16,eyeW);
+      fill(23,14,25,15,iris);
+      set(24,14,pupil);set(25,13,"#ffffff");
+      hline(22,26,17,skinD);
+      /* 眼角 */
+      set(13,14,skinM);set(26,14,skinM);
     }
 
-    /* ===== 疤痕 / 眼罩 ===== */
-    if(extra==="scar"||extra==="patch"){
-      if(extra==="patch"){
-        fill(10,11,14,15,"#1a120c");
-        hline(10,14,13,"#2a2018");
-      }else{
-        set(14,10,skinD);set(15,11,"#8a4a4a");set(16,12,skinD);
-        set(17,13,"#8a4a4a");
-      }
-    }
-    if(extra==="burn"){
-      set(20,16,"#a06040");set(21,17,"#8a5040");set(19,18,"#a06040");
-    }
-    if(extra==="blood"){
-      set(14,17,"#6a2020");set(15,18,"#8a3030");set(16,17,"#6a2020");
-    }
+    /* 疤/伤 */
+    if(acc==="scar"){set(18,12,skinD);set(19,13,"#8a4a4a");set(20,14,skinD);}
+    if(acc==="burn"){set(26,20,"#a06040");set(27,21,"#8a5040");}
+    if(acc==="blood"){set(18,22,"#6a2020");set(19,23,"#8a3030");}
 
-    /* ===== 鼻子 ===== */
-    set(15,15,skinD);set(16,15,skinD);set(16,16,skinD);
+    /* ===== 鼻 ===== */
+    set(19,18,skinD);set(20,18,skinM);set(20,19,skinD);set(19,19,skinM);
 
-    /* ===== 嘴 ===== */
-    var mouthC="#a06050";
-    var mtype=h3%5;
+    /* ===== 嘴（参考：抿唇） ===== */
     if(g==="女"){
-      hline(14,17,19,"#c07070");
-      set(15,19,"#d08080");
-    }else if(mtype===0){hline(14,17,19,mouthC);}
-    else if(mtype===1){hline(13,18,19,mouthC);set(15,18,mouthC);}
-    else if(mtype===2){set(14,19,mouthC);set(17,19,mouthC);}
-    else if(mtype===3){hline(14,17,19,mouthC);hline(14,17,20,skinD);}
-    else{hline(15,16,19,mouthC);}
+      hline(17,22,23,"#c07070");set(19,23,"#d08080");set(20,23,"#d08080");
+    }else{
+      hline(17,22,23,"#a06858");
+      set(18,23,"#8a5848");set(21,23,"#8a5848");
+    }
 
-    /* ===== 胡须 ===== */
+    /* ===== 须 ===== */
     if(beard>=1){
-      fill(13,20,18,22,hair);
-      if(beard>=2){
-        fill(12,21,19,23,hair);
-        fill(14,23,17,24,hairL);
-      }
+      fill(16,25,23,28,hair);
+      if(beard>=2){fill(15,27,24,30,hairL);fill(17,29,22,31,hairL);}
     }
 
-    /* ===== 饰品 ===== */
-    if(extra==="tassel"){
-      vline(24,8,14,acc);set(24,15,shade(acc,-20));set(25,10,acc);
-    }
-    if(extra==="beads"){
-      set(14,25,acc);set(16,25,acc);set(18,25,acc);
-      set(15,26,shade(acc,-15));set(17,26,shade(acc,-15));
-    }
-    if(extra==="pearl"||extra==="shell"){
-      set(8,14,acc);set(23,14,acc);
-      set(8,15,shade(acc,20));
-    }
-    if(extra==="coin"){
-      set(22,18,acc);set(23,18,shade(acc,20));set(22,19,shade(acc,-20));
-    }
-    if(extra==="key"){
-      set(23,20,acc);set(24,20,acc);set(24,21,shade(acc,-20));
-    }
-    if(extra==="herb"||extra==="basket"){
-      set(7,18,"#5a8a4a");set(6,19,"#4a7a3a");set(7,20,"#6a9a5a");
-    }
-    if(extra==="sword"){
-      vline(25,12,22,"#a0a8b0");set(25,11,acc);set(25,23,"#6a6050");
-    }
-    if(extra==="rope"){
-      hline(22,25,22,"#8a7a5a");hline(22,25,23,"#6a5a4a");
-    }
-    if(extra==="metal"){
-      fill(10,8,12,10,"#6a7078");fill(19,8,21,10,"#6a7078");
-    }
-    /* 女耳环 */
-    if(g==="女"&&hat==="none"&&extra!=="pearl"){
-      set(9,14,acc);set(22,14,acc);
-    }
-    /* 玩家发带 */
-    if(role==="player"){
-      hline(11,20,5,acc);
-      set(10,5,shade(acc,-20));set(21,5,shade(acc,-20));
-    }
+    /* 饰品 */
+    if(acc==="tassel"){vline(32,12,22,"#d9ad62");set(32,23,"#8a6a45");set(33,14,"#d9ad62");}
+    if(acc==="leaf"){set(18,3,"#5a8a4a");set(19,2,"#6a9a5a");set(20,3,"#5a8a4a");}
+    if(acc==="flower"){set(11,8,"#e8a0a0");set(10,9,"#d08080");set(12,9,"#d08080");set(11,9,"#e8c878");}
+    if(acc==="pearl"){set(11,16,"#e8e0d0");set(28,16,"#e8e0d0");}
+    if(acc==="shell"){set(31,36,"#6a9eae");set(32,37,"#8ab8c8");}
+    if(g==="女"&&acc==="none"){set(11,16,"#d9ad62");set(28,16,"#d9ad62");}
 
-    /* 组装 SVG：合并同色可优化，此处直接输出 */
     var rects="";
     var keys=Object.keys(cells);
     for(var i=0;i<keys.length;i++){
       var p=keys[i].split(",");
       rects+='<rect x="'+p[0]+'" y="'+p[1]+'" width="1" height="1" fill="'+cells[keys[i]]+'"/>';
     }
-    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">'+rects+'</svg>';
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" shape-rendering="crispEdges">'+rects+'</svg>';
   }
 
   function roleForNpc(npc){
@@ -430,16 +342,16 @@
     var id=npc.id||"";
     if(PRESETS[id]&&PRESETS[id].role)return PRESETS[id].role;
     var title=(npc.title||"")+(npc.desc||"");
-    if(/僧|寺|方丈|戒律|知客/.test(title)||/monk|kong_|liao_|wuxiang|jing/.test(id))return"monk";
-    if(/影|雀|白雀|蒙面|机关/.test(title)||/^que_|shadow|cave_guard|reef_ghost/.test(id))return"shadow";
-    if(/隐士|云叟|老者/.test(title)||id==="hermit")return"elder";
+    if(/僧|寺|方丈/.test(title)||/monk|kong_|liao_|wuxiang|jing/.test(id))return"monk";
+    if(/影|雀|蒙面|机关/.test(title)||/^que_|shadow|cave_guard|reef/.test(id))return"shadow";
+    if(/隐士|云叟/.test(title)||id==="hermit")return"elder";
     if(/邪|血屠/.test(title)||id==="xie_ren")return"evil";
     return"npc";
   }
 
   function avatarHtml(seed,gender,role,size,presetId){
     size=size||"md";
-    var svg=pixelAvatarSvg({seed:seed,gender:gender,role:role,presetId:presetId||seed});
+    var svg=pixelAvatarSvg({seed:seed,gender:gender,role:role||"npc",presetId:presetId||seed});
     return '<span class="px-avatar '+size+'">'+svg+'</span>';
   }
 
@@ -466,7 +378,6 @@
   window.playerAvatar=playerAvatar;
   window.npcAvatar=npcAvatar;
 
-  /* —— UI 补丁（与前版相同结构） —— */
   var _rg=renderGame;
   renderGame=function(){
     _rg();
@@ -547,13 +458,13 @@
       if(hero&&!hero.querySelector(".px-title-avatars")){
         var row=document.createElement("div");
         row.className="px-title-avatars row";
-        row.style.cssText="justify-content:center;margin:8px 0;gap:8px";
+        row.style.cssText="justify-content:center;margin:8px 0;gap:6px";
         row.innerHTML=
-          avatarHtml("demo_m","男","player","lg")+
+          avatarHtml("hero_ref","男","player","lg")+
           avatarHtml("aqing","女","npc","lg","aqing")+
+          avatarHtml("luyun","男","npc","lg","luyun")+
           avatarHtml("que_shadow","其他","shadow","lg","que_shadow")+
-          avatarHtml("monk_jing","男","monk","lg","monk_jing")+
-          avatarHtml("tieba","男","npc","lg","tieba");
+          avatarHtml("monk_jing","男","monk","lg","monk_jing");
         var title=hero.querySelector(".title");
         if(title&&title.nextSibling)hero.insertBefore(row,title.nextSibling);
         else hero.appendChild(row);
