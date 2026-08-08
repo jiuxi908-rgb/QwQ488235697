@@ -109,17 +109,27 @@
 <body>
 <div id="app" class="app"></div>
 <div id="modalRoot"></div>
+
+<!-- 1. 数据层 -->
 <script src="./data1.js"></script>
 <script src="./text.js"></script>
 <script src="./favor.js"></script>
 <script src="./npc.js"></script>
 <script src="./data2.js"></script>
 <script src="./items.js"></script>
+
+<!-- 2. 核心层 -->
+<script src="./core.js"></script>
+
+<!-- 3. 逻辑层 -->
 <script src="./npc_logic.js"></script>
 <script src="./time.js"></script>
 <script src="./logic.js"></script>
 <script src="./map_grid.js"></script>
+<script src="./combat.js"></script>
 <script src="./save_slots.js"></script>
+
+<!-- 4. 系统 / UI 层 -->
 <script src="./favor_ui.js"></script>
 <script src="./time_ui.js"></script>
 <script src="./items_ui.js"></script>
@@ -129,11 +139,12 @@
 <script src="./sect_quest.js"></script>
 <script src="./meridian.js"></script>
 <script src="./skill_ui.js"></script>
-<script src="./combat.js"></script>
 <script src="./npc_profile.js"></script>
 <script src="./romance.js"></script>
 <script src="./romance_orient.js"></script>
 <script src="./pixel_ui.js"></script>
+
+<!-- 5. 体验层（最后） -->
 <script src="./ui_smooth.js"></script>
 </body>
 </html>
