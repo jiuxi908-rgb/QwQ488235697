@@ -56,7 +56,6 @@ function choice(o,kind){return`<div class="choice" data-kind="${kind}" data-id="
 function markChoices(sel){qsa(".choice").forEach(el=>el.classList.toggle("active",sel[el.dataset.kind]===el.dataset.id));}
 
 function renderGame(){
-  closeModal();
   const p=ensurePlayer(state.player);
   const here=getMapById(p.location);const power=calcCombatPower(p);
   const local=(LOCAL_SKILLS[p.location]||[]).map(getSkillById).filter(Boolean);
@@ -155,7 +154,7 @@ function modalChar(){
   qs("#mClose").onclick=closeModal;
   qs("#mSkill").onclick=()=>modalSkills();
   if(qs("#mBag"))qs("#mBag").onclick=()=>{if(typeof modalBag==="function")modalBag();};
-  qs("#mSave").onclick=()=>{saveGame(state);p.logs.unshift("保存了江湖足迹。");closeModal();renderGame();};
+  qs("#mSave").onclick=()=>{saveGame(state);p.logs.unshift("保存了江湖足迹。");closeModal();};
   qs("#mDel").onclick=()=>{deleteSave();closeModal();renderStart();};
 }
 
@@ -191,7 +190,7 @@ function modalNpc(npcId){
         return `<button class="btn primary npc-act" data-act="${a.id}" ${done?"disabled":""}>${a.name}${cost?`（${cost}两）`:""}<span class="small">${extra}</span></button>`;
       }).join("")}
     </div>`);
-  qs("#mClose").onclick=()=>{closeModal();renderGame();};
+  qs("#mClose").onclick=closeModal;
   qsa(".npc-act").forEach(el=>el.onclick=()=>{
     const r=interactPerson(p,npc,el.dataset.act);
     if(!r.ok)p.logs.unshift(r.msg);
@@ -245,7 +244,7 @@ function modalSect(sect){
         <p class="small" style="margin-top:6px">独门：${sect.skills.map(id=>{const s=getSkillById(id);return s?s.name:id;}).join("、")}</p>
       `:`<p class="small">你已是【${getSectById(p.sect).name}】弟子。</p>`}
   `);
-  qs("#mClose").onclick=()=>{closeModal();renderGame();};
+  qs("#mClose").onclick=closeModal;
   if(qs("#join"))qs("#join").onclick=()=>{
     const r=joinSect(p,sect);p.sectRank=0;p.logs.unshift(r.msg+(r.ok?` 师父：${currentMaster(sect,0).title}·${currentMaster(sect,0).name}`:""));
     saveGame(state);modalSect(sect);
