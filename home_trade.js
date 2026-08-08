@@ -29,7 +29,7 @@
     for(var lv=1;lv<=4;lv++){
       var pts=[];
       for(var i=0;i<n;i++){var p=pt(i,R*lv/4);pts.push(p[0].toFixed(1)+","+p[1].toFixed(1));}
-      rings+='<polygon points="'+pts.join(" ")+'") fill="none" stroke="#4b3a2d" stroke-width="1" opacity="0.7"/>';
+      rings+='<polygon points="'+pts.join(" ")+'" fill="none" stroke="#4b3a2d" stroke-width="1" opacity="0.7"/>';
     }
     var axes="";
     for(var i=0;i<n;i++){
@@ -159,14 +159,12 @@
     var got=count-left;
     var r=addItem(player,itemId,got);
     if(!r.ok){
-      /* 退回 */
       h.storage.push({id:itemId,count:got});
       return{ok:false,msg:r.msg||"背包已满"};
     }
     return{ok:true,msg:"取出【"+(getItemById(itemId)||{}).name+"】×"+got};
   };
 
-  /* —— 家园界面 —— */
   window.modalHome=function(){
     var p=ensurePlayer(state.player);
     var h=ensureHome(p);
@@ -249,7 +247,6 @@
     });
   }
 
-  /* —— 强化角色面板（含雷达图） —— */
   var _mChar=modalChar;
   modalChar=function(){
     var p=ensurePlayer(state.player);
@@ -303,13 +300,6 @@
     qs("#mDel").onclick=function(){if(confirm("确定删除存档？")){deleteSave();closeModal();renderStart();}};
   };
 
-  /* 背包详情增加出售 */
-  var _showDetail=null;
-  function patchBagSell(){
-    /* 在 items_ui 的 showItemDetail 之后无法直接钩，改为在 modalBag 打开后增强：
-       监听详情区——简化：重写 modalBag 内点击后补充出售按钮较难。
-       改为提供独立出售入口 modalSell */
-  }
   window.modalSell=function(){
     var p=ensurePlayer(state.player);
     var atShop=canSellHere(p.location);
@@ -342,8 +332,6 @@
     });
   };
 
-  /* 商店改为买卖双页 */
-  var _shop=window.modalShop;
   window.modalShop=function(locId){
     var p=ensurePlayer(state.player);
     var stock=(typeof SHOP_STOCK!=="undefined"&&SHOP_STOCK[locId])||[];
@@ -412,7 +400,6 @@
     };
   };
 
-  /* 工具栏加入家园；背包可售 */
   function wireExtra(){
     var bar=document.querySelector(".toolbar");
     if(!bar)return;
