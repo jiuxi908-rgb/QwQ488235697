@@ -117,4 +117,26 @@
       };
     });
   };
+
+  /* 角色面板追加结缘信息 */
+  var _mChar=modalChar;
+  if(typeof modalChar==="function"){
+    modalChar=function(){
+      _mChar();
+      var p=ensurePlayer(state.player);
+      var panel=qs("#modalPanel");if(!panel)return;
+      var bonds=p.bonds||{};
+      var keys=Object.keys(bonds).filter(function(k){return bonds[k];});
+      if(!keys.length)return;
+      var div=document.createElement("div");
+      div.className="small";
+      div.style.marginTop="8px";
+      var lines=keys.map(function(k){
+        var b=bonds[k];
+        return (b.name||k)+"（第"+(b.at||"?")+"日）"+(b.buff&&b.buff.desc?" · "+b.buff.desc:"");
+      }).join(" · ");
+      div.innerHTML='<hr><p class="section-title" style="font-size:13px;margin:4px 0;color:#e8a0a0">结缘</p><p>'+lines+'</p>';
+      panel.appendChild(div);
+    };
+  }
 })();
