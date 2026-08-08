@@ -2,6 +2,7 @@
 function ensureFavor(player){
   if(!player.favor)player.favor={};
   if(!player.flags)player.flags={};
+  if(!player.bonds)player.bonds={};
   return player;
 }
 function getFavor(player,npcId){
@@ -22,6 +23,43 @@ function favorCostDiscount(favor){
   if(favor>=20)return 0.95;
   return 1;
 }
+function hasBond(player,npcId){
+  ensureFavor(player);
+  return Boolean(player.bonds[npcId]);
+}
+function getBondCount(player){
+  ensureFavor(player);
+  return Object.keys(player.bonds).filter(function(k){return player.bonds[k];}).length;
+}
+
+/** 私定终身：好感≥90 且可结缘NPC，一生一次每人 */
+function pledgeLifelong(player,npc){
+  ensureFavor(player);
+  const conf=(typeof ROMANCE_NPCS!=="undefined"?ROMANCE_NPCS[npc.id]:null);
+  if(!conf)return{ok:false,msg:npc.name+"与你无此缘分。"};
+  if(hasBond(player,npc.id))return{ok:false,msg:conf.already};
+  const fav=getFavor(player,npc.id);
+  if(fav<90)return{ok:false,msg:conf.rejectNeed+"（需好感≥90，当前"+fav+"）"};
+  /* 允许与多人结缘，但每人仅一次；若想限制只结一人可改 getBondCount */
+  player.bonds[npc.id]={
+    name:conf.name||npc.name,
+    at:player.day||1,
+    buff:conf.buff||null
+  };
+  addFavor(player,npc.id,100-fav); /* 拉满到100 */
+  if(conf.buff){
+    const b=conf.buff;
+    if(b.luck)player.stats.luck=(player.stats.luck||0)+b.luck;
+    if(b.agi)player.stats.agi=(player.stats.agi||0)+b.agi;
+    if(b.wit)player.stats.wit=(player.stats.wit||0)+b.wit;
+    if(b.arm)player.stats.arm=(player.stats.arm||0)+b.arm;
+  }
+  const line=conf.lines[Math.floor(Math.random()*conf.lines.length)];
+  const msg=line+" 「"+conf.accept+"」"+(conf.buff?"（"+conf.buff.desc+"）":"");
+  player.logs.unshift(msg);
+  player.logs=player.logs.slice(0,50);
+  return{ok:true,msg:msg};
+}
 
 function chatWithNpc(player,npc,topicId){
   ensureFavor(player);
@@ -40,6 +78,8 @@ function chatWithNpc(player,npc,topicId){
   let gain=topic.favor||2;
   if(count===1)gain=Math.max(1,Math.floor(gain*0.7));
   if(count>=2)gain=Math.max(1,Math.floor(gain*0.5));
+  /* 已结缘额外+1 */
+  if(hasBond(player,npc.id))gain+=1;
   const d=addFavor(player,npc.id,gain);
   const line=(typeof getDialogueLine==="function"?getDialogueLine(npc,getFavor(player,npc.id)):enrichTalk(npc));
   const rank=(typeof favorRank==="function"?favorRank(getFavor(player,npc.id)).name:"");
@@ -54,7 +94,9 @@ function giftNpc(player,npc){
   const cost=15;
   if(player.silver<cost)return{ok:false,msg:"银两不足（需"+cost+"）"};
   player.silver-=cost;
-  const d=addFavor(player,npc.id,8+Math.floor(Math.random()*5));
+  let base=8+Math.floor(Math.random()*5);
+  if(hasBond(player,npc.id))base+=3;
+  const d=addFavor(player,npc.id,base);
   const msg="你送了些礼物给"+npc.name+"（银两-"+cost+"，好感+"+d+" → "+getFavor(player,npc.id)+"）";
   player.logs.unshift(msg);
   player.logs=player.logs.slice(0,50);
@@ -82,7 +124,7 @@ function interactPerson(player,npc,actId){
   switch(act.type){
     case"talk":{
       const line=(typeof getDialogueLine==="function"?getDialogueLine(npc,fav):npc.talks[Math.floor(Math.random()*npc.talks.length)]);
-      favorDelta=addFavor(player,npc.id,1);
+      favorDelta=addFavor(player,npc.id,1+(hasBond(player,npc.id)?1:0));
       msg=npc.name+"：「"+line+"」"+(favorDelta?("（好感+"+favorDelta+"）"):"");
       break;
     }
