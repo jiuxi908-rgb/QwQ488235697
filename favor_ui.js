@@ -4,6 +4,7 @@
   ensurePlayer=function(p){
     p=_ensure(p);
     if(!p.favor)p.favor={};
+    if(!p.bonds)p.bonds={};
     return p;
   };
   formatLog=function(text){
@@ -11,7 +12,7 @@
     var dayMatch=text.match(/^(第\d+日)/);var day=dayMatch?dayMatch[1]:"";
     var body=day?text.slice(day.length).replace(/^，/,""):text;
     var cls="log-normal";
-    if(/完胜|银两\+|气血\+|内力\+|经验\+|突破|拜入|贡献\+|完成任务|学会|购得|指点|休整|求医|赢了|晋升|师父|好感\+/.test(body))cls="log-gain";
+    if(/完胜|银两\+|气血\+|内力\+|经验\+|突破|拜入|贡献\+|完成任务|学会|购得|指点|休整|求医|赢了|晋升|师父|好感\+|私定终身/.test(body))cls="log-gain";
     else if(/惨败|受挫|气血-|银两-|失败|损失|输了|好感-/.test(body))cls="log-loss";
     body=body.replace(/（([^）]+)）/g,'<span class="'+cls+'">（$1）</span>');
     body=body.replace(/【战力(\d+) vs 难度(\d+) · (完胜|险胜|受挫|惨败)】/g,'<span class="power">【战力$1 vs 难度$2 · $3】</span>');
@@ -24,6 +25,7 @@
     if(!npc)return;
     var fav=(typeof getFavor==="function"?getFavor(p,npc.id):(p.favor[npc.id]|0));
     var rank=(typeof favorRank==="function"?favorRank(fav):{name:"陌生",color:"#b9a58a"});
+    var bonded=typeof hasBond==="function"&&hasBond(p,npc.id);
     var talk=(typeof getDialogueLine==="function"?getDialogueLine(npc,fav):(typeof enrichTalk==="function"?enrichTalk(npc):npc.talks[0]));
     var topics=(typeof CHAT_TOPICS!=="undefined"?CHAT_TOPICS:[{id:"weather",name:"闲聊",favor:2}]);
     var dayKey="chat_"+npc.id+"_"+p.day;
@@ -37,6 +39,19 @@
       topicHtml+='<button class="btn sm chat-topic" data-id="'+t.id+'" '+dis+'>'+t.name+need+'</button>';
     });
     topicHtml+='<button class="btn sm" id="giftBtn">送礼（15两）</button>';
+
+    /* 私定终身按钮：可结缘NPC + 好感≥90 */
+    var canRomance=typeof ROMANCE_NPCS!=="undefined"&&ROMANCE_NPCS[npc.id];
+    var pledgeHtml="";
+    if(canRomance){
+      if(bonded){
+        pledgeHtml='<p class="small" style="color:#e8a0a0;margin:6px 0">已与'+npc.name+'私定终身 · 第'+(p.bonds[npc.id].at||"?")+"日</p>";
+      }else if(fav>=90){
+        pledgeHtml='<button class="btn primary" id="pledgeBtn" style="margin:6px 0;border-color:#e8a0a0;color:#f5e8cf">私定终身</button>';
+      }else{
+        pledgeHtml='<p class="small" style="margin:6px 0;opacity:.7">私定终身（需好感≥90，当前'+fav+'）</p>';
+      }
+    }
 
     var actHtml="";
     (npc.acts||[]).forEach(function(a){
@@ -56,12 +71,15 @@
       actHtml+='<button class="btn primary npc-act" data-act="'+a.id+'" '+(done?"disabled":"")+'>'+a.name+priceNote+'<span class="small">'+extra+'</span></button>';
     });
 
+    var bondTag=bonded?' <span class="rank-tag" style="border-color:#e8a0a0;color:#e8a0a0">已结缘</span>':"";
+
     openModal(
-      '<div class="modal-head"><h2 class="section-title">'+npc.name+' <span class="tag">'+npc.title+'</span></h2><button class="modal-close" id="mClose">关闭</button></div>'+
+      '<div class="modal-head"><h2 class="section-title">'+npc.name+' <span class="tag">'+npc.title+'</span>'+bondTag+'</h2><button class="modal-close" id="mClose">关闭</button></div>'+
       '<p class="small">'+npc.desc+'</p>'+
-      '<div class="favor-row"><span class="small">好感</span><div class="favor-bar"><div class="favor-fill" style="width:'+fav+'%;background:'+rank.color+'"></div></div>'+
+      '<div class="favor-row"><span class="small">好感</span><div class="favor-bar"><div class="favor-fill" style="width:'+Math.min(100,fav)+'%;background:'+rank.color+'"></div></div>'+
       '<span class="rank-tag" style="border-color:'+rank.color+';color:'+rank.color+'">'+rank.name+' '+fav+'</span></div>'+
       '<div class="talk-bubble">「'+talk+'」</div>'+
+      pledgeHtml+
       '<h3 class="section-title">交谈 <span class="small">今日还可聊 '+chatLeft+' 次</span></h3>'+
       '<div class="row" style="margin-bottom:8px">'+topicHtml+'</div>'+
       '<h3 class="section-title">互动</h3>'+
@@ -79,6 +97,13 @@
     });
     if(qs("#giftBtn"))qs("#giftBtn").onclick=function(){
       var r=giftNpc(p,npc);
+      if(!r.ok)p.logs.unshift(r.msg);
+      saveGame(state);
+      modalNpc(npcId);
+    };
+    if(qs("#pledgeBtn"))qs("#pledgeBtn").onclick=function(){
+      if(!confirm("是否与「"+npc.name+"」私定终身？此举将永久记录。"))return;
+      var r=pledgeLifelong(p,npc);
       if(!r.ok)p.logs.unshift(r.msg);
       saveGame(state);
       modalNpc(npcId);
