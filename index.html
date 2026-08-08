@@ -83,6 +83,13 @@
     .rank-tag{font-size:10px;padding:1px 6px;border-radius:99px;border:1px solid var(--gold);color:var(--gold)}
     .radar-wrap{display:flex;justify-content:center;margin:8px 0 4px}
     .radar-svg{display:block;max-width:100%;height:auto}
+    .quest-list{display:flex;flex-direction:column;gap:8px}
+    .quest-card{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#1b1512}
+    .quest-card.ready{border-color:var(--gold);box-shadow:0 0 0 1px rgba(217,173,98,.25)}
+    .quest-head{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-bottom:4px}
+    .quest-head b{font-size:13px;color:var(--text)}
+    .quest-bar{height:6px;background:#120f0d;border:1px solid var(--line);border-radius:99px;overflow:hidden;margin-top:4px}
+    .quest-fill{height:100%;background:linear-gradient(90deg,#6b4630,var(--gold));border-radius:99px;transition:width .2s ease}
     @media(max-width:600px){
       .title{font-size:26px}
       .pixel-map{grid-template-columns:repeat(3,1fr)}
@@ -112,5 +119,6 @@
 <script src="./time_ui.js"></script>
 <script src="./items_ui.js"></script>
 <script src="./home_trade.js"></script>
+<script src="./quest.js"></script>
 </body>
 </html>
