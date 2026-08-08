@@ -4,58 +4,83 @@
     var c=RARITY_COLOR[r]||"#b9a58a";
     return '<span class="tag" style="border-color:'+c+';color:'+c+'">'+r+'</span>';
   }
-  function itemLine(stack){
+  function rarityBorder(r){
+    return RARITY_COLOR[r]||"#4b3a2d";
+  }
+  function itemLine(stack,player){
     var def=getItemById(stack.id);if(!def)return"";
     var icon=ITEM_ICON[def.type]||"物";
     var cnt=stack.count>1?(" ×"+stack.count):"";
-    var tip="";
-    if(def.atk)tip+=" · 攻+"+def.atk;
-    if(def.def)tip+=" · 防+"+def.def;
-    if(def.heal)tip+=" · 血+"+def.heal;
-    if(def.mp)tip+=" · 内+"+def.mp;
-    if(def.gift)tip+=" · 礼+"+def.gift;
-    if(def.bagExpand)tip+=" · 容+"+def.bagExpand;
-    if(def.exp)tip+=" · 经验+"+def.exp;
-    return '<div class="item-row" data-id="'+def.id+'">'+
-      '<span class="item-icon">'+icon+'</span>'+
-      '<div class="item-meta"><b>'+def.name+'</b>'+cnt+' '+rarityTag(def.rarity)+
-      '<p class="small">'+def.type+tip+'</p></div></div>';
+    var tip=typeof formatItemStats==="function"?formatItemStats(def):"";
+    var eq=isEquipped(player,def.id);
+    var eqMark=eq?'<span class="tag" style="border-color:var(--gold);color:var(--gold)">穿</span> ':"";
+    var bc=rarityBorder(def.rarity);
+    return '<div class="item-row'+(eq?" equipped":"")+'" data-id="'+def.id+'">'+
+      '<span class="item-icon" style="border-color:'+bc+';color:'+bc+'">'+icon+'</span>'+
+      '<div class="item-meta"><b>'+eqMark+def.name+'</b>'+cnt+' '+rarityTag(def.rarity)+
+      '<p class="small">'+def.type+(tip?(" · "+tip):"")+'</p></div></div>';
+  }
+  function equipSlotCard(player,slot,label){
+    var id=player.equip[slot];
+    if(!id){
+      return '<div class="equip-slot empty" data-slot="'+slot+'">'+
+        '<div class="equip-slot-label">'+label+'</div>'+
+        '<div class="equip-slot-body"><span class="small">空</span></div></div>';
+    }
+    var d=getItemById(id);
+    var name=d?d.name:id;
+    var tip=d&&typeof formatItemStats==="function"?formatItemStats(d):"";
+    var rc=d?rarityBorder(d.rarity):"#4b3a2d";
+    var icon=d?(ITEM_ICON[d.type]||"物"):"?";
+    return '<div class="equip-slot filled" data-slot="'+slot+'" style="border-color:'+rc+'">'+
+      '<div class="equip-slot-label">'+label+'</div>'+
+      '<div class="equip-slot-body">'+
+        '<span class="item-icon sm" style="border-color:'+rc+';color:'+rc+'">'+icon+'</span>'+
+        '<div><b style="font-size:12px">'+name+'</b>'+(d?" "+rarityTag(d.rarity):"")+
+        (tip?'<p class="small" style="margin:2px 0 0">'+tip+'</p>':"")+'</div>'+
+        '<button class="btn sm unequip" data-slot="'+slot+'">卸</button>'+
+      '</div></div>';
   }
   window.modalBag=function(filter){
     if(!state||!state.player)return;
     var p=ensurePlayer(state.player);ensureBag(p);
     filter=filter||"全部";
-    var types=["全部"].concat(ITEM_TYPES);
+    var types=["全部","武器","防具","饰品","消耗品","材料","书卷","任务"];
     var list=p.bag.filter(function(s){
       if(filter==="全部")return true;
       var d=getItemById(s.id);return d&&d.type===filter;
     });
-    var eq=p.equip;
-    function eqName(slot){
-      if(!eq[slot])return"空";
-      var d=getItemById(eq[slot]);return d?d.name:eq[slot];
-    }
     var filtHtml=types.map(function(t){
       return '<button class="btn sm bag-filter'+(t===filter?" primary":"")+'" data-f="'+t+'">'+t+'</button>';
     }).join("");
-    var listHtml=list.length?list.map(function(s){return itemLine(s);}).join(""):'<p class="small">背包空空如也。</p>';
+    var listHtml=list.length?list.map(function(s){return itemLine(s,p);}).join(""):'<p class="small">背包空空如也。</p>';
+    var sum=typeof equipSummaryText==="function"?equipSummaryText(p):"";
+    var buffHtml="";
+    if(p.tempBuffs&&p.tempBuffs.length){
+      buffHtml='<p class="small" style="margin:4px 0">临时：'+p.tempBuffs.map(function(tb){
+        return (tb.name||"增益")+"剩"+tb.left+"日";
+      }).join("、")+'</p>';
+    }
     openModal(
       '<div class="modal-head"><h2 class="section-title">背包 '+bagUsed(p)+'/'+p.bagCap+'</h2><button class="modal-close" id="mClose">关闭</button></div>'+
-      '<div class="equip-row small">'+
-        '<span>武器：<b>'+eqName("weapon")+'</b> '+(eq.weapon?'<button class="btn sm unequip" data-slot="weapon">卸</button>':'')+'</span> '+
-        '<span>防具：<b>'+eqName("armor")+'</b> '+(eq.armor?'<button class="btn sm unequip" data-slot="armor">卸</button>':'')+'</span> '+
-        '<span>饰品：<b>'+eqName("accessory")+'</b> '+(eq.accessory?'<button class="btn sm unequip" data-slot="accessory">卸</button>':'')+'</span>'+
+      '<div class="equip-grid">'+
+        equipSlotCard(p,"weapon","武器")+
+        equipSlotCard(p,"armor","防具")+
+        equipSlotCard(p,"accessory","饰品")+
       '</div>'+
-      '<div class="row" style="margin:6px 0">'+filtHtml+'</div>'+
+      '<p class="small equip-sum">装备加成：<b class="power">'+sum+'</b></p>'+
+      buffHtml+
+      '<div class="row" style="margin:6px 0;gap:4px">'+filtHtml+'</div>'+
       '<div class="item-list">'+listHtml+'</div>'+
-      '<div id="itemDetail" class="item-detail small">点击物品查看详情</div>'
+      '<div id="itemDetail" class="item-detail small">点击物品查看详情与操作</div>'
     );
     qs("#mClose").onclick=function(){closeModal();renderGame();};
     qsa(".bag-filter").forEach(function(el){
       el.onclick=function(){modalBag(el.dataset.f);};
     });
     qsa(".unequip").forEach(function(el){
-      el.onclick=function(){
+      el.onclick=function(e){
+        e.stopPropagation();
         var r=unequipItem(p,el.dataset.slot);
         p.logs.unshift(r.msg);saveGame(state);modalBag(filter);
       };
@@ -67,28 +92,38 @@
   function showItemDetail(p,itemId,filter){
     var def=getItemById(itemId);if(!def)return;
     var box=qs("#itemDetail");if(!box)return;
-    var stats="";
-    if(def.atk)stats+="攻击+"+def.atk+" ";
-    if(def.def)stats+="防御+"+def.def+" ";
-    if(def.heal)stats+="回复气血"+def.heal+" ";
-    if(def.mp)stats+="回复内力"+def.mp+" ";
-    if(def.exp)stats+="武学经验+"+def.exp+" ";
-    if(def.gift)stats+="赠礼好感+"+def.gift+" ";
-    if(def.temp)stats+="临时增益 ";
-    if(def.bagExpand)stats+="背包容量+"+def.bagExpand+" ";
-    if(def.mpBonus)stats+="内力上限+"+def.mpBonus+" ";
-    if(def.arm)stats+="臂力+"+def.arm+" ";
-    if(def.agi)stats+="身法+"+def.agi+" ";
-    if(def.wit)stats+="悟性+"+def.wit+" ";
-    if(def.luck)stats+="福缘+"+def.luck+" ";
+    var stats=typeof formatItemStats==="function"?formatItemStats(def):"";
+    var compare="";
+    var slot=equipSlotOf(def.type);
+    if(slot&&p.equip[slot]&&p.equip[slot]!==itemId){
+      var cur=getItemById(p.equip[slot]);
+      if(cur){
+        var diffs=[];
+        ["atk","def","mpBonus","arm","agi","wit","luck"].forEach(function(k){
+          var a=def[k]||0,b=cur[k]||0;
+          if(a!==b){
+            var lab={atk:"攻",def:"防",mpBonus:"内限",arm:"臂",agi:"身",wit:"悟",luck:"福"}[k];
+            var dlt=a-b;
+            diffs.push(lab+(dlt>0?"+":"")+dlt);
+          }
+        });
+        if(diffs.length)compare='<p class="small" style="color:var(--gold)">相对当前装备：'+diffs.join(" · ")+'</p>';
+        else compare='<p class="small">与当前装备属性相近</p>';
+      }
+    }
     var actions="";
-    if(def.type==="武器"||def.type==="防具"||def.type==="饰品")actions+='<button class="btn primary sm" id="btnEquip">装备</button> ';
-    else if(def.type==="消耗品"&&!def.gift)actions+='<button class="btn primary sm" id="btnUse">使用</button> ';
+    if(def.type==="武器"||def.type==="防具"||def.type==="饰品"){
+      if(isEquipped(p,itemId))actions+='<span class="tag" style="border-color:var(--gold);color:var(--gold)">已装备</span> ';
+      else actions+='<button class="btn primary sm" id="btnEquip">装备</button> ';
+    }else if(def.type==="消耗品"&&!def.gift)actions+='<button class="btn primary sm" id="btnUse">使用</button> ';
     else if(def.type==="书卷")actions+='<button class="btn primary sm" id="btnUse">研读</button> ';
     else if(def.quest&&def.flag)actions+='<button class="btn primary sm" id="btnUse">使用</button> ';
-    if(!def.quest)actions+='<button class="btn sm" id="btnDrop">丢弃</button>';
+    if(!def.quest&&!isEquipped(p,itemId))actions+='<button class="btn sm" id="btnDrop">丢弃</button>';
     box.innerHTML='<b>'+def.name+'</b> '+rarityTag(def.rarity)+' <span class="tag">'+def.type+'</span>'+
-      '<p>'+def.desc+'</p><p>'+stats+'</p><div class="row">'+actions+'</div>';
+      '<p>'+def.desc+'</p>'+
+      (stats?'<p class="power">'+stats+'</p>':"")+
+      compare+
+      '<div class="row" style="margin-top:6px">'+actions+'</div>';
     if(qs("#btnEquip"))qs("#btnEquip").onclick=function(){
       var r=equipItem(p,itemId);p.logs.unshift(r.msg);saveGame(state);modalBag(filter);
     };
@@ -100,11 +135,9 @@
     };
   }
 
-  /* 工具栏背包按钮已在 logic.js 与角色/武学同列，此处仅确保绑定可靠 */
   function wireBagBtn(){
     var btn=qs("#bagBtn");
-    if(btn&&!btn._bagWired){
-      btn._bagWired=true;
+    if(btn){
       btn.onclick=function(){if(typeof modalBag==="function")modalBag();};
     }
   }
@@ -116,7 +149,6 @@
     return p;
   };
 
-  /* 角色面板追加装备信息 */
   var _mChar=modalChar;
   if(typeof modalChar==="function"){
     modalChar=function(){
@@ -127,13 +159,18 @@
       function eqLine(slot,label){
         if(!eq[slot])return label+"：空";
         var d=getItemById(eq[slot]);
-        return label+"：<b>"+(d?d.name:eq[slot])+"</b>";
+        var tip=d&&typeof formatItemStats==="function"?(" "+formatItemStats(d)):"";
+        return label+"：<b>"+(d?d.name:eq[slot])+"</b><span class=\"small\">"+tip+"</span>";
       }
+      var sum=typeof equipSummaryText==="function"?equipSummaryText(p):"";
       var div=document.createElement("div");
       div.className="small";
       div.style.marginTop="8px";
       div.innerHTML='<hr><p class="section-title" style="font-size:13px;margin:4px 0">装备</p>'+
-        '<p>'+eqLine("weapon","武器")+' · '+eqLine("armor","防具")+' · '+eqLine("accessory","饰品")+'</p>';
+        '<p>'+eqLine("weapon","武器")+'</p>'+
+        '<p>'+eqLine("armor","防具")+'</p>'+
+        '<p>'+eqLine("accessory","饰品")+'</p>'+
+        '<p class="power" style="margin-top:4px">总加成：'+sum+'</p>';
       panel.appendChild(div);
     };
   }
@@ -170,12 +207,17 @@
     var html=stock.map(function(id){
       var d=getItemById(id);if(!d)return"";
       var cost=Math.max(1,Math.floor((d.price||10)*priceMod));
-      return '<button class="btn sm buy-item" data-id="'+id+'" data-cost="'+cost+'">'+d.name+' '+cost+'两</button>';
+      var tip=typeof formatItemStats==="function"?formatItemStats(d):"";
+      return '<div class="item-row buy-row" style="cursor:default">'+
+        '<span class="item-icon" style="border-color:'+rarityBorder(d.rarity)+';color:'+rarityBorder(d.rarity)+'">'+(ITEM_ICON[d.type]||"物")+'</span>'+
+        '<div class="item-meta"><b>'+d.name+'</b> '+rarityTag(d.rarity)+
+        '<p class="small">'+(tip||d.type)+'</p></div>'+
+        '<button class="btn sm primary buy-item" data-id="'+id+'" data-cost="'+cost+'">'+cost+'两</button></div>';
     }).join("");
     openModal(
       '<div class="modal-head"><h2 class="section-title">购入</h2><button class="modal-close" id="mClose">关闭</button></div>'+
-      '<p class="small">银两：'+p.silver+' · 时价×'+priceMod.toFixed(2)+'</p>'+
-      '<div class="row">'+html+'</div>'
+      '<p class="small">银两：<b class="power">'+p.silver+'</b> · 时价×'+priceMod.toFixed(2)+'</p>'+
+      '<div class="item-list">'+html+'</div>'
     );
     qs("#mClose").onclick=function(){closeModal();renderGame();};
     qsa(".buy-item").forEach(function(el){
