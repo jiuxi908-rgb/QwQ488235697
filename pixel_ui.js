@@ -1,4 +1,4 @@
-/* 像素头像 · 对齐参考立绘（墨发/锐眼/开领浅衫/褐绦） */
+/* 120×120 精细像素头像 · 参考立绘：墨发锐眼开领褐绦 */
 (function(){
 
   if(!document.getElementById("pixel-ui-style")){
@@ -27,14 +27,16 @@
       "body.pixel-ui .favor-fill,body.pixel-ui .quest-fill{border-radius:0 !important}",
       "body.pixel-ui .hud{align-items:center;gap:8px}",
       ".px-avatar{display:inline-block;vertical-align:middle;image-rendering:pixelated;image-rendering:crisp-edges;",
-      "  border:2px solid #4b3a2d;box-shadow:2px 2px 0 #0a0806;background:#0a0806;flex-shrink:0;overflow:hidden}",
-      ".px-avatar img,.px-avatar svg{display:block;width:100%;height:100%;object-fit:cover;image-rendering:pixelated;image-rendering:crisp-edges}",
-      ".px-avatar.sm{width:28px;height:34px}",
-      ".px-avatar.md{width:40px;height:48px}",
-      ".px-avatar.lg{width:56px;height:68px}",
-      ".px-avatar.xl{width:80px;height:96px}",
+      "  border:2px solid #4b3a2d;box-shadow:2px 2px 0 #0a0806;background:#050403;flex-shrink:0;overflow:hidden}",
+      ".px-avatar img,.px-avatar svg{display:block;width:100%;height:100%;object-fit:cover;",
+      "  image-rendering:pixelated;image-rendering:crisp-edges}",
+      /* 显示尺寸：源图 120×120，按场景缩放 */
+      ".px-avatar.sm{width:36px;height:36px}",
+      ".px-avatar.md{width:56px;height:56px}",
+      ".px-avatar.lg{width:88px;height:88px}",
+      ".px-avatar.xl{width:120px;height:120px}",
       ".px-npc-btn{display:inline-flex;align-items:center;gap:4px}",
-      ".px-npc-btn .px-avatar{width:24px;height:28px}",
+      ".px-npc-btn .px-avatar{width:32px;height:32px}",
       ".px-modal-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}"
     ].join("\n");
     document.head.appendChild(css);
@@ -58,7 +60,6 @@
     return"#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
   }
 
-  /* 参考立绘色板 */
   var SKINS=["#f0d0b0","#e8c4a0","#dcb089","#c9956a","#b07a50","#9a6840"];
   var HAIRS=["#0c0c0e","#121018","#1a1410","#221810","#2a1c14","#3a2818"];
   var ROBES=["#ebe4d8","#e0d8cc","#d4cfc4","#f2ede4","#c8c0b4","#d8d0c4"];
@@ -66,7 +67,6 @@
   var CLOTH_DARK=["#3b2b21","#2a3a4a","#3a2a3a","#2a4a3a","#4a2a2a","#1a2a1a","#2a2a4a"];
 
   var PRESETS={
-    /* 主角默认 = 参考立绘 */
     hero_ref:{skin:0,hair:0,robe:0,sash:1,style:"hero",gender:"男"},
     player:{skin:0,hair:0,robe:0,sash:1,style:"hero",gender:"男"},
     zhou:{skin:3,hair:3,robe:5,sash:1,style:"elder",beard:2},
@@ -102,8 +102,7 @@
   };
 
   /**
-   * 40×48 半身像素像
-   * 参考图特征：纯黑底、墨黑乱发尖簇、剑眉锐眼高光、开领浅衫、褐绦斜跨
+   * 120×120 精细半身像素像
    */
   function pixelAvatarSvg(opts){
     opts=opts||{};
@@ -113,7 +112,6 @@
     var presetId=opts.presetId||seed;
     var preset=PRESETS[presetId]||PRESETS[seed]||null;
 
-    /* 玩家默认强制参考立绘风格 */
     if(role==="player" && !PRESETS[presetId]){
       preset={skin:0,hair:0,robe:0,sash:1,style:"hero",gender:g==="女"?"女":"男"};
       if(g==="女"){preset.style="long";preset.sash=2;}
@@ -144,10 +142,11 @@
       sash=preset?SASHES[(preset.sash||0)%SASHES.length]:pick(h>>>4,SASHES);
     }
 
-    var skinD=shade(skin,-30), skinL=shade(skin,18), skinM=shade(skin,-14);
-    var hairL=shade(hair,28), hairD=shade(hair,-12);
-    var robeL=shade(robe,16), robeD=shade(robe,-24);
-    var sashD=shade(sash,-22), sashL=shade(sash,18);
+    var skinD=shade(skin,-32), skinL=shade(skin,20), skinM=shade(skin,-14);
+    var skinDD=shade(skin,-48), skinLL=shade(skin,32);
+    var hairL=shade(hair,30), hairD=shade(hair,-14), hairDD=shade(hair,-28);
+    var robeL=shade(robe,18), robeD=shade(robe,-26), robeDD=shade(robe,-40);
+    var sashD=shade(sash,-24), sashL=shade(sash,20);
 
     var style=preset&&preset.style?preset.style:null;
     if(!style){
@@ -161,211 +160,255 @@
     var beard=preset&&preset.beard!=null?preset.beard:(style==="elder"?2:0);
     var acc=preset&&preset.acc?preset.acc:"none";
 
-    var W=40, H=48;
+    var W=120, H=120;
     var cells={};
     function set(x,y,c){if(x>=0&&x<W&&y>=0&&y<H)cells[x+","+y]=c;}
-    function fill(x0,y0,x1,y1,c){for(var y=y0;y<=y1;y++)for(var x=x0;x<=x1;x++)set(x,y,c);}
+    function fill(x0,y0,x1,y1,c){
+      for(var y=y0;y<=y1;y++)for(var x=x0;x<=x1;x++)set(x,y,c);
+    }
     function hline(x0,x1,y,c){for(var x=x0;x<=x1;x++)set(x,y,c);}
     function vline(x,y0,y1,c){for(var y=y0;y<=y1;y++)set(x,y,c);}
+    function rect(x,y,w,h,c){fill(x,y,x+w-1,y+h-1,c);}
 
-    /* 纯黑底 — 对齐参考图 */
+    /* 纯黑底 */
     fill(0,0,W-1,H-1,"#050403");
 
-    /* ===== 肩与衣（半身截止） ===== */
-    fill(5,33,34,47,robe);
-    fill(3,38,36,47,robe);
-    fill(2,43,37,47,robeD);
-    /* 开领：露出锁骨与胸口 — 参考核心 */
-    fill(15,31,24,38,skin);
-    fill(16,30,23,32,skin);
-    fill(14,33,16,41,robe);
-    fill(23,33,25,41,robe);
-    hline(15,24,32,robeL);
-    /* 衣褶高光/阴影 */
-    vline(7,36,46,robeL);
-    vline(8,35,42,robeL);
-    vline(32,36,46,robeD);
-    vline(31,35,42,robeD);
-    /* 褐绦斜跨胸前 */
-    for(var i=0;i<16;i++){
-      var sx=9+i, sy=35+Math.floor(i*0.5);
-      set(sx,sy,sash);set(sx,sy+1,sash);set(sx+1,sy,sashD);
-      if(i%3===0)set(sx,sy,sashL);
+    /* ========== 肩与衣（约 y=78 起） ========== */
+    fill(12,82,107,119,robe);
+    fill(6,92,113,119,robe);
+    fill(2,104,117,119,robeD);
+    fill(0,112,119,119,robeDD);
+    /* 开领露肤 */
+    fill(44,76,75,92,skin);
+    fill(46,74,73,78,skin);
+    fill(42,80,48,98,robe);
+    fill(71,80,77,98,robe);
+    hline(44,75,78,robeL);
+    /* 衣褶 */
+    vline(18,90,118,robeL);vline(20,88,110,robeL);
+    vline(100,90,118,robeD);vline(98,88,110,robeD);
+    /* 褐绦斜跨 */
+    for(var i=0;i<48;i++){
+      var sx=24+i, sy=86+Math.floor(i*0.48);
+      set(sx,sy,sash);set(sx,sy+1,sash);set(sx,sy+2,sash);
+      set(sx+1,sy,sashD);set(sx+1,sy+1,sashD);
+      if(i%4===0)set(sx,sy,sashL);
     }
-    fill(21,40,29,44,sash);
-    fill(23,42,31,46,sashD);
+    fill(62,100,92,112,sash);
+    fill(68,106,98,118,sashD);
 
-    /* ===== 颈 ===== */
-    fill(16,27,23,33,skin);
-    vline(16,27,32,skinD);vline(23,27,32,skinD);
-    fill(17,32,22,33,skinM);
+    /* ========== 颈 ========== */
+    fill(48,68,71,82,skin);
+    vline(48,68,80,skinD);vline(71,68,80,skinD);
+    fill(50,78,69,82,skinM);
 
-    /* ===== 脸型（偏瘦、下颌清晰） ===== */
-    fill(12,9,27,27,skin);
-    fill(13,8,26,8,skin);
-    fill(14,7,25,7,skin);
-    fill(13,28,26,28,skin);
-    fill(14,29,25,29,skin);
-    fill(15,30,24,30,skin);
-    /* 颧高光 / 右脸阴影 */
-    fill(12,13,14,19,skinL);
-    fill(25,13,27,20,skinD);
-    fill(15,25,24,28,skinM);
-    fill(18,26,21,28,skinD);
+    /* ========== 脸（居中偏上） ========== */
+    fill(36,22,83,72,skin);
+    fill(40,18,79,22,skin);
+    fill(44,14,75,18,skin);
+    fill(48,12,71,14,skin);
+    fill(40,72,79,76,skin);
+    fill(44,76,75,78,skin);
+    /* 颧骨高光 / 右脸阴影 */
+    fill(36,30,44,50,skinL);
+    fill(76,30,83,52,skinD);
+    fill(44,62,75,72,skinM);
+    fill(52,66,67,74,skinD);
+    /* 下颌轮廓 */
+    hline(42,77,73,skinDD);
 
-    /* ===== 发型 ===== */
+    /* ========== 发型 ========== */
     drawHair();
     function drawHair(){
       if(style==="monk"){
-        fill(14,5,25,12,skin);
-        fill(15,4,24,6,skinL);
-        set(17,6,"#c0a090");set(20,6,"#c0a090");set(18,5,"#c0a090");
-        fill(12,7,13,14,hair);fill(26,7,27,14,hair);
+        fill(42,14,77,32,skin);
+        fill(46,10,73,16,skinL);
+        set(52,16,"#c0a090");set(60,14,"#c0a090");set(68,16,"#c0a090");
+        fill(36,18,42,36,hair);fill(77,18,83,36,hair);
         return;
       }
       if(style==="mask"){
-        fill(11,5,28,14,hair);
-        fill(10,7,12,22,hair);fill(27,7,29,22,hair);
-        fill(12,13,27,22,"#1a1a22");
-        fill(13,14,26,19,"#2a2a32");
-        fill(22,15,25,18,skin);
-        set(23,16,"#e8e8e8");set(24,16,"#1a120c");set(23,17,"#1a120c");
+        fill(32,12,87,36,hair);
+        fill(28,18,36,58,hair);fill(83,18,91,58,hair);
+        fill(36,34,83,60,"#1a1a22");
+        fill(40,36,79,52,"#2a2a32");
+        fill(66,40,76,50,skin);
+        set(70,44,"#e8e8e8");set(72,44,"#1a120c");set(70,46,"#1a120c");
         return;
       }
 
-      /* —— hero：严格对齐参考立绘 —— */
+      /* hero / short / wild — 对齐参考立绘 */
       if(style==="hero"||style==="short"||style==="wild"){
-        /* 发顶厚实 + 尖簇 */
-        fill(11,3,28,11,hair);
-        fill(12,2,27,3,hair);
-        fill(13,1,26,2,hairD);
-        /* 头顶乱翘 */
-        set(17,0,hair);set(18,0,hairD);set(19,0,hair);set(20,0,hairD);set(21,0,hair);
-        set(15,1,hair);set(16,1,hair);set(22,1,hair);set(23,1,hair);
-        set(14,2,hair);set(24,2,hair);
-        /* 两侧蓬起（参考体积感） */
-        fill(9,5,12,16,hair);fill(27,5,30,16,hair);
-        fill(8,7,10,14,hair);fill(29,7,31,14,hair);
-        fill(10,15,12,22,hair);fill(27,15,29,22,hair);
-        /* 额前碎发中分感 */
-        fill(13,7,17,12,hair);
-        fill(22,7,26,12,hair);
-        fill(17,8,22,11,hair);
-        set(15,11,hairD);set(16,12,hairD);
-        set(23,11,hairD);set(24,12,hairD);
-        /* 侧发贴颊向下 */
-        fill(11,16,13,24,hair);fill(26,16,28,24,hair);
-        fill(12,22,13,27,hair);fill(26,22,27,27,hair);
+        /* 发顶厚实 */
+        fill(30,8,89,30,hair);
+        fill(34,4,85,10,hair);
+        fill(38,2,81,6,hairD);
+        fill(42,0,77,3,hairDD);
+        /* 尖簇乱翘 */
+        for(var t=0;t<9;t++){
+          var tx=48+t*4;
+          set(tx,0,hair);set(tx+1,0,hairD);set(tx,1,hair);
+          set(tx-1,2,hair);set(tx+2,2,hairD);
+        }
+        set(44,1,hair);set(74,1,hair);
+        set(40,3,hair);set(78,3,hair);
+        /* 两侧体积 */
+        fill(24,12,36,44,hair);fill(83,12,95,44,hair);
+        fill(20,16,28,38,hair);fill(91,16,99,38,hair);
+        fill(26,40,36,58,hair);fill(83,40,93,58,hair);
+        fill(28,56,38,70,hair);fill(81,56,91,70,hair);
+        /* 额前碎发 */
+        fill(38,18,52,32,hair);
+        fill(67,18,81,32,hair);
+        fill(50,20,69,28,hair);
+        fill(42,28,48,34,hairD);fill(71,28,77,34,hairD);
+        /* 侧发贴颊 */
+        fill(32,44,40,68,hair);fill(79,44,87,68,hair);
+        fill(34,64,42,76,hair);fill(77,64,85,76,hair);
         /* 后发压暗 */
-        fill(14,4,25,6,hairD);
+        fill(42,8,77,16,hairD);
         if(style==="hero"){
-          set(16,3,hairL);set(22,3,hairL);set(19,2,hairL);
-          set(12,6,hairL);set(27,6,hairL);
+          set(48,6,hairL);set(56,4,hairL);set(64,6,hairL);
+          set(32,14,hairL);set(87,14,hairL);
+          set(40,10,hairL);set(79,10,hairL);
         }
         if(style==="wild"){
-          set(7,6,hair);set(6,9,hair);set(32,6,hair);set(33,9,hair);
-          set(13,0,hair);set(25,0,hair);
+          set(16,14,hair);set(14,20,hair);set(104,14,hair);set(106,20,hair);
+          set(36,0,hair);set(82,0,hair);
         }
         return;
       }
 
       if(style==="long"||style==="twin"){
-        fill(11,3,28,12,hair);
-        fill(12,2,27,3,hair);
-        fill(10,6,12,30,hair);fill(27,6,29,30,hair);
-        fill(9,12,10,28,hair);fill(29,12,30,28,hair);
-        fill(13,7,18,12,hair);fill(21,7,26,12,hair);
+        fill(30,8,89,32,hair);
+        fill(34,4,85,10,hair);
+        fill(26,14,36,78,hair);fill(83,14,93,78,hair);
+        fill(22,28,30,74,hair);fill(89,28,97,74,hair);
+        fill(38,18,54,32,hair);fill(65,18,81,32,hair);
         if(style==="twin"){
-          fill(8,3,13,10,hair);fill(26,3,31,10,hair);
-          fill(9,2,12,4,hairL);fill(27,2,30,4,hairL);
+          fill(22,6,40,28,hair);fill(79,6,97,28,hair);
+          fill(26,4,36,10,hairL);fill(83,4,93,10,hairL);
         }else{
-          fill(13,2,26,4,hairL);
+          fill(38,4,81,10,hairL);
         }
         return;
       }
       if(style==="elder"){
-        fill(12,3,27,11,hairL);
-        fill(11,5,12,14,hairL);fill(27,5,28,14,hairL);
-        fill(14,2,25,4,"#e8e4dc");
+        fill(34,8,85,28,hairL);
+        fill(30,12,36,36,hairL);fill(83,12,89,36,hairL);
+        fill(42,4,77,10,"#e8e4dc");
         return;
       }
-      /* neat / short fallback */
-      fill(12,3,27,11,hair);
-      fill(13,2,26,3,hairL);
-      fill(11,6,12,16,hair);fill(27,6,28,16,hair);
-      fill(14,7,17,11,hair);fill(22,7,25,11,hair);
+      /* neat */
+      fill(34,8,85,28,hair);
+      fill(38,4,81,10,hairL);
+      fill(30,14,36,42,hair);fill(83,14,89,42,hair);
+      fill(40,18,52,28,hair);fill(67,18,79,28,hair);
     }
 
-    /* ===== 剑眉（参考：细长微挑） ===== */
+    /* ========== 剑眉 ========== */
     if(style!=="mask"){
       var brow=hairD;
       if(g==="女"){
-        hline(13,16,11,brow);hline(23,26,11,brow);
-        set(16,10,brow);set(23,10,brow);
+        hline(40,50,26,brow);hline(69,79,26,brow);
+        set(50,25,brow);set(69,25,brow);
+        hline(42,48,25,brow);hline(71,77,25,brow);
       }else{
-        hline(12,17,11,brow);hline(22,27,11,brow);
-        set(17,10,brow);set(22,10,brow);
-        hline(13,16,10,brow);hline(23,26,10,brow);
+        hline(38,52,26,brow);hline(67,81,26,brow);
+        set(52,25,brow);set(67,25,brow);
+        hline(40,50,25,brow);hline(69,79,25,brow);
+        hline(42,48,24,brow);hline(71,77,24,brow);
       }
     }
 
-    /* ===== 锐眼 + 高光（参考最大特征） ===== */
+    /* ========== 锐眼 + 高光 ========== */
     if(style!=="mask"){
       var eyeW="#f8f4ee";
       var iris=role==="evil"?"#8a3030":"#2a2018";
       var pupil="#080604";
       /* 左眼 */
-      fill(13,12,17,16,eyeW);
-      fill(14,13,16,15,iris);
-      set(15,13,pupil);
-      set(16,12,"#ffffff"); /* 高光 */
-      hline(13,17,16,skinD);
-      set(12,13,skinM);set(13,14,skinM);
+      fill(40,30,52,42,eyeW);
+      fill(42,32,50,40,iris);
+      fill(44,34,48,38,pupil);
+      set(48,32,"#ffffff");set(49,33,"#ffffff"); /* 高光 */
+      hline(40,52,42,skinD);
+      set(38,32,skinM);set(39,34,skinM);
       /* 右眼 */
-      fill(22,12,26,16,eyeW);
-      fill(23,13,25,15,iris);
-      set(24,13,pupil);
-      set(25,12,"#ffffff");
-      hline(22,26,16,skinD);
-      set(26,13,skinM);set(27,14,skinM);
+      fill(67,30,79,42,eyeW);
+      fill(69,32,77,40,iris);
+      fill(71,34,75,38,pupil);
+      set(75,32,"#ffffff");set(76,33,"#ffffff");
+      hline(67,79,42,skinD);
+      set(80,32,skinM);set(81,34,skinM);
     }
 
-    if(acc==="scar"){set(18,11,skinD);set(19,12,"#8a4a4a");set(20,13,skinD);}
-    if(acc==="burn"){set(26,19,"#a06040");set(27,20,"#8a5040");}
-    if(acc==="blood"){set(18,21,"#6a2020");set(19,22,"#8a3030");}
+    if(acc==="scar"){
+      set(56,28,skinD);set(58,30,"#8a4a4a");set(60,32,skinD);
+      set(57,29,"#8a4a4a");set(59,31,skinD);
+    }
+    if(acc==="burn"){
+      fill(78,50,84,56,"#a06040");set(82,54,"#8a5040");
+    }
+    if(acc==="blood"){
+      set(56,56,"#6a2020");set(58,58,"#8a3030");set(57,57,"#6a2020");
+    }
 
     /* 鼻 */
-    set(19,17,skinD);set(20,17,skinM);
-    set(20,18,skinD);set(19,18,skinM);
+    set(58,46,skinD);set(60,46,skinM);
+    set(60,48,skinD);set(58,48,skinM);
+    set(59,50,skinD);
 
-    /* 抿唇（参考：薄、中性） */
+    /* 抿唇 */
     if(g==="女"){
-      hline(17,22,22,"#c07070");
-      set(19,22,"#d08080");set(20,22,"#d08080");
+      hline(52,67,58,"#c07070");
+      set(58,58,"#d08080");set(60,58,"#d08080");
+      hline(54,65,59,"#b06060");
     }else{
-      hline(17,22,22,"#a06858");
-      set(18,22,"#8a5848");set(21,22,"#8a5848");
+      hline(52,67,58,"#a06858");
+      set(54,58,"#8a5848");set(65,58,"#8a5848");
+      hline(54,65,59,"#8a5848");
     }
 
     if(beard>=1){
-      fill(16,24,23,28,hair);
-      if(beard>=2){fill(15,26,24,30,hairL);fill(17,28,22,31,hairL);}
+      fill(48,62,71,74,hair);
+      if(beard>=2){
+        fill(44,68,75,80,hairL);
+        fill(50,74,69,84,hairL);
+      }
     }
 
-    if(acc==="tassel"){vline(32,11,22,"#d9ad62");set(32,23,"#8a6a45");set(33,13,"#d9ad62");}
-    if(acc==="leaf"){set(18,2,"#5a8a4a");set(19,1,"#6a9a5a");set(20,2,"#5a8a4a");}
-    if(acc==="flower"){set(11,7,"#e8a0a0");set(10,8,"#d08080");set(12,8,"#d08080");set(11,8,"#e8c878");}
-    if(acc==="pearl"){set(11,15,"#e8e0d0");set(28,15,"#e8e0d0");}
-    if(acc==="shell"){set(31,36,"#6a9eae");set(32,37,"#8ab8c8");}
-    if(g==="女"&&acc==="none"){set(11,15,"#d9ad62");set(28,15,"#d9ad62");}
+    /* 饰品 */
+    if(acc==="tassel"){
+      vline(100,28,58,"#d9ad62");vline(101,28,58,"#c49a50");
+      set(100,60,"#8a6a45");set(102,32,"#d9ad62");
+    }
+    if(acc==="leaf"){
+      set(56,4,"#5a8a4a");set(58,2,"#6a9a5a");set(60,4,"#5a8a4a");
+      set(57,3,"#6a9a5a");set(59,3,"#5a8a4a");
+    }
+    if(acc==="flower"){
+      set(32,18,"#e8a0a0");set(30,20,"#d08080");set(34,20,"#d08080");
+      set(32,20,"#e8c878");set(32,22,"#d08080");
+    }
+    if(acc==="pearl"){
+      set(34,40,"#e8e0d0");set(85,40,"#e8e0d0");
+      set(34,41,"#d0c8b8");set(85,41,"#d0c8b8");
+    }
+    if(acc==="shell"){
+      set(96,92,"#6a9eae");set(98,94,"#8ab8c8");set(97,93,"#7aacbc");
+    }
+    if(g==="女"&&acc==="none"){
+      set(34,40,"#d9ad62");set(85,40,"#d9ad62");
+    }
 
+    /* 输出：合并同色矩形可减小体积，这里按像素输出保证 crispEdges */
     var rects="";
     var keys=Object.keys(cells);
     for(var i=0;i<keys.length;i++){
       var p=keys[i].split(",");
       rects+='<rect x="'+p[0]+'" y="'+p[1]+'" width="1" height="1" fill="'+cells[keys[i]]+'"/>';
     }
-    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" shape-rendering="crispEdges">'+rects+'</svg>';
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" shape-rendering="crispEdges">'+rects+'</svg>';
   }
 
   function roleForNpc(npc){
@@ -392,7 +435,6 @@
 
   function playerAvatar(p,size){
     var g=p.gender||"男";
-    /* 主角固定参考立绘 hero 预设，名字作种子微调 */
     return avatarHtml(p.name||"player",g,"player",size||"md","hero_ref");
   }
   function npcAvatar(npc,size){
@@ -434,7 +476,6 @@
     });
   };
 
-  /* dialog_opt / favor_ui 已自带头像时不再重复插入 */
   function patchModalNpc(){
     if(typeof modalNpc!=="function")return;
     var _m=modalNpc;
