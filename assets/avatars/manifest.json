@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "count": 23,
+  "base": "./assets/avatars/",
+  "items": [
+    {"id": "hero_ref", "file": "hero_ref.svg", "gender": "男", "role": "player"},
+    {"id": "zhou", "file": "zhou.svg", "gender": "男", "role": "npc"},
+    {"id": "su", "file": "su.svg", "gender": "女", "role": "npc"},
+    {"id": "shishu", "file": "shishu.svg", "gender": "男", "role": "npc"},
+    {"id": "aqing", "file": "aqing.svg", "gender": "女", "role": "npc"},
+    {"id": "jian_tong", "file": "jian_tong.svg", "gender": "男", "role": "npc"},
+    {"id": "yubo", "file": "yubo.svg", "gender": "男", "role": "npc"},
+    {"id": "shuizei", "file": "shuizei.svg", "gender": "男", "role": "npc"},
+    {"id": "qianliu", "file": "qianliu.svg", "gender": "男", "role": "npc"},
+    {"id": "stall", "file": "stall.svg", "gender": "女", "role": "npc"},
+    {"id": "luyun", "file": "luyun.svg", "gender": "男", "role": "npc"},
+    {"id": "shen_wai", "file": "shen_wai.svg", "gender": "男", "role": "npc"},
+    {"id": "tieba", "file": "tieba.svg", "gender": "男", "role": "npc"},
+    {"id": "helie_npc", "file": "helie_npc.svg", "gender": "男", "role": "npc"},
+    {"id": "he_forge", "file": "he_forge.svg", "gender": "男", "role": "npc"},
+    {"id": "yaotong", "file": "yaotong.svg", "gender": "女", "role": "npc"},
+    {"id": "ao_sailor", "file": "ao_sailor.svg", "gender": "男", "role": "npc"},
+    {"id": "que_shadow", "file": "que_shadow.svg", "gender": "其他", "role": "shadow"},
+    {"id": "monk_jing", "file": "monk_jing.svg", "gender": "男", "role": "monk"},
+    {"id": "hermit", "file": "hermit.svg", "gender": "男", "role": "elder"},
+    {"id": "xie_ren", "file": "xie_ren.svg", "gender": "男", "role": "evil"},
+    {"id": "reef_ghost", "file": "reef_ghost.svg", "gender": "其他", "role": "shadow"},
+    {"id": "cave_guard", "file": "cave_guard.svg", "gender": "其他", "role": "shadow"}
+  ]
+}
