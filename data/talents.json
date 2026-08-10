@@ -1,6 +1,0 @@
-[
-  {"id":"quick_learner","name":"过目不忘","desc":"武学修炼经验+10%，悟性+2。","stats":{"wit":2}},
-  {"id":"iron_body","name":"铁骨","desc":"气血成长更高，根骨+2。","stats":{"bone":2}},
-  {"id":"wind_step","name":"踏风","desc":"移动探索更容易触发轻功事件，身法+2。","stats":{"agi":2}},
-  {"id":"lucky_star","name":"天眷","desc":"奇遇触发率提高，福缘+2。","stats":{"luck":2}}
-]
