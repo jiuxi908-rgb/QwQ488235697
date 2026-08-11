@@ -2,87 +2,82 @@
 
 像素风文字武侠 RPG（浏览器单页）
 
-## 怎么玩（重要）
+## 在线游玩
 
-**不要直接双击 `index.html`（`file://` 无法热加载 JSON）。**
+**https://jiuxi908-rgb.github.io/QwQ488235697/**
 
-请用本地服务器打开仓库根目录：
+> 若打不开：仓库 → **Settings → Pages** → Build and deployment 选 **GitHub Actions**，保存后等 1～2 分钟；也可点 Actions 里 `Deploy to GitHub Pages` 手动 Run。
+
+已提供：
+- `.github/workflows/pages.yml` 自动部署
+- 根目录 `.nojekyll`（避免 Jekyll 干扰静态资源）
+
+## 本地怎么玩
+
+### 推荐：本地服务器（可热改 JSON）
 
 ```bash
-# 任选其一
+git clone https://github.com/jiuxi908-rgb/QwQ488235697.git
+cd QwQ488235697
 python -m http.server 8080
-# 或 VS Code / Cursor 的 Live Server，打开 index.html
+# 浏览器打开 http://localhost:8080
 ```
 
-然后浏览器访问：`http://localhost:8080`
+### 离线 / 双击 `index.html`（file://）
 
-GitHub Pages 等 http(s) 部署同样可用。
+可以玩。数据来自：
+
+| 模块 | 文件 |
+|------|------|
+| 地图 / 门派 | `data1_maps_*.js`、`data1_sects_*.js` |
+| 武学 / 出身 | `data2.js` + **`data_tables_skills.js`**（与 `data/*.json` 同步） |
+
+改了 `data/*.json` 后若要离线生效，需同步更新对应 `data_tables_*.js`（或继续用本地服务器）。
 
 ### 存档
 
-- 游戏内「存档」：三槽位 + 临时档（localStorage）
-- **导出备份** / **导入备份**：存档或读档弹窗底部，导出为 JSON 文件，可换设备、清缓存后导入
-- 旧存档读取时会自动迁移字段（家园、经脉、时辰等）
+- 三槽 + 临时档（localStorage）
+- 存档弹窗底部：**导出备份** / **导入备份**（JSON 文件）
+- 旧档自动迁移（家园、经脉、时辰等）
 
 ## 目录结构
 
 ```
-├── index.html                 # 入口 + 样式
-├── data/                      # ★ 可编辑数据表（JSON）
-│   ├── world.json             # 世界观
-│   ├── maps.json              # 地点、邻居、探索
-│   ├── sects.json             # 门派、师父、任务
-│   ├── skills.json            # 武学、品质、地点可学
-│   ├── origins.json           # 出身、天赋、属性名
-│   └── README.md              # 改表说明
-├── data_loader.js             # http 下 fetch JSON 覆盖静态表
-├── data1_world.js             # 回退：世界观（file:// 用）
-├── data1_maps_a.js / _b.js    # 回退：地图
-├── data1_sects_a.js / _b.js   # 回退：门派
-├── data1.js / data2.js        # 兼容入口 + 逻辑函数 / 武学出身回退
-├── assets/avatars/            # 120×120 像素头像
-├── text.js / npc.js / items.js / favor.js
-├── db.js                      # O(1) 索引与战力缓存
-├── core.js                    # 事件总线、扩展钩子
-├── logic.js / time.js / map_grid.js / combat.js
-├── save_slots.js / save_io.js # 三槽存档 + 迁移/导出导入
-├── *_ui.js / home_*.js / quest.js / meridian.js / romance*.js
-├── pixel_ui.js / avatar_lib.js
-├── dialog_opt.js / dialog_acts.js
-└── ui_smooth.js               # 滚动保持、弹窗体验（最后加载）
+├── index.html
+├── .nojekyll
+├── .github/workflows/pages.yml   # GitHub Pages 部署
+├── data/                         # 可编辑 JSON（在线热加载）
+│   ├── world.json / maps.json / sects.json
+│   ├── skills.json / origins.json
+│   └── README.md
+├── data_loader.js                # http(s) fetch JSON
+├── data_tables.js                # 离线打包说明
+├── data_tables_skills.js         # 离线：武学/出身（与 JSON 同步）
+├── data1_*.js                    # 离线：世界/地图/门派
+├── data2.js                      # 逻辑 + 表回退
+├── assets/avatars/
+├── save_slots.js / save_io.js
+└── …（core / logic / ui 等）
 ```
 
 ## 数据怎么改
 
-1. 编辑 `data/*.json`（保持字段名，只改数值和文案）
-2. 用本地服务器打开并**强制刷新**（Ctrl+F5）
-3. `data_loader.js` 会拉取 JSON 并 `DB.rebuild()`
-
-`file://` 或 fetch 失败时，使用同目录下的 `data1_*.js` / `data2.js` 内嵌回退表，游戏仍可运行，但改 JSON 不会生效。
+1. 编辑 `data/*.json`
+2. 用 **http** 打开（Pages 或 `python -m http.server`）并强制刷新
+3. `data_loader.js` 拉取 JSON 并 `DB.rebuild()`
 
 详见 [`data/README.md`](data/README.md)。
 
-## 架构分层（加载顺序）
+## 架构分层
 
 | 层 | 文件 | 职责 |
 |----|------|------|
-| **数据** | `data1_*` → `data2` → `npc`/`items` → `db` → `data_loader` | 静态表 + 索引 + JSON 热覆盖 |
-| **核心** | `core` | `Game.on` / `Game.wrap` / ensurePlayer |
-| **逻辑** | `logic` `time` `map_grid` `combat` `save_slots` `save_io` | 主流程、地图、战斗、存档 |
-| **系统** | `*_ui` `home_*` `quest` `meridian` `romance*` `pixel_ui` … | 玩法与界面 |
-| **体验** | `ui_smooth` | **必须最后加载** |
-
-### 扩展约定
-
-1. 新玩法 → 新文件，在 `index.html` 对应层追加 `<script>`，不要放在 `ui_smooth.js` 之后。
-2. 补玩家字段 → `Game.on("player:ensure", …)`。
-3. 改主界面 → 优先 `Game.on("render:after")`。
-4. 关弹窗 → 只 `closeModal()`，不必每次 `renderGame()`。
+| **数据** | `data1_*` → `data2` → `data_tables_skills` → `db` → `data_loader` | 表 + 索引 + 热覆盖 |
+| **核心** | `core` | 事件 / 钩子 / ensurePlayer |
+| **逻辑** | `logic` `map_grid` `combat` `save_*` | 主流程与存档 |
+| **系统** | `*_ui` `home_*` `quest` … | 玩法界面 |
+| **体验** | `ui_smooth` | **最后加载** |
 
 ## 主要系统
 
-- 六大门派 · X 型网状地图 · 战力分级遇敌
-- 武学（武功/内功/身法）· 经脉 · 装备背包
-- 好感 / 私定终身 / 家园入住
-- 像素头像库 `assets/avatars/`
-- 三槽存档 · 导出/导入备份 · 时辰节气
+六大门派 · X 型地图 · 战力分级遇敌 · 武学/经脉/装备 · 好感/结缘/家园 · 像素头像 · 三槽存档与导出导入

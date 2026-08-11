@@ -110,7 +110,7 @@
 <div id="app" class="app"></div>
 <div id="modalRoot"></div>
 
-<!-- 数据层：表数据可拆 JSON（data/*.json）+ data_loader 热覆盖 -->
+<!-- 数据层：data1 回退 → data_tables 与 JSON 同步 → data_loader 在线热覆盖 -->
 <script src="./data1_world.js"></script>
 <script src="./data1_maps_a.js"></script>
 <script src="./data1_maps_b.js"></script>
@@ -121,6 +121,7 @@
 <script src="./favor.js"></script>
 <script src="./npc.js"></script>
 <script src="./data2.js"></script>
+<script src="./data_tables_skills.js"></script>
 <script src="./items.js"></script>
 <script src="./db.js"></script>
 <script src="./data_loader.js"></script>
