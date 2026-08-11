@@ -1,65 +1,15 @@
-const world={title:"一剑一蓑烟雨录",background:"大雍末年，朝廷以缉武司统辖江湖，商路、盐铁与漕运被诸侯暗中争夺。武人不再只问胜负，也要在门规、恩义、名声与生计之间做选择。",states:["大雍朝廷","北庭节镇","南海商盟"],rules:["杀人留痕","拜师有门","武无定法","无唯一主线"],factions:["守序正道","逐利中道","幽暗邪道"]};
-
-const maps=[
-  {id:"qinghe",name:"清河镇",type:"城镇",region:"中原",x:1,y:1,desc:"水陆交汇的小镇。",neighbors:["bamboo","ferry","market","hearth"],events:["听书人讲起缉武司搜捕。","茶铺老板提醒先保命。"],explore:[{text:"市井闲逛。",type:"log"},{text:"帮客栈搬货。",type:"silver",value:8},{text:"医馆帮忙。",type:"heal",value:15},{text:"与拳师切磋。",type:"exp",value:12},{text:"被人认错差点挨揍。",type:"damage",value:10,diff:25}]},
-  {id:"bamboo",name:"听雨竹径",type:"野外",region:"中原",x:0,y:1,desc:"细雨敲竹。",neighbors:["qinghe","mist_gate","herb_valley"],events:["竹叶下拾得旧铜钱。","远处破空声。"],explore:[{text:"采药草卖银。",type:"silver",value:12},{text:"独自练剑。",type:"exp",value:18},{text:"被毒蛇咬。",type:"damage",value:20,diff:35},{text:"遇练剑少年。",type:"stat",key:"wit",value:1},{text:"雨中吐纳。",type:"mp",value:20}]},
-  {id:"ferry",name:"白沙渡",type:"渡口",region:"中原",x:2,y:1,desc:"渡船通往南北。",neighbors:["qinghe","salt_road","whale_port"],events:["南海商盟招护船。","水上轻功比试。"],explore:[{text:"帮船夫拉纤。",type:"silver",value:10},{text:"江边练轻功。",type:"exp",value:15},{text:"水贼交手。",type:"damage",value:18,diff:40},{text:"听船工秘闻。",type:"stat",key:"luck",value:1},{text:"江风恢复内力。",type:"mp",value:15}]},
-  {id:"market",name:"旧瓦市",type:"城镇",region:"中原",x:1,y:2,desc:"鱼龙混杂市集。",neighbors:["qinghe","sparrow_den"],events:["摊主兜售残谱。","黑市兵器。"],explore:[{text:"淘到便宜货。",type:"silver",value:15},{text:"鉴定残谱。",type:"exp",value:20},{text:"被扒手盯上。",type:"silver",value:-12,diff:30},{text:"与散人喝酒。",type:"log"},{text:"买药回血。",type:"heal",value:25}]},
-  {id:"mist_gate",name:"烟岚山门",type:"门派",region:"中原",sect:"yanlan",x:0,y:0,desc:"烟岚剑斋外门，云雾不散。",neighbors:["bamboo","cloud_peak"],events:["守山弟子审视你。","山门比剑。"],explore:[{text:"观摩剑法。",type:"exp",value:25},{text:"帮弟子打扫。",type:"silver",value:6},{text:"山路滑倒。",type:"damage",value:12,diff:20},{text:"云雾吐纳。",type:"mp",value:25},{text:"弟子指点身法。",type:"stat",key:"agi",value:1}]},
-  {id:"salt_road",name:"黑盐古道",type:"野外",region:"中原",x:2,y:0,desc:"废弃盐道，刀光马蹄。",neighbors:["ferry","blood_ravine"],events:["新鲜脚印。","刀兵相交。"],explore:[{text:"搜刮残骸。",type:"silver",value:20},{text:"遭遇劫匪。",type:"damage",value:30,diff:55},{text:"发现残刀谱。",type:"exp",value:30},{text:"夜行遇袭。",type:"damage",value:25,diff:50},{text:"古道吐纳。",type:"mp",value:18}]},
-  {id:"hearth",name:"赤炉山庄",type:"门派",region:"中原",sect:"chilu",x:1,y:0,desc:"赤炉刀社所在，炉火终年不熄。",neighbors:["qinghe","salt_road"],events:["刀声震荡山谷。","炉匠锤炼兵器。"],explore:[{text:"观摩锻刀。",type:"exp",value:22},{text:"帮搬矿石。",type:"silver",value:10},{text:"炉火灼伤。",type:"damage",value:15,diff:28},{text:"刀意感悟。",type:"stat",key:"arm",value:1}]},
-  {id:"herb_valley",name:"回春谷",type:"门派",region:"中原",sect:"huichun",x:0,y:2,desc:"药香弥漫，医武同源。",neighbors:["bamboo","market"],events:["药童采药。","谷主诊脉。"],explore:[{text:"采药售卖。",type:"silver",value:14},{text:"学习医理。",type:"exp",value:20},{text:"误食毒草。",type:"damage",value:16,diff:30},{text:"调理气血。",type:"heal",value:30},{text:"根骨微升。",type:"stat",key:"bone",value:1}]},
-  {id:"whale_port",name:"玄鲸港",type:"门派",region:"南海",sect:"xuanjing",x:3,y:1,desc:"玄鲸帮水寨，商路枢纽。",neighbors:["ferry","secret_reef"],events:["货船进出。","帮众比试水性。"],explore:[{text:"护船赚银。",type:"silver",value:18},{text:"水上练功。",type:"exp",value:16},{text:"风浪翻船小伤。",type:"damage",value:14,diff:32},{text:"内息绵长。",type:"mp",value:22},{text:"内力微升。",type:"stat",key:"qi",value:1}]},
-  {id:"sparrow_den",name:"白雀楼",type:"门派",region:"中原",sect:"baique",x:2,y:2,desc:"白雀楼情报据点，暗影重重。",neighbors:["market","secret_cave"],events:["飞鸽传书。","影卫巡逻。"],explore:[{text:"传递消息得赏。",type:"silver",value:16},{text:"练习影步。",type:"exp",value:24},{text:"被影卫试探。",type:"damage",value:18,diff:38},{text:"身法精进。",type:"stat",key:"agi",value:1}]},
-  {id:"void_temple",name:"无相寺",type:"门派",region:"西陲",sect:"wuxiang",x:0,y:3,desc:"无相寺隐于荒山，禅武合一。",neighbors:["herb_valley","cloud_peak"],events:["钟声悠远。","僧人闭关。"],explore:[{text:"抄经感悟。",type:"exp",value:28},{text:"斋饭果腹回血。",type:"heal",value:20},{text:"山路荆棘。",type:"damage",value:12,diff:22},{text:"禅定内力。",type:"mp",value:30},{text:"悟性微升。",type:"stat",key:"wit",value:1}]},
-  {id:"cloud_peak",name:"云岚绝顶",type:"秘境",region:"中原",x:0,y:-1,desc:"终年云海，偶有前辈遗迹。",neighbors:["mist_gate","void_temple"],events:["云中剑意。","残碑半露。"],explore:[{text:"寻得遗物。",type:"silver",value:30},{text:"参悟残碑。",type:"exp",value:40},{text:"云气迷障受伤。",type:"damage",value:28,diff:60},{text:"天机福缘。",type:"stat",key:"luck",value:1}]},
-  {id:"blood_ravine",name:"血石峡谷",type:"野外",region:"北境",x:3,y:0,desc:"邪道出没，腥风阵阵。",neighbors:["salt_road","secret_cave"],events:["刀光血痕。","远处惨叫。"],explore:[{text:"搜刮邪修。",type:"silver",value:25},{text:"血战求生。",type:"damage",value:35,diff:65},{text:"邪功残页。",type:"exp",value:35},{text:"杀意侵蚀。",type:"damage",value:22,diff:48}]},
-  {id:"secret_reef",name:"沉沙暗礁",type:"秘境",region:"南海",x:4,y:1,desc:"潮汐下露出的上古遗迹。",neighbors:["whale_port"],events:["潮声如鼓。","古碑发光。"],explore:[{text:"捞到沉银。",type:"silver",value:35},{text:"古法吐纳。",type:"mp",value:40},{text:"暗流冲击。",type:"damage",value:32,diff:70},{text:"内功顿悟。",type:"exp",value:45}]},
-  {id:"secret_cave",name:"影窟",type:"秘境",region:"中原",x:3,y:2,desc:"白雀楼外围密道，危机四伏。",neighbors:["sparrow_den","blood_ravine"],events:["机关轻响。","脚印交错。"],explore:[{text:"避开机关得宝。",type:"silver",value:28},{text:"影中修炼。",type:"exp",value:32},{text:"触发暗器。",type:"damage",value:26,diff:58},{text:"身法顿悟。",type:"stat",key:"agi",value:1}]}
-];
-
-const RANK_NAMES=["外门弟子","内门弟子","亲传弟子"];
-const sects=[
-  {id:"yanlan",name:"烟岚剑斋",align:"正道",loc:"mist_gate",bg:"以剑入道，云雾为师。弟子须心静如水，剑意如烟。立斋三百年，专克邪锋。",req:{agi:10,wit:8,reputation:0},
-   masters:[{level:0,name:"陆云",title:"外门执事",desc:"负责记名与巡山，剑法扎实。",contribNeed:0},{level:1,name:"沈疏衡",title:"内门师兄",desc:"云雾剑意已成，代师授业。",contribNeed:40},{level:2,name:"沈听云",title:"斋主",desc:"白衣执剑，少言。收徒极严，重悟性与身法。",contribNeed:100}],
-   master:{name:"沈听云",title:"斋主",desc:"白衣执剑，少言。"},
-   tasks:[{id:"yl1",name:"山门值守",desc:"协助外门巡山",contrib:8,silver:5},{id:"yl2",name:"剑谱临摹",desc:"抄录基础剑诀",contrib:12,silver:0},{id:"yl3",name:"驱逐山贼",desc:"清理山道贼人",contrib:20,diff:40},{id:"yl4",name:"云雾试剑",desc:"在雾中走完山道",contrib:25,diff:50}],
-   shop:[{id:"yl_pill",name:"清心丹",cost:30,contribNeed:10,effect:"heal",value:40},{id:"yl_sword",name:"烟岚残页",cost:0,contribNeed:50,skill:"yanlan_sword"}],
-   skills:["yanlan_sword"],
-   story:[{rank:0,title:"入门试剑",text:"在云雾中走完山道而不乱，外门执事陆云点头记名。"},{rank:0,title:"山贼再起",text:"山道贼人复现，你随外门弟子清剿。"},{rank:1,title:"剑谱失窃",text:"内门剑谱残页失踪，沈疏衡命你追查至旧瓦市。"},{rank:1,title:"雾中剑会",text:"内门小比，你在云雾中与同门过招。"},{rank:2,title:"斋主一问",text:"沈听云问你：剑是杀器，还是心器？"},{rank:2,title:"邪锋压境",text:"血石峡谷邪修北上，斋主率亲传出山。"}]},
-  {id:"chilu",name:"赤炉刀社",align:"中道",loc:"hearth",bg:"以刀开路，炉火炼心。刀社亦铸兵，亦走镖。重臂力与承诺。",req:{arm:12,bone:8},
-   masters:[{level:0,name:"贺炉",title:"锻刀学徒头",desc:"教你搬矿与基本刀势。",contribNeed:0},{level:1,name:"金断石",title:"护社刀头",desc:"走镖无数，刀上有缺口。",contribNeed:45},{level:2,name:"贺烈",title:"社主",desc:"赤膊锻刀，声如洪钟。",contribNeed:110}],
-   master:{name:"贺烈",title:"社主",desc:"赤膊锻刀，声如洪钟。"},
-   tasks:[{id:"cl1",name:"搬矿添炉",desc:"搬运矿石三日",contrib:10,silver:8},{id:"cl2",name:"护送刀货",desc:"护商队至清河",contrib:15,diff:35},{id:"cl3",name:"试刀台",desc:"以刀断石",contrib:18,diff:45},{id:"cl4",name:"查假刀",desc:"追查坑商假刀",contrib:28,diff:55}],
-   shop:[{id:"cl_oil",name:"烈刃油",cost:25,contribNeed:15,effect:"exp",value:20},{id:"cl_blade",name:"赤炉刀谱",cost:0,contribNeed:60,skill:"chilu_blade"}],
-   skills:["chilu_blade","iron_shirt"],
-   story:[{rank:0,title:"入门断木",text:"一刀断臂粗木，贺炉记你一功。"},{rank:0,title:"炉边苦役",text:"搬矿、添煤、挨烫，力从地起。"},{rank:1,title:"假刀坑商",text:"金断石带你查市集假刀。"},{rank:1,title:"镖路血雨",text:"护送刀货遇劫，你第一次真正拼命。"},{rank:2,title:"炉心异变",text:"炉心震动，社主以刀镇压。"},{rank:2,title:"断石之约",text:"贺烈与你约：他日一刀断石，方算出师。"}]},
-  {id:"huichun",name:"回春谷",align:"正道",loc:"herb_valley",bg:"医武同源，以掌代针。救死扶伤为先，杀伐为后。",req:{bone:10,qi:8,wit:6},
-   masters:[{level:0,name:"药童",title:"记名药徒",desc:"教你辨药与基础医理。",contribNeed:0},{level:1,name:"苏晚青",title:"内门医士",desc:"掌下可生可杀，性子温和。",contribNeed:40},{level:2,name:"苏青萝",title:"谷主",desc:"青裙执扇，笑意温软。",contribNeed:100}],
-   master:{name:"苏青萝",title:"谷主",desc:"青裙执扇，笑意温软。"},
-   tasks:[{id:"hc1",name:"采药三味",desc:"采集指定药草",contrib:10,silver:6},{id:"hc2",name:"义诊半日",desc:"为村民诊治",contrib:12,silver:0},{id:"hc3",name:"缉拿毒师",desc:"追捕制毒者",contrib:22,diff:42},{id:"hc4",name:"熬制解药",desc:"连夜制解毒散",contrib:26}],
-   shop:[{id:"hc_herb",name:"回春散",cost:20,contribNeed:8,effect:"heal",value:50},{id:"hc_palm",name:"回春掌谱",cost:0,contribNeed:55,skill:"huichun_palm"}],
-   skills:["huichun_palm"],
-   story:[{rank:0,title:"入门辨药",text:"从百草中识出真药。"},{rank:0,title:"义诊市井",text:"为清河镇村民诊治。"},{rank:1,title:"瘟疫将起",text:"苏晚青察觉疫征，命你采药制方。"},{rank:1,title:"毒师之影",text:"制毒者混入市集，你协助缉拿。"},{rank:2,title:"谷中禁地",text:"谷主开启禁地，亲传方得入内。"},{rank:2,title:"生杀一掌",text:"同一掌，可续命，可夺命。"}]},
-  {id:"xuanjing",name:"玄鲸帮",align:"中道",loc:"whale_port",bg:"水行天下，商路为骨。帮规重契约，毁约者海葬。",req:{qi:12,luck:6},
-   masters:[{level:0,name:"潮生",title:"见习水手",desc:"教你水性与绳结。",contribNeed:0},{level:1,name:"海裂",title:"船头",desc:"护船多年，少言利重。",contribNeed:50},{level:2,name:"敖沧",title:"帮主",desc:"半截鲸骨杖，话少利重。",contribNeed:120}],
-   master:{name:"敖沧",title:"帮主",desc:"半截鲸骨杖，话少利重。"},
-   tasks:[{id:"xj1",name:"护船一趟",desc:"护送货船",contrib:12,silver:15},{id:"xj2",name:"清剿水贼",desc:"剿灭近海贼船",contrib:20,diff:48},{id:"xj3",name:"潮汐吐纳",desc:"在潮头修炼",contrib:14},{id:"xj4",name:"查内鬼",desc:"商盟货单有假",contrib:30,diff:52}],
-   shop:[{id:"xj_pearl",name:"潮珠",cost:40,contribNeed:20,effect:"mp",value:40},{id:"xj_ng",name:"玄鲸息海",cost:0,contribNeed:70,skill:"xuanjing_neigong"}],
-   skills:["xuanjing_neigong"],
-   story:[{rank:0,title:"入门泳试",text:"负重游过港湾。"},{rank:0,title:"第一次护船",text:"风浪里你握紧缆绳。"},{rank:1,title:"商盟内鬼",text:"货单有假，海裂命你查账。"},{rank:1,title:"水贼巢穴",text:"清剿近海贼船。"},{rank:2,title:"深海鼓声",text:"帮主言及深海遗迹。"},{rank:2,title:"契约之重",text:"毁约者，碎于礁石。"}]},
-  {id:"baique",name:"白雀楼",align:"亦正亦邪",loc:"sparrow_den",bg:"情报为王，影为刃。不公开收徒，只取身法与机缘出众者。",req:{agi:14,luck:8},
-   masters:[{level:0,name:"影七",title:"影卫",desc:"教你无声行走。",contribNeed:0},{level:1,name:"雀三",title:"执事",desc:"管线报与考核，面覆青纱。",contribNeed:55},{level:2,name:"雀无影",title:"楼主",desc:"从不见真容，只闻雀啼。",contribNeed:130}],
-   master:{name:"雀无影",title:"楼主",desc:"从不见真容，只闻雀啼。"},
-   tasks:[{id:"bq1",name:"传信三城",desc:"无声送达密信",contrib:15,silver:12},{id:"bq2",name:"影中潜伏",desc:"潜伏三日收集情报",contrib:18,diff:40},{id:"bq3",name:"清除叛徒",desc:"处决内鬼",contrib:25,diff:55},{id:"bq4",name:"假情报局",desc:"散布假情报搅局",contrib:22,diff:48}],
-   shop:[{id:"bq_mask",name:"影面巾",cost:35,contribNeed:25,effect:"stat",key:"agi",value:1},{id:"bq_qg",name:"白雀掠影",cost:0,contribNeed:65,skill:"baique_qinggong"}],
-   skills:["baique_qinggong","night_shadow"],
-   story:[{rank:0,title:"入门无声",text:"从楼中取物而不惊鸟。"},{rank:0,title:"第一封信",text:"夜行三城，信仍在。"},{rank:1,title:"假情报局",text:"雀三命你布假情报。"},{rank:1,title:"内鬼之名",text:"名单上有你熟悉的人。"},{rank:2,title:"楼主雀啼",text:"黑暗中一声雀啼。"},{rank:2,title:"影之真意",text:"情报是让刀不知道该砍向谁。"}]},
-  {id:"wuxiang",name:"无相寺",align:"正道",loc:"void_temple",bg:"无相无我，指随意动。寺规极严，破戒者逐出并封功。",req:{wit:14,qi:12},
-   masters:[{level:0,name:"静尘",title:"知客僧",desc:"教你抄经与坐禅。",contribNeed:0},{level:1,name:"了因",title:"戒律院",desc:"掌戒律，指力已通。",contribNeed:50},{level:2,name:"空观",title:"方丈",desc:"盲眼老僧，一指可断金。",contribNeed:120}],
-   master:{name:"空观",title:"方丈",desc:"盲眼老僧，一指可断金。"},
-   tasks:[{id:"wx1",name:"抄经百遍",desc:"抄写无相经",contrib:10},{id:"wx2",name:"面壁七日",desc:"闭关感悟",contrib:16},{id:"wx3",name:"降服心魔",desc:"挑战心魔幻境",contrib:28,diff:60},{id:"wx4",name:"戒律巡寺",desc:"协助清查破戒者",contrib:20,diff:45}],
-   shop:[{id:"wx_bead",name:"定心珠",cost:45,contribNeed:30,effect:"mp",value:50},{id:"wx_finger",name:"无相指诀",cost:0,contribNeed:80,skill:"wuxiang_finger"}],
-   skills:["wuxiang_finger"],
-   story:[{rank:0,title:"入门禅问",text:"何为无相？答或不答，皆已入门。"},{rank:0,title:"抄经磨心",text:"墨干了又磨，心静了又乱。"},{rank:1,title:"寺中魔种",text:"了因命你面壁观心。"},{rank:1,title:"破戒者",text:"同门破杀戒，按寺规处置。"},{rank:2,title:"方丈一指",text:"空观盲眼点向你眉心。"},{rank:2,title:"真意传承",text:"无相不在指，在放下。"}]}
-];
+/** data1.js — 兼容入口
+ *  表数据已抽到：
+ *    data/world.json  data/maps.json  data/sects.json
+ *    data/skills.json data/origins.json
+ *  运行时由 data_tables.js 同步注入；http 下 data_loader.js 可热加载 JSON。
+ *  非程序员改表：直接编辑 data/*.json（保持字段结构），再用本地服务器打开即可覆盖。
+ */
+(function(g){
+  if(!g.world && g.__GAME_DATA && g.__GAME_DATA.world){
+    g.world=g.__GAME_DATA.world;
+    g.maps=g.__GAME_DATA.maps;
+    g.RANK_NAMES=g.__GAME_DATA.RANK_NAMES;
+    g.sects=g.__GAME_DATA.sects;
+  }
+})(typeof window!=="undefined"?window:this);
