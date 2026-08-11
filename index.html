@@ -3,6 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#d9ad62" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="烟雨录" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" href="./assets/icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="./assets/icons/icon.svg" />
   <title>一剑一蓑烟雨录</title>
   <style>
     :root{--bg:#15120f;--panel:#241d18;--gold:#d9ad62;--text:#f5e8cf;--muted:#b9a58a;--red:#b85b53;--green:#7aae6a;--line:#4b3a2d;--safe-bottom:max(80px, env(safe-area-inset-bottom, 0px) + 56px)}
@@ -133,6 +141,7 @@
 <script src="./data1_sects_b.js"></script>
 <script src="./data1.js"></script>
 <script src="./text.js"></script>
+<script src="./explore_extra.js"></script>
 <script src="./favor.js"></script>
 <script src="./npc.js"></script>
 <script src="./data2.js"></script>
@@ -169,5 +178,13 @@
 <script src="./dialog_opt.js"></script>
 <script src="./dialog_acts.js"></script>
 <script src="./ui_smooth.js"></script>
+<script>
+(function(){
+  if(!("serviceWorker" in navigator))return;
+  window.addEventListener("load",function(){
+    navigator.serviceWorker.register("./sw.js").catch(function(){});
+  });
+})();
+</script>
 </body>
 </html>
