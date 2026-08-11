@@ -110,7 +110,12 @@
 <div id="app" class="app"></div>
 <div id="modalRoot"></div>
 
-<!-- 数据层 -->
+<!-- 数据层：表数据可拆 JSON（data/*.json）+ data_loader 热覆盖 -->
+<script src="./data1_world.js"></script>
+<script src="./data1_maps_a.js"></script>
+<script src="./data1_maps_b.js"></script>
+<script src="./data1_sects_a.js"></script>
+<script src="./data1_sects_b.js"></script>
 <script src="./data1.js"></script>
 <script src="./text.js"></script>
 <script src="./favor.js"></script>
@@ -118,6 +123,7 @@
 <script src="./data2.js"></script>
 <script src="./items.js"></script>
 <script src="./db.js"></script>
+<script src="./data_loader.js"></script>
 <!-- 核心 / 逻辑 -->
 <script src="./core.js"></script>
 <script src="./npc_logic.js"></script>
