@@ -1,0 +1,37 @@
+{
+  "origins": [
+    {
+      "id": "farmer",
+      "name": "田舍少年",
+      "desc": "耐苦，根骨较高。",
+      "stats": {"arm": 1, "agi": 0, "bone": 3, "qi": 0, "wit": 0, "luck": 1}
+    },
+    {
+      "id": "merchant",
+      "name": "行商子弟",
+      "desc": "见多识广，福缘较高。",
+      "stats": {"arm": 0, "agi": 1, "bone": 0, "qi": 0, "wit": 1, "luck": 3}
+    },
+    {
+      "id": "orphan",
+      "name": "市井孤儿",
+      "desc": "机敏善逃，身法较高。",
+      "stats": {"arm": 0, "agi": 3, "bone": 0, "qi": 0, "wit": 1, "luck": 1}
+    },
+    {
+      "id": "scholar",
+      "name": "寒窗书生",
+      "desc": "悟性出众，体魄稍弱。",
+      "stats": {"arm": 0, "agi": 0, "bone": 0, "qi": 1, "wit": 4, "luck": 0}
+    }
+  ],
+  "talents": [
+    {"id": "quick_learner", "name": "过目不忘", "desc": "悟性+2。", "stats": {"wit": 2}},
+    {"id": "iron_body", "name": "铁骨", "desc": "根骨+2。", "stats": {"bone": 2}},
+    {"id": "wind_step", "name": "踏风", "desc": "身法+2。", "stats": {"agi": 2}},
+    {"id": "lucky_star", "name": "天眷", "desc": "福缘+2。", "stats": {"luck": 2}}
+  ],
+  "BASE_STATS": {"arm": 5, "agi": 5, "bone": 5, "qi": 5, "wit": 5, "luck": 5},
+  "STAT_LABELS": {"arm": "臂力", "agi": "身法", "bone": "根骨", "qi": "内力", "wit": "悟性", "luck": "福缘"},
+  "STAT_HELP": {"arm": "外功伤害。", "agi": "闪避先手。", "bone": "气血抗性。", "qi": "内力招式。", "wit": "读谱经验。", "luck": "奇遇。"}
+}
