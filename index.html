@@ -55,6 +55,23 @@
     .modal-head .section-title{margin:0}
     .modal-close{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px}
     .talk-bubble{background:#1a1512;border-left:3px solid var(--gold);padding:8px 10px;margin:8px 0;border-radius:0 8px 8px 0;color:#e8d7bd;font-size:13px;line-height:1.5}
+    .main-obj{margin-top:6px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:#1a1512;font-size:12px;line-height:1.4}
+    .main-obj b{color:var(--gold);margin-right:4px}
+    .hp-warn{color:var(--red);font-weight:700;animation:pulse-warn 1.2s ease infinite}
+    body.hp-danger .hud span b{color:var(--red)}
+    body.hp-critical{box-shadow:inset 0 0 40px rgba(184,91,83,.25)}
+    @keyframes pulse-warn{0%,100%{opacity:1}50%{opacity:.55}}
+    .battle-log{background:#120f0d;border:1px solid var(--line);border-radius:8px;padding:8px;margin:6px 0;max-height:40vh;overflow-y:auto}
+    .battle-round{padding:4px 0;border-bottom:1px dashed rgba(75,58,45,.35);font-size:12px;color:#e8d7bd}
+    .battle-round .br-n{color:var(--gold);margin-right:4px;font-size:11px}
+    .battle-result{margin-top:8px;padding:8px;border-radius:8px;border:1px solid var(--line);text-align:center;font-weight:600}
+    .battle-result.outcome-perfect{border-color:var(--gold);background:rgba(217,173,98,.12);color:var(--gold);box-shadow:0 0 16px rgba(217,173,98,.25)}
+    .battle-result.outcome-win{border-color:#7aae6a;color:#7aae6a}
+    .battle-result.outcome-mid{border-color:#c47a5a;color:#c47a5a}
+    .battle-result.outcome-lose{border-color:var(--red);background:rgba(184,91,83,.12);color:var(--red);animation:shake .4s ease}
+    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+    .log-perfect{text-shadow:0 0 8px rgba(217,173,98,.5)}
+    .log-flee{font-weight:600}
     .master-card{border:1px solid var(--line);border-radius:8px;padding:8px;margin:6px 0;background:#1b1512}
     .master-card.active{border-color:var(--gold)}
     .favor-row{display:flex;align-items:center;gap:8px;margin:8px 0;flex-wrap:wrap}
@@ -109,8 +126,6 @@
 <body>
 <div id="app" class="app"></div>
 <div id="modalRoot"></div>
-
-<!-- 数据层：data1 回退 → data_tables 与 JSON 同步 → data_loader 在线热覆盖 -->
 <script src="./data1_world.js"></script>
 <script src="./data1_maps_a.js"></script>
 <script src="./data1_maps_b.js"></script>
@@ -125,7 +140,6 @@
 <script src="./items.js"></script>
 <script src="./db.js"></script>
 <script src="./data_loader.js"></script>
-<!-- 核心 / 逻辑 -->
 <script src="./core.js"></script>
 <script src="./npc_logic.js"></script>
 <script src="./time.js"></script>
@@ -134,7 +148,6 @@
 <script src="./combat.js"></script>
 <script src="./save_slots.js"></script>
 <script src="./save_io.js"></script>
-<!-- 系统 UI -->
 <script src="./favor_ui.js"></script>
 <script src="./time_ui.js"></script>
 <script src="./items_ui.js"></script>
@@ -142,6 +155,9 @@
 <script src="./home_resident.js"></script>
 <script src="./home_companion.js"></script>
 <script src="./quest.js"></script>
+<script src="./combat_fx.js"></script>
+<script src="./tutorial.js"></script>
+<script src="./main_quest.js"></script>
 <script src="./sect_quest.js"></script>
 <script src="./meridian.js"></script>
 <script src="./skill_ui.js"></script>
@@ -152,7 +168,6 @@
 <script src="./avatar_lib.js"></script>
 <script src="./dialog_opt.js"></script>
 <script src="./dialog_acts.js"></script>
-<!-- 体验层（最后） -->
 <script src="./ui_smooth.js"></script>
 </body>
 </html>
