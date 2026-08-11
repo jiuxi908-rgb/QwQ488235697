@@ -1,15 +1,7 @@
-/** data1.js — 兼容入口
- *  表数据已抽到：
- *    data/world.json  data/maps.json  data/sects.json
- *    data/skills.json data/origins.json
- *  运行时由 data_tables.js 同步注入；http 下 data_loader.js 可热加载 JSON。
- *  非程序员改表：直接编辑 data/*.json（保持字段结构），再用本地服务器打开即可覆盖。
- */
-(function(g){
-  if(!g.world && g.__GAME_DATA && g.__GAME_DATA.world){
-    g.world=g.__GAME_DATA.world;
-    g.maps=g.__GAME_DATA.maps;
-    g.RANK_NAMES=g.__GAME_DATA.RANK_NAMES;
-    g.sects=g.__GAME_DATA.sects;
-  }
-})(typeof window!=="undefined"?window:this);
+/** data1.js — 世界 / 地图 / 门派表（与 data/*.json 同步；JSON 为非程序员编辑入口） */
+const world={title:"一剑一蓑烟雨录",background:"大雍末年，朝廷以缉武司统辖江湖，商路、盐铁与漕运被诸侯暗中争夺。武人不再只问胜负，也要在门规、恩义、名声与生计之间做选择。",states:["大雍朝廷","北庭节镇","南海商盟"],rules:["杀人留痕","拜师有门","武无定法","无唯一主线"],factions:["守序正道","逐利中道","幽暗邪道"]};
+
+// 若 data_tables 已注入同名数据，以 JSON 热加载结果为准（data_loader 后置覆盖）
+if(typeof window!=="undefined"&&window.__GAME_DATA&&window.__GAME_DATA.world){
+  /* data_tables 已提供时不强制覆盖，保留下方 const 作为 file:// 回退 */
+}
