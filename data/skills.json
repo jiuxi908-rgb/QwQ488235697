@@ -1,8 +1,56 @@
 {
+  "skills": [
+    {"id": "basic_fist", "name": "破风拳", "type": "拳掌", "quality": "黄阶", "req": {"arm": 6}, "cost": 0, "mp": 0, "power": 8, "effect": "破绽", "maxExp": 50},
+    {"id": "basic_sword", "name": "青锋剑诀", "type": "剑法", "quality": "黄阶", "req": {"agi": 6}, "cost": 0, "mp": 5, "power": 12, "effect": null, "maxExp": 60},
+    {"id": "basic_blade", "name": "开山刀法", "type": "刀法", "quality": "黄阶", "req": {"arm": 8}, "cost": 0, "mp": 6, "power": 15, "effect": "流血", "maxExp": 70},
+    {"id": "basic_qinggong", "name": "踏雪无痕", "type": "轻功", "quality": "黄阶", "req": {"agi": 7}, "cost": 0, "mp": 0, "power": 0, "effect": "dodge+3", "maxExp": 50},
+    {"id": "basic_neigong", "name": "养气诀", "type": "内功", "quality": "黄阶", "req": {"qi": 6}, "cost": 0, "mp": 0, "power": 0, "effect": "maxMp+20", "maxExp": 80},
+    {"id": "throwing_needle", "name": "飞星针", "type": "暗器", "quality": "黄阶", "req": {"agi": 8, "wit": 5}, "cost": 20, "mp": 3, "power": 10, "effect": "破绽", "maxExp": 55},
+    {"id": "crush_leg", "name": "碎石腿", "type": "拳掌", "quality": "黄阶", "req": {"arm": 7, "bone": 6}, "cost": 15, "mp": 4, "power": 11, "effect": "迟滞", "maxExp": 55},
+    {"id": "point_finger", "name": "点穴手", "type": "拳掌", "quality": "黄阶", "req": {"wit": 7, "agi": 6}, "cost": 18, "mp": 6, "power": 9, "effect": "破绽", "maxExp": 55},
+    {"id": "flow_sword", "name": "流水剑", "type": "剑法", "quality": "黄阶", "req": {"agi": 7, "qi": 5}, "cost": 16, "mp": 6, "power": 13, "effect": null, "maxExp": 60},
+    {"id": "yanlan_sword", "name": "烟岚十三剑", "type": "剑法", "quality": "玄阶", "req": {"agi": 12, "wit": 10}, "cost": 80, "mp": 12, "power": 28, "effect": "迟滞", "maxExp": 120},
+    {"id": "chilu_blade", "name": "赤炉烈刀", "type": "刀法", "quality": "玄阶", "req": {"arm": 14, "qi": 8}, "cost": 100, "mp": 15, "power": 35, "effect": "流血", "maxExp": 140},
+    {"id": "huichun_palm", "name": "回春掌", "type": "拳掌", "quality": "玄阶", "req": {"bone": 12, "qi": 10}, "cost": 90, "mp": 18, "power": 22, "effect": "heal", "maxExp": 130},
+    {"id": "xuanjing_neigong", "name": "玄鲸息海", "type": "内功", "quality": "玄阶", "req": {"qi": 15, "bone": 10}, "cost": 120, "mp": 0, "power": 0, "effect": "maxMp+60,qi+2", "maxExp": 160},
+    {"id": "baique_qinggong", "name": "白雀掠影", "type": "轻功", "quality": "玄阶", "req": {"agi": 16}, "cost": 110, "mp": 8, "power": 0, "effect": "dodge+8", "maxExp": 150},
+    {"id": "iron_shirt", "name": "铁布衫", "type": "内功", "quality": "玄阶", "req": {"bone": 14, "arm": 10}, "cost": 100, "mp": 0, "power": 0, "effect": "maxHp+80,bone+1", "maxExp": 140},
+    {"id": "falling_leaf", "name": "落叶刀法", "type": "刀法", "quality": "玄阶", "req": {"arm": 12, "agi": 10}, "cost": 85, "mp": 12, "power": 30, "effect": "流血", "maxExp": 125},
+    {"id": "frost_palm", "name": "寒霜掌", "type": "拳掌", "quality": "玄阶", "req": {"qi": 12, "wit": 10}, "cost": 95, "mp": 16, "power": 26, "effect": "迟滞", "maxExp": 130},
+    {"id": "cloud_step", "name": "云踪步", "type": "轻功", "quality": "玄阶", "req": {"agi": 14, "luck": 6}, "cost": 90, "mp": 6, "power": 0, "effect": "dodge+6,first+3", "maxExp": 140},
+    {"id": "wuxiang_finger", "name": "无相指", "type": "拳掌", "quality": "地阶", "req": {"wit": 18, "qi": 16}, "cost": 250, "mp": 25, "power": 45, "effect": "内伤", "maxExp": 250},
+    {"id": "jiwu_sword", "name": "缉武断罪剑", "type": "剑法", "quality": "地阶", "req": {"arm": 16, "wit": 14, "luck": 8}, "cost": 280, "mp": 22, "power": 50, "effect": "破绽", "maxExp": 280},
+    {"id": "night_shadow", "name": "夜行影步", "type": "轻功", "quality": "地阶", "req": {"agi": 20, "luck": 10}, "cost": 260, "mp": 12, "power": 0, "effect": "dodge+12,first+5", "maxExp": 260},
+    {"id": "blood_blade", "name": "血海狂刀", "type": "刀法", "quality": "地阶", "req": {"arm": 20, "bone": 12}, "cost": 300, "mp": 30, "power": 60, "effect": "流血", "maxExp": 300},
+    {"id": "star_throw", "name": "摘星手", "type": "暗器", "quality": "地阶", "req": {"agi": 18, "wit": 15}, "cost": 220, "mp": 15, "power": 38, "effect": "破绽", "maxExp": 240},
+    {"id": "gold_bell", "name": "金钟罩", "type": "内功", "quality": "地阶", "req": {"bone": 18, "arm": 14}, "cost": 240, "mp": 0, "power": 0, "effect": "maxHp+120,bone+2", "maxExp": 260},
+    {"id": "split_cloud", "name": "裂云枪", "type": "刀法", "quality": "地阶", "req": {"arm": 18, "agi": 12}, "cost": 270, "mp": 24, "power": 55, "effect": "破绽", "maxExp": 270},
+    {"id": "tian_jian", "name": "天问一剑", "type": "剑法", "quality": "天阶", "req": {"agi": 25, "wit": 22, "qi": 20}, "cost": 800, "mp": 50, "power": 100, "effect": "破绽", "maxExp": 500},
+    {"id": "dragon_neigong", "name": "潜龙吐息", "type": "内功", "quality": "天阶", "req": {"qi": 28, "bone": 20}, "cost": 900, "mp": 0, "power": 0, "effect": "maxMp+150,attack+15", "maxExp": 550},
+    {"id": "phantom_palm", "name": "千影幻掌", "type": "拳掌", "quality": "天阶", "req": {"agi": 24, "wit": 20}, "cost": 850, "mp": 40, "power": 80, "effect": "迟滞", "maxExp": 520},
+    {"id": "wan_jian", "name": "万剑归宗", "type": "剑法", "quality": "天阶", "req": {"agi": 26, "wit": 20, "arm": 18}, "cost": 880, "mp": 55, "power": 95, "effect": "破绽", "maxExp": 530},
+    {"id": "taixu", "name": "太虚神功", "type": "内功", "quality": "天阶", "req": {"qi": 30, "wit": 22, "bone": 18}, "cost": 950, "mp": 0, "power": 0, "effect": "maxMp+180,maxHp+100,qi+3", "maxExp": 560}
+  ],
   "SKILL_DESIGN": {
     "qualities": ["黄阶", "玄阶", "地阶", "天阶"],
     "types": ["内功", "剑法", "刀法", "拳掌", "轻功", "暗器"],
     "realms": ["初窥门径", "登堂入室", "融会贯通", "炉火纯青", "返璞归真"]
   },
-  "note": "完整 skills / LOCAL_SKILLS 见仓库 data2.js；可用 data_loader 热覆盖后扩展本文件"
+  "LOCAL_SKILLS": {
+    "qinghe": ["basic_fist", "basic_sword", "basic_neigong", "crush_leg"],
+    "bamboo": ["basic_qinggong", "basic_blade", "flow_sword"],
+    "market": ["throwing_needle", "basic_fist", "point_finger"],
+    "mist_gate": ["yanlan_sword", "basic_qinggong", "cloud_step"],
+    "ferry": ["basic_blade", "flow_sword"],
+    "salt_road": ["night_shadow", "blood_blade", "falling_leaf"],
+    "hearth": ["chilu_blade", "iron_shirt", "split_cloud"],
+    "herb_valley": ["huichun_palm", "frost_palm"],
+    "whale_port": ["xuanjing_neigong", "cloud_step"],
+    "sparrow_den": ["baique_qinggong", "night_shadow", "star_throw"],
+    "void_temple": ["wuxiang_finger", "gold_bell"],
+    "cloud_peak": ["wan_jian", "taixu"],
+    "blood_ravine": ["blood_blade", "split_cloud"],
+    "secret_reef": ["dragon_neigong", "xuanjing_neigong"],
+    "secret_cave": ["night_shadow", "phantom_palm"]
+  }
 }
