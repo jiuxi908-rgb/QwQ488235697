@@ -19,9 +19,10 @@
       ],
       "shop": [
         {"id": "yl_pill", "name": "清心丹", "cost": 30, "contribNeed": 10, "effect": "heal", "value": 40},
-        {"id": "yl_sword", "name": "烟岚残页", "cost": 0, "contribNeed": 50, "skill": "yanlan_sword"}
+        {"id": "yl_sword", "name": "烟岚残页", "cost": 0, "contribNeed": 50, "skill": "yanlan_sword"},
+        {"id": "yl_ng", "name": "云海吐纳残卷", "cost": 0, "contribNeed": 75, "skill": "yunhai_tuna"}
       ],
-      "skills": ["yanlan_sword"],
+      "skills": ["yanlan_sword", "yunhai_tuna", "cloud_step"],
       "story": [
         {"rank": 0, "title": "入门试剑", "text": "在云雾中走完山道而不乱，外门执事陆云点头记名。"},
         {"rank": 0, "title": "山贼再起", "text": "山道贼人复现，你随外门弟子清剿。"},
@@ -49,9 +50,10 @@
       ],
       "shop": [
         {"id": "cl_oil", "name": "烈刃油", "cost": 25, "contribNeed": 15, "effect": "exp", "value": 20},
-        {"id": "cl_blade", "name": "赤炉刀谱", "cost": 0, "contribNeed": 60, "skill": "chilu_blade"}
+        {"id": "cl_blade", "name": "赤炉刀谱", "cost": 0, "contribNeed": 60, "skill": "chilu_blade"},
+        {"id": "cl_ct", "name": "赤炉淬体要诀", "cost": 0, "contribNeed": 70, "skill": "chilu_cuiti"}
       ],
-      "skills": ["chilu_blade", "iron_shirt"],
+      "skills": ["chilu_blade", "iron_shirt", "chilu_cuiti"],
       "story": [
         {"rank": 0, "title": "入门断木", "text": "一刀断臂粗木，贺炉记你一功。"},
         {"rank": 0, "title": "炉边苦役", "text": "搬矿、添煤、挨烫，力从地起。"},
@@ -79,9 +81,11 @@
       ],
       "shop": [
         {"id": "hc_herb", "name": "回春散", "cost": 20, "contribNeed": 8, "effect": "heal", "value": 50},
-        {"id": "hc_palm", "name": "回春掌谱", "cost": 0, "contribNeed": 55, "skill": "huichun_palm"}
+        {"id": "hc_palm", "name": "回春掌谱", "cost": 0, "contribNeed": 55, "skill": "huichun_palm"},
+        {"id": "hc_ng", "name": "青萝养心诀", "cost": 0, "contribNeed": 60, "skill": "qingluo_yangxin"},
+        {"id": "hc_qg", "name": "药香步残页", "cost": 0, "contribNeed": 50, "skill": "yaoxiang_bu"}
       ],
-      "skills": ["huichun_palm"],
+      "skills": ["huichun_palm", "qingluo_yangxin", "yaoxiang_bu"],
       "story": [
         {"rank": 0, "title": "入门辨药", "text": "从百草中识出真药。"},
         {"rank": 0, "title": "义诊市井", "text": "为清河镇村民诊治。"},
@@ -109,9 +113,10 @@
       ],
       "shop": [
         {"id": "xj_pearl", "name": "潮珠", "cost": 40, "contribNeed": 20, "effect": "mp", "value": 40},
-        {"id": "xj_ng", "name": "玄鲸息海", "cost": 0, "contribNeed": 70, "skill": "xuanjing_neigong"}
+        {"id": "xj_ng", "name": "玄鲸息海", "cost": 0, "contribNeed": 70, "skill": "xuanjing_neigong"},
+        {"id": "xj_qg", "name": "踏浪步要诀", "cost": 0, "contribNeed": 55, "skill": "talang_bu"}
       ],
-      "skills": ["xuanjing_neigong"],
+      "skills": ["xuanjing_neigong", "talang_bu"],
       "story": [
         {"rank": 0, "title": "入门泳试", "text": "负重游过港湾。"},
         {"rank": 0, "title": "第一次护船", "text": "风浪里你握紧缆绳。"},
@@ -139,9 +144,11 @@
       ],
       "shop": [
         {"id": "bq_mask", "name": "影面巾", "cost": 35, "contribNeed": 25, "effect": "stat", "key": "agi", "value": 1},
-        {"id": "bq_qg", "name": "白雀掠影", "cost": 0, "contribNeed": 65, "skill": "baique_qinggong"}
+        {"id": "bq_qg", "name": "白雀掠影", "cost": 0, "contribNeed": 65, "skill": "baique_qinggong"},
+        {"id": "bq_ng", "name": "影息功", "cost": 0, "contribNeed": 80, "skill": "yingxi"},
+        {"id": "bq_wy", "name": "无影踪残页", "cost": 0, "contribNeed": 120, "skill": "wuying_zong"}
       ],
-      "skills": ["baique_qinggong", "night_shadow"],
+      "skills": ["baique_qinggong", "night_shadow", "yingxi", "wuying_zong"],
       "story": [
         {"rank": 0, "title": "入门无声", "text": "从楼中取物而不惊鸟。"},
         {"rank": 0, "title": "第一封信", "text": "夜行三城，信仍在。"},
@@ -169,9 +176,10 @@
       ],
       "shop": [
         {"id": "wx_bead", "name": "定心珠", "cost": 45, "contribNeed": 30, "effect": "mp", "value": 50},
-        {"id": "wx_finger", "name": "无相指诀", "cost": 0, "contribNeed": 80, "skill": "wuxiang_finger"}
+        {"id": "wx_finger", "name": "无相指诀", "cost": 0, "contribNeed": 80, "skill": "wuxiang_finger"},
+        {"id": "wx_lb", "name": "凌波微步式", "cost": 0, "contribNeed": 90, "skill": "lingbo"}
       ],
-      "skills": ["wuxiang_finger"],
+      "skills": ["wuxiang_finger", "gold_bell", "lingbo"],
       "story": [
         {"rank": 0, "title": "入门禅问", "text": "何为无相？答或不答，皆已入门。"},
         {"rank": 0, "title": "抄经磨心", "text": "墨干了又磨，心静了又乱。"},
