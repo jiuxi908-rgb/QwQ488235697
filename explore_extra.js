@@ -1,0 +1,122 @@
+/* 按地点主题扩充游历事件池（尤其中后期） */
+(function(){
+  if(typeof EXPLORE_POOL==="undefined")return;
+
+  var EXTRA={
+    qinghe:[
+      {text:"茶棚角落有人低声谈门派招人，见你路过便住了嘴。你只当没听见，心里却记下了风向。",type:"log"},
+      {text:"你替客栈送了一趟酒坛。雨后石板滑，脚下一稳，身法竟有一点心得。",type:"exp",value:10},
+      {text:"夜市收摊，你捡到一枚被人踩进泥里的铜钱，擦净后还能用。",type:"silver",value:5}
+    ],
+    bamboo:[
+      {text:"竹节里藏着半卷被雨泡烂的笔记，依稀是轻功步位。你抄下能辨的几行。",type:"exp",value:15},
+      {text:"山猪受惊冲出竹丛。你侧身避开，衣袖被獠牙撕开一道口子。",type:"damage",value:14,diff:28},
+      {text:"雨后雾气贴地，你试着在雾中换气，内息意外顺畅。",type:"mp",value:14}
+    ],
+    ferry:[
+      {text:"商船主雇你看一袋货过江。银子给得爽快，嘱咐却只有一句：别问装的是什么。",type:"silver",value:14},
+      {text:"你在跳板上反复走平衡。一个浪打来，你反而踩准了节拍。",type:"stat",key:"agi",value:1},
+      {text:"对岸有人喊缉武司的名号，码头瞬间安静。你低头搬货，没抬头。",type:"log"}
+    ],
+    market:[
+      {text:"黑市有人用暗语交易兵器，你听懂半句，装作不懂，换来一记警告的眼色。",type:"log"},
+      {text:"你帮张婆驱走纠缠的醉汉。她塞给你热炊饼和一点碎银。",type:"silver",value:8},
+      {text:"残谱摊主突然收摊。你只来得及看清封皮上的一个「血」字。",type:"exp",value:12}
+    ],
+    mist_gate:[
+      {text:"山门比剑日，外门弟子两两过招。你旁观整场，记下三处破绽与一处杀着。",type:"exp",value:20},
+      {text:"雾墙后有人问你来意。答得慢了半息，剑尖已抵到三寸外，又收了回去。",type:"damage",value:10,diff:35},
+      {text:"你被派去添香。香灰落指，心神竟静了一层。",type:"mp",value:16}
+    ],
+    salt_road:[
+      {text:"车辙深处你挖出半袋盐晶，在匪窝附近也能卖出价钱。",type:"silver",value:18},
+      {text:"两伙刀客狭路相逢，你被裹进混乱。刀风贴着耳廓过去。",type:"damage",value:28,diff:52,kind:"combat"},
+      {text:"夜里你靠着断碑吐纳。风里全是铁锈味，内息却被逼得更凝。",type:"mp",value:20},
+      {text:"你在残骸中发现一张写了假名的路引，福缘莫名动了一下。",type:"stat",key:"luck",value:1},
+      {text:"远处有人喊「铁疤」的名号。你没应，只把刀柄握紧了些。",type:"log"}
+    ],
+    hearth:[
+      {text:"试刀石上你借力劈下一记。石屑飞溅，臂膀发麻，力道却沉了。",type:"exp",value:18},
+      {text:"学徒打赌谁先搬完一车矿。你赢了，银子与笑声一起到手。",type:"silver",value:14},
+      {text:"炉心异响，你帮忙压风箱，被热浪燎到眉尖。",type:"damage",value:12,diff:26},
+      {text:"贺炉丢给你一块废铁：先练腕力。你捏了一整晚，骨节更响。",type:"stat",key:"bone",value:1},
+      {text:"刀社有人走镖归来，盔甲上全是缺口。他只说：盐道，别夜里走。",type:"log"}
+    ],
+    herb_valley:[
+      {text:"你辨出一株被虫蛀的伪药，药童赏了你一点银子和一句：识药如识人。",type:"silver",value:12},
+      {text:"谷中有人中毒，你帮忙压穴拖时间。事后苏晚青点头，指点了半式掌法劲道。",type:"exp",value:18},
+      {text:"药雾过浓，你吸入一口，头晕目眩，好在很快散了。",type:"damage",value:12,diff:25},
+      {text:"你按谷中法子泡脚调息，气血温润如春。",type:"heal",value:24}
+    ],
+    whale_port:[
+      {text:"帮众比试闭气。你撑到极限，上岸时内息反而更沉。",type:"mp",value:20},
+      {text:"护船途中遇小股水贼。交手不长，银子与刀伤一起落下。",type:"damage",value:18,diff:44,kind:"combat"},
+      {text:"你帮着清点货单，发现一处涂改。潮生丢给你封口费：眼睛好用。",type:"silver",value:22},
+      {text:"潮汐最猛时你立在礁上吐纳。水压胸口，内力被挤出一丝新意。",type:"stat",key:"qi",value:1},
+      {text:"有人在港尾低声谈沉沙暗礁的潮门时辰。你只听了半句，对方已散。",type:"log"}
+    ],
+    sparrow_den:[
+      {text:"你被要求在屋顶无声走过三间屋。第一次惊鸟，第二次只有风声。",type:"exp",value:22},
+      {text:"假情报任务：你把消息放进茶馆。回来时银票已在袖中。",type:"silver",value:20},
+      {text:"影卫突袭点穴。你半息后解开，冷汗湿背。",type:"damage",value:16,diff:42,kind:"combat"},
+      {text:"青纱后丢出一枚石子：脚步再轻半寸。你练到天明，身法紧了一线。",type:"stat",key:"agi",value:1},
+      {text:"飞鸽笼里少了一只。没人问你，你也没问。",type:"log"}
+    ],
+    void_temple:[
+      {text:"面壁半日，心魔幻出旧日仇人。你睁眼时，只剩香灰落地的轻响。",type:"exp",value:26},
+      {text:"你随僧人巡山，清出一处破戒者留下的酒坛。寺规森严，无人多言。",type:"log"},
+      {text:"山径塌方，碎石砸伤小腿。你咬牙走回寺门。",type:"damage",value:15,diff:30},
+      {text:"钟楼下你按《无相经》吐纳。一指之意未通，内息却更稳。",type:"mp",value:28},
+      {text:"了因考你戒律。答对三问，他点头：心静，指才不乱。",type:"stat",key:"wit",value:1}
+    ],
+    cloud_peak:[
+      {text:"云隙里你看见更远的山影。有人在那练剑，剑光细如发。你强记一式。",type:"exp",value:36},
+      {text:"石缝中摸到一枚古钱，绿锈斑驳，仍能换银。",type:"silver",value:26},
+      {text:"狂风裹着冰屑抽打面部。你抱石半晌，才找回呼吸。",type:"damage",value:22,diff:55,kind:"combat"},
+      {text:"你在绝顶试着空吐纳。云气入肺，内力空茫却广阔。",type:"mp",value:35},
+      {text:"残碑背面多了一行新刻的小字：来者，勿贪。你福至心灵，收了手。",type:"stat",key:"luck",value:1},
+      {text:"有人说天机在风里。你只听见自己的心跳，和远处一声极轻的剑鸣。",type:"log"}
+    ],
+    blood_ravine:[
+      {text:"你从邪修营地边缘摸走一袋散银。离开时，篝火里还有未燃尽的符纸。",type:"silver",value:32},
+      {text:"两名邪修为争刀互砍。你本想绕开，却被当成第三猎物。",type:"damage",value:36,diff:70,kind:"combat"},
+      {text:"石壁刀痕间夹着半页心法。你只抄结构，不抄杀意。",type:"exp",value:30},
+      {text:"杀意入梦。你惊醒时内息紊乱，强行压下，反而练出一丝抗性。",type:"mp",value:16},
+      {text:"峡谷尽头有人立着不动。走近才发现是具被风干的尸，手里还握着刀。",type:"log"},
+      {text:"你被迫硬抗一记血刃余劲。骨节发响，根骨却像被锤过一遍。",type:"stat",key:"bone",value:1},
+      {text:"夜风突然转向。你滚入石缝，暗器排射钉满你刚才站的位置。",type:"damage",value:30,diff:58,kind:"combat"}
+    ],
+    secret_reef:[
+      {text:"潮洼里除了银匣，还有一枚刻着鲸纹的玉佩。水手愿出高价换。",type:"silver",value:42},
+      {text:"你跟着潮门的节奏吐纳三次。第三次，胸腔里像多出一间空室。",type:"mp",value:38},
+      {text:"暗流把你压向尖礁。你以肘撞开，皮肉开花。",type:"damage",value:36,diff:75,kind:"combat"},
+      {text:"水下光影一闪。你抓住那一息的顿悟，内功运转更圆。",type:"exp",value:40},
+      {text:"古碑上的潮汐图与今日潮位对得上。你记下时辰，福缘微动。",type:"stat",key:"luck",value:1},
+      {text:"远处有玄鲸帮的船在盘旋，像在守什么，又像在等什么。",type:"log"}
+    ],
+    secret_cave:[
+      {text:"第二道机关是听声辨位。你以发试探，银袋落在脚边。",type:"silver",value:34},
+      {text:"影中对练三百步。结束时衣不动，呼吸却沉如井。",type:"exp",value:30},
+      {text:"连环暗器从壁缝射出。你以肩滚地，后心仍中了一枚软刺。",type:"damage",value:32,diff:64,kind:"combat"},
+      {text:"窟深处有人用极轻的声音说：再往前，就不是试探了。你停住。",type:"log"},
+      {text:"你在完全的黑暗里走完一圈。出来时，白日的光刺得人几乎落泪——身法却开了。",type:"stat",key:"agi",value:1},
+      {text:"机关齿合声里你找到换气的节奏，内息反而稳了。",type:"mp",value:26},
+      {text:"血迹指引向死路。你反向走，摸到一处被刻意抹掉的出口标记。",type:"exp",value:28}
+    ]
+  };
+
+  Object.keys(EXTRA).forEach(function(id){
+    if(!EXPLORE_POOL[id])EXPLORE_POOL[id]=[];
+    EXTRA[id].forEach(function(e){ EXPLORE_POOL[id].push(e); });
+  });
+
+  Object.keys(EXPLORE_POOL).forEach(function(id){
+    var seen={}, out=[];
+    EXPLORE_POOL[id].forEach(function(e){
+      var k=e.text||JSON.stringify(e);
+      if(seen[k])return;
+      seen[k]=1;out.push(e);
+    });
+    EXPLORE_POOL[id]=out;
+  });
+})();
