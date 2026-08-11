@@ -2,9 +2,11 @@
  * data_loader.js — 从 data/*.json 热加载表数据（方便非程序员改表）
  *
  * 用法：
- *   1. 默认：data_tables.js 同步注入（file:// / 离线也可用）
- *   2. 本文件在 http(s) 下 fetch JSON 覆盖，然后 DB.rebuild()
- *   3. 控制台可手动：reloadGameData().then(()=>location.reload())
+ *   1. 默认：data1_*.js / data2.js 同步注入（file:// 回退）
+ *   2. 本文件在 http(s) 下 fetch data/*.json 覆盖，然后 DB.rebuild()
+ *   3. 控制台可手动：reloadGameData().then(() => location.reload())
+ *
+ * 需要本地服务器或 GitHub Pages，不要用 file:// 双击打开。
  */
 (function(g){
   "use strict";
@@ -19,6 +21,7 @@
   function applyChunk(obj){
     if(!obj)return;
     Object.keys(obj).forEach(function(k){
+      if(k === "note") return;
       g[k] = obj[k];
       if(!g.__GAME_DATA)g.__GAME_DATA={};
       g.__GAME_DATA[k]=obj[k];
@@ -37,7 +40,7 @@
 
   g.reloadGameData = function(){
     if(typeof fetch!=="function"){
-      return Promise.reject(new Error("当前环境不支持 fetch，请直接改 data_tables.js 或用本地服务器打开"));
+      return Promise.reject(new Error("当前环境不支持 fetch，请用本地服务器打开（python -m http.server）"));
     }
     return Promise.all(FILES.map(function(f){
       return fetch(f.path + "?t=" + Date.now(), { cache: "no-store" })
