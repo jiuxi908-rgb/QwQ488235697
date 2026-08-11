@@ -1,0 +1,8 @@
+{
+  "SKILL_DESIGN": {
+    "qualities": ["黄阶", "玄阶", "地阶", "天阶"],
+    "types": ["内功", "剑法", "刀法", "拳掌", "轻功", "暗器"],
+    "realms": ["初窥门径", "登堂入室", "融会贯通", "炉火纯青", "返璞归真"]
+  },
+  "note": "完整 skills / LOCAL_SKILLS 见仓库 data2.js；可用 data_loader 热覆盖后扩展本文件"
+}
