@@ -5,44 +5,29 @@
     "states": ["大雍朝廷", "北庭节镇", "南海商盟"],
     "rules": ["杀人留痕", "拜师有门", "武无定法", "无唯一主线"],
     "factions": ["守序正道", "逐利中道", "幽暗邪道"],
-    "mapModel": {
-      "layers": ["city", "spot"],
-      "city": "州府级长途节点，负责天下旅行与区域入口",
-      "spot": "清河、山门、秘境等江湖节点，继续使用现有短途地图",
-      "travelRule": "城际边的 cost 按日计算，并乘 TIME_COST.move",
-      "legacySave": "旧档 location 保持不变，通过 maps.json 的 parent 推导所属州府"
-    },
+    "mapModel": {"layers":["city","spot"],"city":"州府级长途节点，负责天下旅行与区域入口","spot":"清河、山门、秘境等江湖节点，继续使用现有短途地图","travelRule":"城际边的 cost 按日计算，并乘 TIME_COST.move","legacySave":"旧档 location 保持不变，通过 maps.json 的 parent 推导所属州府"},
     "worldMap": {
       "cities": {
-        "kaifeng":{"name":"开封","alias":"东京","region":"中原核心","tag":"缉武司","children":["qinghe","market","hearth","sparrow_den","secret_cave","blood_ravine"]},
-        "luoyang":{"name":"洛阳","alias":"西京","region":"中原西部","tag":"寺观","children":["herb_valley","void_temple","cloud_peak"]},
-        "yingtian":{"name":"应天","alias":"商丘","region":"中原东部","tag":"官道","children":[]},
-        "yangzhou":{"name":"扬州","alias":"淮扬","region":"漕运","tag":"盐银","children":["ferry","salt_road","whale_port","secret_reef"]},
-        "jiankang":{"name":"建康","alias":"江东","region":"江东","tag":"江防","children":[]},
-        "hangzhou":{"name":"杭州","alias":"临安","region":"两浙","tag":"湖山","children":["bamboo","mist_gate"]},
-        "suzhou":{"name":"苏州","alias":"姑苏","region":"两浙","tag":"丝织","children":[]},
-        "mingzhou":{"name":"明州","alias":"宁波","region":"海路","tag":"市舶","children":[]},
-        "quanzhou":{"name":"泉州","alias":"刺桐","region":"海路","tag":"海贸","children":[]},
-        "guangzhou":{"name":"广州","alias":"岭南","region":"海路","tag":"南海商盟","children":[]},
-        "ezhou":{"name":"鄂州","alias":"江汉","region":"荆湖","tag":"长江","children":[]},
-        "changsha":{"name":"长沙","alias":"潭州","region":"荆湖","tag":"湘江","children":[]},
-        "chengdu":{"name":"成都","alias":"蜀中","region":"川峡","tag":"蜀道","children":[]}
+        "kaifeng":{"name":"开封","alias":"东京","region":"中原核心","tag":"缉武司","desc":"天下漕运汇聚之地，缉武司耳目遍布坊市。","children":["qinghe","market","hearth","sparrow_den","secret_cave","blood_ravine"]},
+        "luoyang":{"name":"洛阳","alias":"西京","region":"中原西部","tag":"寺观","desc":"古都山河之间，寺观、士人和江湖客交错往来。","children":["herb_valley","void_temple","cloud_peak"]},
+        "yingtian":{"name":"应天","alias":"商丘","region":"中原东部","tag":"官道驿","desc":"归德旧地，南北官道在此交汇，驿骑昼夜不息。","children":[]},
+        "yangzhou":{"name":"扬州","alias":"淮扬","region":"漕运","tag":"盐银","desc":"江淮舟楫云集，盐商、漕船与江湖人物共同维系繁盛市面。","children":["ferry","salt_road","whale_port","secret_reef"]},
+        "jiankang":{"name":"建康","alias":"金陵","region":"江东","tag":"江防","desc":"江东重镇，城防森严，旧都气象与江湖风声并存。","children":[]},
+        "hangzhou":{"name":"杭州","alias":"临安","region":"两浙","tag":"湖山","desc":"湖山清丽而商旅不绝，茶、丝与江湖消息沿水路汇聚。","children":["bamboo","mist_gate"]},
+        "suzhou":{"name":"苏州","alias":"姑苏","region":"两浙","tag":"丝织·机坊","desc":"水巷纵横，丝织机坊昼夜作响，商贾与工匠往来不绝。","children":[]},
+        "mingzhou":{"name":"明州","alias":"宁波","region":"海路","tag":"市舶","desc":"海舶渐盛的港口，远洋商旅带来异域货物与江湖传闻。","children":[]},
+        "quanzhou":{"name":"泉州","alias":"刺桐","region":"海路","tag":"海贸","desc":"海商汇聚之地，货栈、船队与南海商盟关系盘根错节。","children":[]},
+        "guangzhou":{"name":"广州","alias":"岭南","region":"海路","tag":"南海商盟","desc":"南海商路尽头，异域货物与商盟势力在此交汇。","children":[]},
+        "ezhou":{"name":"鄂州","alias":"江汉","region":"荆湖","tag":"江泊·货船","desc":"江汉水路的中游枢纽，货船、江泊与水寨消息汇成一处。","children":[]},
+        "changsha":{"name":"长沙","alias":"潭州","region":"荆湖","tag":"湘江","desc":"湘江贯城，南北商路在此转折，江湖势力逐渐南下。","children":[]},
+        "chengdu":{"name":"成都","alias":"蜀中","region":"川峡","tag":"蜀道","desc":"群山阻隔的富庶之地，入蜀道路漫长而险峻。","children":[]}
       },
       "edges": [
-        ["kaifeng","luoyang",2,"road"],
-        ["kaifeng","yingtian",2,"road"],
-        ["luoyang","yingtian",3,"road"],
-        ["yingtian","yangzhou",2,"canal"],
-        ["yangzhou","jiankang",2,"canal"],
-        ["jiankang","hangzhou",2,"canal"],
-        ["hangzhou","suzhou",1,"canal"],
-        ["yangzhou","ezhou",4,"river"],
-        ["hangzhou","mingzhou",2,"sea"],
-        ["mingzhou","quanzhou",4,"sea"],
-        ["quanzhou","guangzhou",5,"sea"],
-        ["ezhou","changsha",2,"river"],
-        ["changsha","chengdu",8,"mountain"]
-      ]
+        ["kaifeng","luoyang",2,"road"],["kaifeng","yingtian",3,"road"],["luoyang","yingtian",3,"road"],["yingtian","yangzhou",3,"canal"],["kaifeng","yangzhou",5,"canal"],
+        ["yangzhou","jiankang",3,"river"],["jiankang","hangzhou",3,"river"],["hangzhou","suzhou",2,"canal"],["yangzhou","ezhou",5,"river"],
+        ["hangzhou","mingzhou",2,"sea"],["mingzhou","quanzhou",4,"sea"],["quanzhou","guangzhou",5,"sea"],["ezhou","changsha",2,"river"],["changsha","chengdu",8,"mountain"]
+      ],
+      "phase2": {"cities":["suzhou","jiankang","ezhou","yingtian"],"primaryRoute":["kaifeng","yingtian","yangzhou","jiankang","hangzhou","suzhou"],"riverRoute":["yangzhou","ezhou"],"deferred":["mingzhou","quanzhou","guangzhou","changsha","chengdu"]}
     }
   }
 }
