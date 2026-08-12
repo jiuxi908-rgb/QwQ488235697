@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" shape-rendering="crispEdges">
+  <rect width="640" height="360" fill="#141c14"/>
+  <rect width="640" height="180" fill="#1a2820"/>
+  <!-- bamboo stalks -->
+  <g fill="#2a4a30">
+    <rect x="20" y="40" width="10" height="220"/><rect x="50" y="20" width="8" height="240"/>
+    <rect x="90" y="50" width="12" height="210"/><rect x="130" y="30" width="9" height="230"/>
+    <rect x="180" y="60" width="11" height="200"/><rect x="220" y="25" width="8" height="235"/>
+    <rect x="400" y="35" width="10" height="225"/><rect x="440" y="50" width="9" height="210"/>
+    <rect x="480" y="20" width="12" height="240"/><rect x="530" y="45" width="8" height="215"/>
+    <rect x="570" y="30" width="10" height="230"/><rect x="600" y="55" width="9" height="205"/>
+  </g>
+  <g fill="#3a6a40" opacity=".7">
+    <rect x="25" y="60" width="6" height="8"/><rect x="55" y="80" width="5" height="7"/>
+    <rect x="95" y="100" width="6" height="8"/><rect x="185" y="90" width="6" height="8"/>
+    <rect x="405" y="70" width="6" height="8"/><rect x="485" y="90" width="6" height="8"/>
+  </g>
+  <!-- path -->
+  <rect y="260" width="640" height="100" fill="#1e2418"/>
+  <rect y="270" width="640" height="16" fill="#2a3420"/>
+  <!-- clearing / sword practice -->
+  <rect x="260" y="200" width="120" height="80" fill="#243028"/>
+  <rect x="280" y="220" width="80" height="40" fill="#1a2018"/>
+  <text x="290" y="245" fill="#9ece8a" font-size="13" font-family="sans-serif">练剑坪</text>
+  <!-- mountain gate direction -->
+  <rect x="500" y="160" width="100" height="100" fill="#2a382c"/>
+  <rect x="520" y="190" width="60" height="70" fill="#121810"/>
+  <text x="525" y="180" fill="#d9ad62" font-size="12" font-family="sans-serif">山门方向</text>
+  <!-- rain dots -->
+  <g fill="#4a6a58" opacity=".4">
+    <rect x="100" y="100" width="2" height="8"/><rect x="200" y="80" width="2" height="10"/>
+    <rect x="300" y="120" width="2" height="8"/><rect x="450" y="90" width="2" height="9"/>
+  </g>
+  <text x="16" y="28" fill="#b9a58a" font-size="16" font-family="sans-serif">听雨竹径</text>
+  <text x="16" y="48" fill="#6b5a48" font-size="11" font-family="sans-serif">主线途经 · 点热区</text>
+</svg>
