@@ -74,7 +74,7 @@
         p.stats.luck=(p.stats.luck|0)+1;
         return"独行江湖 · 福缘+1";
       }},
-    {id:12,title:"自由江湖",desc:"主线告一段落。经脉、家园、结缘、秘境与门派高阶，皆可由你书写。",
+    {id:12,title:"自由江湖",desc:"主线告一段落。可入城赴扬州/杭州等州府长途，亦可经脉、家园、结缘、秘境自寻。",
       check:function(){return true;},
       reward:function(p){p.flags.mainDone=true;return"解锁「自由江湖」";}}
   ];
