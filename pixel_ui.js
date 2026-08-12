@@ -1,447 +1,164 @@
-/* 120×120 像素头像 · 色块合并输出 + 全局缓存（消除弹窗卡顿） */
+/*
+ * pixel_ui.js — 分层人物头像生成器 v3
+ *
+ * 头像由独立视觉层组成：背景光、衣身、衣领、脖颈、脸型、耳朵、发后层、发丝、眉眼、瞳孔、鼻梁、鼻影、嘴唇、年龄纹理、胡须、饰物和高光。
+ * 输出保持 120×120 SVG，并兼容原有 pixelAvatarSvg / avatarHtml / playerAvatar / npcAvatar API。
+ */
 (function(){
+  "use strict";
 
-  if(!document.getElementById("pixel-ui-style")){
-    var css=document.createElement("style");
-    css.id="pixel-ui-style";
+  if(typeof document!=="undefined"&&!document.getElementById("pixel-ui-style")){
+    var css=document.createElement("style");css.id="pixel-ui-style";
     css.textContent=[
       "body.pixel-ui{image-rendering:pixelated;-webkit-font-smoothing:none}",
-      "body.pixel-ui .panel,body.pixel-ui .hero-card,body.pixel-ui .modal-panel{",
-      "  border-radius:0 !important;border-width:3px !important;border-style:solid !important;",
-      "  border-color:#3a2a1c #1a120c #1a120c #3a2a1c !important;",
-      "  box-shadow:4px 4px 0 #0a0806, inset 1px 1px 0 rgba(217,173,98,.15) !important}",
-      "body.pixel-ui .btn{",
-      "  border-radius:0 !important;border-width:2px !important;",
-      "  border-color:#6b503a #2a1c12 #2a1c12 #6b503a !important;",
-      "  box-shadow:2px 2px 0 #0a0806;text-shadow:1px 1px 0 #000}",
+      "body.pixel-ui .panel,body.pixel-ui .hero-card,body.pixel-ui .modal-panel{border-radius:0!important;border-width:3px!important;border-style:solid!important;border-color:#3a2a1c #1a120c #1a120c #3a2a1c!important;box-shadow:4px 4px 0 #0a0806,inset 1px 1px 0 rgba(217,173,98,.15)!important}",
+      "body.pixel-ui .btn{border-radius:0!important;border-width:2px!important;box-shadow:2px 2px 0 #0a0806;text-shadow:1px 1px 0 #000}",
       "body.pixel-ui .btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #0a0806}",
-      "body.pixel-ui .btn.primary{border-color:var(--gold) #5a4020 #5a4020 var(--gold) !important;background:#5a3a22 !important}",
-      "body.pixel-ui .map-node,body.pixel-ui .choice,body.pixel-ui .quest-card,body.pixel-ui .master-card,",
-      "body.pixel-ui .item-icon,body.pixel-ui .talk-bubble,body.pixel-ui .log,body.pixel-ui .tag,",
-      "body.pixel-ui .rank-tag,body.pixel-ui .equip-slot{border-radius:0 !important}",
-      "body.pixel-ui .map-node{border-width:2px !important;border-color:#4b3a2d #1a120c #1a120c #4b3a2d !important;box-shadow:2px 2px 0 #0a0806}",
-      "body.pixel-ui .map-node.current{border-color:var(--gold) !important;box-shadow:0 0 0 2px rgba(217,173,98,.35),2px 2px 0 #0a0806}",
-      "body.pixel-ui .title{letter-spacing:2px;text-shadow:3px 3px 0 #000,-1px -1px 0 #5a4020}",
-      "body.pixel-ui .section-title{text-shadow:1px 1px 0 #000}",
-      "body.pixel-ui .favor-bar,body.pixel-ui .quest-bar{border-radius:0 !important;border-width:2px !important;height:10px !important}",
-      "body.pixel-ui .favor-fill,body.pixel-ui .quest-fill{border-radius:0 !important}",
-      "body.pixel-ui .hud{align-items:center;gap:8px}",
-      ".px-avatar{display:inline-block;vertical-align:middle;image-rendering:pixelated;image-rendering:crisp-edges;",
-      "  border:2px solid #4b3a2d;box-shadow:2px 2px 0 #0a0806;background:#050403;flex-shrink:0;overflow:hidden}",
-      ".px-avatar img,.px-avatar svg{display:block;width:100%;height:100%;object-fit:cover;",
-      "  image-rendering:pixelated;image-rendering:crisp-edges}",
-      ".px-avatar.sm{width:36px;height:36px}",
-      ".px-avatar.md{width:56px;height:56px}",
-      ".px-avatar.lg{width:88px;height:88px}",
-      ".px-avatar.xl{width:120px;height:120px}",
-      ".px-npc-btn{display:inline-flex;align-items:center;gap:4px}",
-      ".px-npc-btn .px-avatar{width:32px;height:32px}",
-      ".px-modal-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}"
-    ].join("\n");
-    document.head.appendChild(css);
+      "body.pixel-ui .map-node,body.pixel-ui .choice,body.pixel-ui .quest-card,body.pixel-ui .master-card,body.pixel-ui .item-icon,body.pixel-ui .talk-bubble,body.pixel-ui .log,body.pixel-ui .tag,body.pixel-ui .rank-tag,body.pixel-ui .equip-slot{border-radius:0!important}",
+      ".px-avatar{display:inline-grid;place-items:center;vertical-align:middle;position:relative;overflow:hidden;flex:0 0 auto;background:#050403;border:2px solid #4b3a2d;box-shadow:2px 2px 0 #0a0806;image-rendering:pixelated}",
+      ".px-avatar svg{display:block;width:100%;height:100%;image-rendering:pixelated;shape-rendering:crispEdges}",
+      ".px-avatar.sm{width:36px;height:36px}.px-avatar.md{width:56px;height:56px}.px-avatar.lg{width:88px;height:88px}.px-avatar.xl{width:120px;height:120px}",
+      ".px-avatar:after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.07),transparent 38%,rgba(0,0,0,.14))}",
+      ".px-npc-btn{display:inline-flex;align-items:center;gap:5px}.px-npc-btn .px-avatar{width:32px;height:32px}.px-modal-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}"
+    ].join("\n");document.head.appendChild(css);
   }
-  document.body.classList.add("pixel-ui");
+  if(typeof document!=="undefined"&&document.body)document.body.classList.add("pixel-ui");
 
-  function hash(str){
-    str=String(str||"x");var h=2166136261;
-    for(var i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}
-    return h>>>0;
-  }
-  function pick(h,arr){return arr[h%arr.length];}
-  function shade(hex,amt){
-    hex=String(hex).replace("#","");
-    if(hex.length===3)hex=hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
-    var n=parseInt(hex,16);
-    if(isNaN(n))return hex;
-    var r=Math.max(0,Math.min(255,((n>>16)&255)+amt));
-    var g=Math.max(0,Math.min(255,((n>>8)&255)+amt));
-    var b=Math.max(0,Math.min(255,(n&255)+amt));
-    return"#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
-  }
+  function hash(str){str=String(str||"x");var h=2166136261;for(var i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+  function pick(h,a){return a[h%a.length]}
+  function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+  function shade(hex,amt){hex=String(hex||"#000").replace("#","");if(hex.length===3)hex=hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];var n=parseInt(hex,16);if(isNaN(n))return"#000000";var r=clamp(((n>>16)&255)+amt,0,255),g=clamp(((n>>8)&255)+amt,0,255),b=clamp((n&255)+amt,0,255);return"#"+((1<<24)|(r<<16)|(g<<8)|b).toString(16).slice(1)}
 
-  var SKINS=["#f0d0b0","#e8c4a0","#dcb089","#c9956a","#b07a50","#9a6840"];
-  var HAIRS=["#0c0c0e","#121018","#1a1410","#221810","#2a1c14","#3a2818"];
-  var ROBES=["#ebe4d8","#e0d8cc","#d4cfc4","#f2ede4","#c8c0b4","#d8d0c4"];
-  var SASHES=["#8a5a3a","#6b4423","#a07048","#5a3a22","#9a6040"];
-  var CLOTH_DARK=["#3b2b21","#2a3a4a","#3a2a3a","#2a4a3a","#4a2a2a","#1a2a1a","#2a2a4a"];
+  var SKINS=["#f2d3b5","#e9c5a1","#ddb18a","#ca956b","#b37b53","#986640"];
+  var HAIRS=["#101014","#151218","#1d1713","#291d16","#382619","#51402c"];
+  var ROBES=["#eee7db","#ddd5c9","#cfc7bb","#f4efe6","#c2bbb0","#d7cfc3"];
+  var SASHES=["#8d5c3a","#704725","#a16d46","#5b3b25","#9b5e42"];
+  var DARK_CLOTH=["#382820","#29394a","#392a3b","#294638","#492b2b","#202c24","#2d2d4b"];
+
+  var AGE={child:{face:.96,eye:1.12,wrinkle:0,chin:0},young:{face:1,eye:1.05,wrinkle:0,chin:1},adult:{face:1.02,eye:1,wrinkle:0,chin:2},mature:{face:1.04,eye:.96,wrinkle:1,chin:3},elder:{face:1.06,eye:.9,wrinkle:2,chin:4}};
 
   var PRESETS={
-    hero_ref:{skin:0,hair:0,robe:0,sash:1,style:"hero",gender:"男"},
-    player:{skin:0,hair:0,robe:0,sash:1,style:"hero",gender:"男"},
-    zhou:{skin:3,hair:3,robe:5,sash:1,style:"elder",beard:2},
-    su:{skin:1,hair:2,robe:0,sash:0,style:"neat",gender:"女"},
-    aqing:{skin:0,hair:1,robe:0,sash:3,style:"long",gender:"女",acc:"leaf"},
-    jian_tong:{skin:0,hair:0,robe:0,sash:0,style:"hero",gender:"男"},
-    yubo:{skin:4,hair:4,robe:5,sash:1,style:"elder",beard:2},
-    luyun:{skin:0,hair:0,robe:0,sash:0,style:"hero",gender:"男",acc:"tassel"},
-    yanlan_mei:{skin:0,hair:0,robe:0,sash:0,style:"long",gender:"女",acc:"tassel"},
-    huichun_lan:{skin:0,hair:2,robe:0,sash:2,style:"twin",gender:"女",acc:"flower"},
-    tieba:{skin:4,hair:0,robe:5,sash:1,style:"wild",beard:1,acc:"scar"},
-    que_shadow:{skin:2,hair:0,robe:5,sash:1,style:"mask",role:"shadow"},
-    monk_jing:{skin:1,hair:0,robe:1,sash:1,style:"monk",role:"monk"},
-    hermit:{skin:2,hair:0,robe:5,sash:1,style:"elder",beard:2,role:"elder"},
-    xie_ren:{skin:3,hair:0,robe:5,sash:4,style:"wild",role:"evil",acc:"blood"},
-    su_wanqing:{skin:0,hair:2,robe:0,sash:2,style:"long",gender:"女"},
-    shen_shuheng:{skin:0,hair:0,robe:0,sash:0,style:"hero",gender:"男"},
-    shen_tingyun:{skin:0,hair:0,robe:0,sash:0,style:"long",gender:"女",role:"elder"},
-    baique_si:{skin:1,hair:0,robe:5,sash:1,style:"mask",role:"shadow"},
-    wuxiang_chen:{skin:0,hair:0,robe:1,sash:1,style:"monk",role:"monk"},
-    xuan_zhu:{skin:1,hair:1,robe:0,sash:0,style:"neat",gender:"女",acc:"pearl"},
-    ao_sailor:{skin:4,hair:0,robe:2,sash:0,style:"short",gender:"男",acc:"shell"},
-    helie_npc:{skin:3,hair:2,robe:5,sash:1,style:"short",acc:"burn"},
-    shishu:{skin:2,hair:3,robe:5,sash:1,style:"elder",beard:1},
-    qianliu:{skin:2,hair:0,robe:5,sash:4,style:"short",gender:"男"},
-    stall:{skin:3,hair:4,robe:1,sash:1,style:"elder",gender:"女",beard:0},
-    shuizei:{skin:4,hair:0,robe:5,sash:1,style:"wild",acc:"scar"},
-    shen_wai:{skin:1,hair:0,robe:0,sash:0,style:"hero",gender:"男"},
-    he_forge:{skin:3,hair:4,robe:5,sash:1,style:"elder",beard:1},
-    yaotong:{skin:0,hair:2,robe:0,sash:2,style:"long",gender:"女",acc:"flower"},
-    reef_ghost:{skin:2,hair:0,robe:5,sash:1,style:"mask",role:"shadow"},
-    cave_guard:{skin:2,hair:0,robe:5,sash:1,style:"mask",role:"shadow"}
+    hero_ref:{skin:0,hair:0,robe:0,sash:1,style:"hero",gender:"男",age:"young"},player:{skin:0,hair:0,robe:0,sash:1,style:"hero",gender:"男",age:"young"},
+    zhou:{skin:3,hair:3,robe:5,sash:1,style:"elder",beard:2,age:"mature"},su:{skin:1,hair:2,robe:0,sash:0,style:"neat",gender:"女",age:"adult"},
+    aqing:{skin:0,hair:1,robe:0,sash:3,style:"long",gender:"女",acc:"leaf",age:"young"},jian_tong:{skin:0,hair:0,robe:0,sash:0,style:"hero",gender:"男",age:"young"},
+    yubo:{skin:4,hair:4,robe:5,sash:1,style:"elder",beard:2,age:"elder"},luyun:{skin:0,hair:0,robe:0,sash:0,style:"hero",gender:"男",acc:"tassel",age:"adult"},
+    yanlan_mei:{skin:0,hair:0,robe:0,sash:0,style:"long",gender:"女",acc:"tassel",age:"adult"},huichun_lan:{skin:0,hair:2,robe:0,sash:2,style:"twin",gender:"女",acc:"flower",age:"adult"},
+    tieba:{skin:4,hair:0,robe:5,sash:1,style:"wild",beard:1,acc:"scar",age:"mature"},que_shadow:{skin:2,hair:0,robe:5,sash:1,style:"mask",role:"shadow",age:"adult"},
+    monk_jing:{skin:1,hair:0,robe:1,sash:1,style:"monk",role:"monk",age:"adult"},hermit:{skin:2,hair:0,robe:5,sash:1,style:"elder",beard:2,role:"elder",age:"elder"},
+    xie_ren:{skin:3,hair:0,robe:5,sash:4,style:"wild",role:"evil",acc:"blood",age:"mature"},su_wanqing:{skin:0,hair:2,robe:0,sash:2,style:"long",gender:"女",age:"adult"},
+    shen_shuheng:{skin:0,hair:0,robe:0,sash:0,style:"hero",gender:"男",age:"adult"},shen_tingyun:{skin:0,hair:0,robe:0,sash:0,style:"long",gender:"女",role:"elder",age:"mature"},
+    baique_si:{skin:1,hair:0,robe:5,sash:1,style:"mask",role:"shadow",age:"adult"},wuxiang_chen:{skin:0,hair:0,robe:1,sash:1,style:"monk",role:"monk",age:"mature"},
+    xuan_zhu:{skin:1,hair:1,robe:0,sash:0,style:"neat",gender:"女",acc:"pearl",age:"adult"},ao_sailor:{skin:4,hair:0,robe:2,sash:0,style:"short",gender:"男",acc:"shell",age:"mature"},
+    helie_npc:{skin:3,hair:2,robe:5,sash:1,style:"short",acc:"burn",age:"mature"},shishu:{skin:2,hair:3,robe:5,sash:1,style:"elder",beard:1,age:"elder"},
+    qianliu:{skin:2,hair:0,robe:5,sash:4,style:"short",gender:"男",age:"mature"},stall:{skin:3,hair:4,robe:1,sash:1,style:"elder",gender:"女",age:"mature"},
+    shuizei:{skin:4,hair:0,robe:5,sash:1,style:"wild",acc:"scar",age:"adult"},shen_wai:{skin:1,hair:0,robe:0,sash:0,style:"hero",gender:"男",age:"adult"},
+    he_forge:{skin:3,hair:4,robe:5,sash:1,style:"elder",beard:1,age:"mature"},yaotong:{skin:0,hair:2,robe:0,sash:2,style:"long",gender:"女",acc:"flower",age:"child"},
+    reef_ghost:{skin:2,hair:0,robe:5,sash:1,style:"mask",role:"shadow",age:"adult"},cave_guard:{skin:2,hair:0,robe:5,sash:1,style:"mask",role:"shadow",age:"mature"}
   };
 
-  /* —— 全局 SVG 字符串缓存 —— */
-  var _svgCache = Object.create(null);
-  var _CACHE_LIMIT = 80;
+  var CACHE=Object.create(null),CACHE_LIMIT=100;
+  function add(c,x,y,v){if(x>=0&&x<120&&y>=0&&y<120)c[x+","+y]=v}
+  function fill(c,x0,y0,x1,y1,v){for(var y=y0;y<=y1;y++)for(var x=x0;x<=x1;x++)add(c,x,y,v)}
+  function line(c,x0,y0,x1,y1,v){var dx=Math.abs(x1-x0),dy=Math.abs(y1-y0),sx=x0<x1?1:-1,sy=y0<y1?1:-1,err=dx-dy;while(true){add(c,x0,y0,v);if(x0===x1&&y0===y1)break;var e=2*err;if(e>-dy){err-=dy;x0+=sx}if(e<dx){err+=dx;y0+=sy}}}
 
-  /**
-   * 将同色相邻像素合并为更大的 rect（行内 RLE + 纵向合并）
-   * 典型从 ~14000 节点降到 ~200–500
-   */
-  function cellsToMergedSvg(cells, W, H){
-    /* grid[y][x] */
-    var grid=new Array(H);
-    for(var y=0;y<H;y++){
-      grid[y]=new Array(W);
-      for(var x=0;x<W;x++)grid[y][x]=null;
-    }
-    var keys=Object.keys(cells);
-    for(var i=0;i<keys.length;i++){
-      var p=keys[i].split(",");
-      var px=+p[0], py=+p[1];
-      if(px>=0&&px<W&&py>=0&&py<H)grid[py][px]=cells[keys[i]];
-    }
-
-    /* 行内 RLE → spans: {x,y,w,c} */
+  function mergeSvg(cells){
+    var W=120,H=120,grid=new Array(H),keys=Object.keys(cells),i,p;
+    for(var y=0;y<H;y++){grid[y]=new Array(W);for(var x=0;x<W;x++)grid[y][x]=null}
+    for(i=0;i<keys.length;i++){p=keys[i].split(",");grid[+p[1]][+p[0]]=cells[keys[i]]}
     var spans=[];
-    for(var yy=0;yy<H;yy++){
-      var xx=0;
-      while(xx<W){
-        var c=grid[yy][xx];
-        if(c==null){xx++;continue;}
-        var x0=xx;
-        while(xx<W&&grid[yy][xx]===c)xx++;
-        spans.push({x:x0,y:yy,w:xx-x0,h:1,c:c});
-      }
-    }
-
-    /* 纵向合并：同一 x,w,c 且 y 连续 */
-    spans.sort(function(a,b){
-      if(a.c!==b.c)return a.c<b.c?-1:1;
-      if(a.x!==b.x)return a.x-b.x;
-      if(a.w!==b.w)return a.w-b.w;
-      return a.y-b.y;
-    });
-    var merged=[];
-    for(var s=0;s<spans.length;s++){
-      var cur=spans[s];
-      var last=merged.length?merged[merged.length-1]:null;
-      if(last&&last.c===cur.c&&last.x===cur.x&&last.w===cur.w&&last.y+last.h===cur.y){
-        last.h+=1;
-      }else{
-        merged.push({x:cur.x,y:cur.y,w:cur.w,h:cur.h,c:cur.c});
-      }
-    }
-
-    var rects="";
-    for(var m=0;m<merged.length;m++){
-      var r=merged[m];
-      rects+='<rect x="'+r.x+'" y="'+r.y+'" width="'+r.w+'" height="'+r.h+'" fill="'+r.c+'"/>';
-    }
-    return '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 '+W+' '+H+'" shape-rendering="crispEdges">'+rects+'</svg>';
+    for(y=0;y<H;y++){x=0;while(x<W){var c=grid[y][x];if(c==null){x++;continue}var x0=x;while(x<W&&grid[y][x]===c)x++;spans.push({x:x0,y:y,w:x-x0,h:1,c:c})}}
+    spans.sort(function(a,b){return a.c===b.c?(a.x===b.x?(a.w===b.w?a.y-b.y:a.w-b.w):a.x-b.x):(a.c<b.c?-1:1)});
+    var out=[];
+    for(i=0;i<spans.length;i++){var q=spans[i],last=out[out.length-1];if(last&&last.c===q.c&&last.x===q.x&&last.w===q.w&&last.y+last.h===q.y)last.h++;else out.push({x:q.x,y:q.y,w:q.w,h:1,c:q.c})}
+    var rects="";for(i=0;i<out.length;i++){q=out[i];rects+='<rect x="'+q.x+'" y="'+q.y+'" width="'+q.w+'" height="'+q.h+'" fill="'+q.c+'"/>'}
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" shape-rendering="crispEdges">'+rects+'</svg>';
   }
 
   function pixelAvatarSvg(opts){
-    opts=opts||{};
-    var seed=opts.seed||"anon";
-    var g=opts.gender||"其他";
-    var role=opts.role||"npc";
-    var presetId=opts.presetId||seed;
-    var cacheKey=seed+"|"+g+"|"+role+"|"+presetId;
-    if(_svgCache[cacheKey])return _svgCache[cacheKey];
+    opts=opts||{};var seed=opts.seed||"anon",g=opts.gender||"其他",role=opts.role||"npc",presetId=opts.presetId||seed;
+    var preset=PRESETS[presetId]||PRESETS[seed]||{};if(preset.gender)g=preset.gender;if(preset.role)role=preset.role;
+    var ageKey=opts.age||preset.age||((role==="elder"||preset.style==="elder")?"elder":"adult"),age=AGE[ageKey]||AGE.adult;
+    var expression=opts.expression||preset.expression||(role==="evil"?"cold":"calm"),light=opts.light||"upperLeft";
+    var cacheKey=[seed,g,role,presetId,ageKey,expression,light].join("|");if(CACHE[cacheKey])return CACHE[cacheKey];
+    var h=hash(cacheKey),hf=hash(seed+":face"),hh=hash(seed+":hair");
+    var skin=preset.skin!=null?SKINS[preset.skin%SKINS.length]:pick(h,SKINS),hair=preset.hair!=null?HAIRS[preset.hair%HAIRS.length]:pick(hh,HAIRS),robe,sash;
+    if(role==="monk"){robe="#c8c4b8";sash="#6a6558";hair="#e1d9c9"}else if(role==="shadow"){robe="#1b1b27";sash="#343443";hair="#09090b"}else if(role==="evil"){robe="#3a1a1d";sash="#76282b"}else if(preset.style==="hero"||role==="player"){robe=ROBES[(preset.robe||0)%ROBES.length];sash=SASHES[(preset.sash||0)%SASHES.length]}else if(g==="女"){robe=ROBES[(preset.robe||h)%ROBES.length];sash=SASHES[(preset.sash||h>>>4)%SASHES.length]}else{robe=preset.robe!=null?ROBES[preset.robe%ROBES.length]:pick(h,DARK_CLOTH);sash=preset.sash!=null?SASHES[preset.sash%SASHES.length]:pick(h>>>4,SASHES)}
+    var skinD=shade(skin,-28),skinDD=shade(skin,-48),skinL=shade(skin,24),skinM=shade(skin,-12),hairL=shade(hair,30),hairD=shade(hair,-18),hairDD=shade(hair,-35),robeL=shade(robe,18),robeD=shade(robe,-24),robeDD=shade(robe,-40),sashD=shade(sash,-24),sashL=shade(sash,20);
+    var c={};fill(c,0,0,119,119,"#050403");
 
-    var preset=PRESETS[presetId]||PRESETS[seed]||null;
+    /* 1. 衣身与衣领 */
+    fill(c,8,92,111,119,robe);fill(c,0,108,119,119,robeD);fill(c,0,116,119,119,robeDD);fill(c,18,88,42,119,robeL);fill(c,78,88,101,119,robeD);
+    line(c,20,90,8,118,robeL);line(c,99,90,111,118,robeD);fill(c,47,82,72,102,skinD);fill(c,48,90,71,98,skin);
+    line(c,42,84,59,104,sash);line(c,77,84,60,104,sashD);line(c,48,101,72,101,sashL);fill(c,58,101,64,118,sash);fill(c,64,106,72,118,sashD);
 
-    if(role==="player" && !PRESETS[presetId]){
-      preset={skin:0,hair:0,robe:0,sash:1,style:"hero",gender:g==="女"?"女":"男"};
-      if(g==="女"){preset.style="long";preset.sash=2;}
-    }
-    if(preset){
-      if(preset.gender)g=preset.gender;
-      if(preset.role)role=preset.role;
-    }
+    /* 2. 脸型、耳朵、下颌 */
+    var faceW=Math.round(38*age.face),left=Math.round(60-faceW/2),right=119-left,top=20+(ageKey==="elder"?2:0),bottom=78+age.chin;
+    fill(c,left+5,top,right-5,bottom,skin);fill(c,left+1,top+9,left+6,bottom-17,skinD);fill(c,right-6,top+9,right-1,bottom-17,skinD);fill(c,left+8,bottom-15,right-8,bottom,skinM);fill(c,left+12,bottom-5,right-12,bottom+age.chin,skinD);
+    fill(c,left-2,45,left+4,58,skinD);fill(c,right-4,45,right+2,58,skinD);fill(c,left-1,47,left+3,55,skinL);fill(c,right-3,47,right+1,55,skinL);
 
-    var h=hash(seed+"|"+g+"|"+role);
-    var h2=hash(seed+":face");
-    var h3=hash(seed+":style");
+    /* 3. 发后层 */
+    var style=preset.style||"neat";if(role==="monk")style="monk";if(role==="shadow")style="mask";
+    if(style==="long"||style==="twin"){fill(c,left-4,13,left+7,76,hair);fill(c,right-7,13,right+4,76,hair);fill(c,left-9,30,left-3,68,hairD);fill(c,right+3,30,right+9,68,hairD)}
+    else if(style==="elder"){fill(c,left-2,13,left+10,46,hairL);fill(c,right-10,13,right+2,46,hairL)}
+    else if(style==="mask"){fill(c,left-7,13,right+7,58,hair);fill(c,left-10,25,left-2,68,hairD);fill(c,right+2,25,right+10,68,hairD)}
+    else{fill(c,left-5,12,right+5,43,hair);fill(c,left-9,24,left+1,67,hairD);fill(c,right-1,24,right+9,67,hairD)}
 
-    var skin=preset?SKINS[preset.skin%SKINS.length]:pick(h,SKINS);
-    var hair=preset?HAIRS[preset.hair%HAIRS.length]:pick(h2,HAIRS);
-    var robe,sash;
-    if(role==="monk"){robe="#c8c4b8";sash="#6a6558";hair="#e8e0d0";}
-    else if(role==="shadow"){robe="#1a1a28";sash="#2a2a38";hair="#0a0a0a";}
-    else if(role==="evil"){robe="#3a1a1a";sash="#6a2020";}
-    else if(role==="player"||(preset&&preset.style==="hero")||(g==="男"&&!preset)){
-      robe=preset?ROBES[preset.robe%ROBES.length]:ROBES[0];
-      sash=preset?SASHES[preset.sash%SASHES.length]:SASHES[1];
-    }else if(g==="女"){
-      robe=preset?ROBES[preset.robe%ROBES.length]:pick(h,["#ebe4d8","#d4c8c0","#e0d0d8","#d0d8d0"]);
-      sash=preset?SASHES[preset.sash%SASHES.length]:pick(h>>>4,SASHES);
-    }else{
-      robe=preset?ROBES[(preset.robe||0)%ROBES.length]:pick(h,CLOTH_DARK);
-      sash=preset?SASHES[(preset.sash||0)%SASHES.length]:pick(h>>>4,SASHES);
-    }
+    /* 4. 发丝 / 刘海独立层 */
+    if(style==="monk"){fill(c,left+5,12,right-5,27,hair);fill(c,left+11,8,right-11,13,hairL);for(var m=0;m<5;m++)line(c,left+15+m*7,9,left+13+m*7,18,hairL)}
+    else if(style==="mask"){fill(c,left-1,10,right+1,34,hair);fill(c,left+5,31,right-5,49,"#1a1a22");fill(c,right-16,36,right-5,47,skin)}
+    else if(style==="long"||style==="twin"){fill(c,left+2,9,right-2,29,hair);fill(c,left+8,5,right-8,12,hairD);line(c,left+15,5,left+11,24,hairL);line(c,left+27,4,left+24,28,hairL);line(c,right-25,4,right-28,28,hairL);line(c,right-13,6,right-10,23,hairL)}
+    else if(style==="elder"){fill(c,left+2,10,right-2,28,hairL);fill(c,left+8,6,right-8,13,"#e9e3d8");line(c,left+15,8,left+12,25,"#c8c0b5");line(c,right-16,8,right-12,25,"#c8c0b5")}
+    else{fill(c,left-2,8,right+2,30,hair);fill(c,left+5,3,right-5,11,hairD);line(c,left+13,5,left+10,26,hairL);line(c,left+25,2,left+22,23,hairL);line(c,right-22,3,right-25,24,hairL);line(c,right-10,6,right-7,22,hairL);if(style==="wild"){line(c,left-7,10,left-14,25,hair);line(c,right+7,10,right+14,25,hair)}}
 
-    var skinD=shade(skin,-32), skinL=shade(skin,20), skinM=shade(skin,-14);
-    var skinDD=shade(skin,-48);
-    var hairL=shade(hair,30), hairD=shade(hair,-14), hairDD=shade(hair,-28);
-    var robeL=shade(robe,18), robeD=shade(robe,-26), robeDD=shade(robe,-40);
-    var sashD=shade(sash,-24), sashL=shade(sash,20);
-
-    var style=preset&&preset.style?preset.style:null;
-    if(!style){
-      if(role==="monk")style="monk";
-      else if(role==="shadow")style="mask";
-      else if(role==="elder")style="elder";
-      else if(role==="player")style="hero";
-      else if(g==="女")style=pick(h3,["long","twin","neat","long"]);
-      else style=pick(h3,["hero","short","wild","neat"]);
-    }
-    var beard=preset&&preset.beard!=null?preset.beard:(style==="elder"?2:0);
-    var acc=preset&&preset.acc?preset.acc:"none";
-
-    var W=120, H=120;
-    var cells={};
-    function set(x,y,c){if(x>=0&&x<W&&y>=0&&y<H)cells[x+","+y]=c;}
-    function fill(x0,y0,x1,y1,c){
-      for(var y=y0;y<=y1;y++)for(var x=x0;x<=x1;x++)set(x,y,c);
-    }
-    function hline(x0,x1,y,c){for(var x=x0;x<=x1;x++)set(x,y,c);}
-    function vline(x,y0,y1,c){for(var y=y0;y<=y1;y++)set(x,y,c);}
-
-    fill(0,0,W-1,H-1,"#050403");
-
-    fill(12,82,107,119,robe);
-    fill(6,92,113,119,robe);
-    fill(2,104,117,119,robeD);
-    fill(0,112,119,119,robeDD);
-    fill(44,76,75,92,skin);
-    fill(46,74,73,78,skin);
-    fill(42,80,48,98,robe);
-    fill(71,80,77,98,robe);
-    hline(44,75,78,robeL);
-    vline(18,90,118,robeL);vline(20,88,110,robeL);
-    vline(100,90,118,robeD);vline(98,88,110,robeD);
-    for(var i=0;i<48;i++){
-      var sx=24+i, sy=86+Math.floor(i*0.48);
-      set(sx,sy,sash);set(sx,sy+1,sash);set(sx,sy+2,sash);
-      set(sx+1,sy,sashD);set(sx+1,sy+1,sashD);
-      if(i%4===0)set(sx,sy,sashL);
-    }
-    fill(62,100,92,112,sash);
-    fill(68,106,98,118,sashD);
-
-    fill(48,68,71,82,skin);
-    vline(48,68,80,skinD);vline(71,68,80,skinD);
-    fill(50,78,69,82,skinM);
-
-    fill(36,22,83,72,skin);
-    fill(40,18,79,22,skin);
-    fill(44,14,75,18,skin);
-    fill(48,12,71,14,skin);
-    fill(40,72,79,76,skin);
-    fill(44,76,75,78,skin);
-    fill(36,30,44,50,skinL);
-    fill(76,30,83,52,skinD);
-    fill(44,62,75,72,skinM);
-    fill(52,66,67,74,skinD);
-    hline(42,77,73,skinDD);
-
-    drawHair();
-    function drawHair(){
-      if(style==="monk"){
-        fill(42,14,77,32,skin);
-        fill(46,10,73,16,skinL);
-        set(52,16,"#c0a090");set(60,14,"#c0a090");set(68,16,"#c0a090");
-        fill(36,18,42,36,hair);fill(77,18,83,36,hair);
-        return;
-      }
-      if(style==="mask"){
-        fill(32,12,87,36,hair);
-        fill(28,18,36,58,hair);fill(83,18,91,58,hair);
-        fill(36,34,83,60,"#1a1a22");
-        fill(40,36,79,52,"#2a2a32");
-        fill(66,40,76,50,skin);
-        set(70,44,"#e8e8e8");set(72,44,"#1a120c");set(70,46,"#1a120c");
-        return;
-      }
-      if(style==="hero"||style==="short"||style==="wild"){
-        fill(30,8,89,30,hair);
-        fill(34,4,85,10,hair);
-        fill(38,2,81,6,hairD);
-        fill(42,0,77,3,hairDD);
-        for(var t=0;t<9;t++){
-          var tx=48+t*4;
-          set(tx,0,hair);set(tx+1,0,hairD);set(tx,1,hair);
-          set(tx-1,2,hair);set(tx+2,2,hairD);
-        }
-        set(44,1,hair);set(74,1,hair);
-        set(40,3,hair);set(78,3,hair);
-        fill(24,12,36,44,hair);fill(83,12,95,44,hair);
-        fill(20,16,28,38,hair);fill(91,16,99,38,hair);
-        fill(26,40,36,58,hair);fill(83,40,93,58,hair);
-        fill(28,56,38,70,hair);fill(81,56,91,70,hair);
-        fill(38,18,52,32,hair);
-        fill(67,18,81,32,hair);
-        fill(50,20,69,28,hair);
-        fill(42,28,48,34,hairD);fill(71,28,77,34,hairD);
-        fill(32,44,40,68,hair);fill(79,44,87,68,hair);
-        fill(34,64,42,76,hair);fill(77,64,85,76,hair);
-        fill(42,8,77,16,hairD);
-        if(style==="hero"){
-          set(48,6,hairL);set(56,4,hairL);set(64,6,hairL);
-          set(32,14,hairL);set(87,14,hairL);
-          set(40,10,hairL);set(79,10,hairL);
-        }
-        if(style==="wild"){
-          set(16,14,hair);set(14,20,hair);set(104,14,hair);set(106,20,hair);
-          set(36,0,hair);set(82,0,hair);
-        }
-        return;
-      }
-      if(style==="long"||style==="twin"){
-        fill(30,8,89,32,hair);
-        fill(34,4,85,10,hair);
-        fill(26,14,36,78,hair);fill(83,14,93,78,hair);
-        fill(22,28,30,74,hair);fill(89,28,97,74,hair);
-        fill(38,18,54,32,hair);fill(65,18,81,32,hair);
-        if(style==="twin"){
-          fill(22,6,40,28,hair);fill(79,6,97,28,hair);
-          fill(26,4,36,10,hairL);fill(83,4,93,10,hairL);
-        }else{
-          fill(38,4,81,10,hairL);
-        }
-        return;
-      }
-      if(style==="elder"){
-        fill(34,8,85,28,hairL);
-        fill(30,12,36,36,hairL);fill(83,12,89,36,hairL);
-        fill(42,4,77,10,"#e8e4dc");
-        return;
-      }
-      fill(34,8,85,28,hair);
-      fill(38,4,81,10,hairL);
-      fill(30,14,36,42,hair);fill(83,14,89,42,hair);
-      fill(40,18,52,28,hair);fill(67,18,79,28,hair);
-    }
-
+    /* 5. 眉眼 */
     if(style!=="mask"){
-      var brow=hairD;
-      if(g==="女"){
-        hline(40,50,26,brow);hline(69,79,26,brow);
-        set(50,25,brow);set(69,25,brow);
-        hline(42,48,25,brow);hline(71,77,25,brow);
-      }else{
-        hline(38,52,26,brow);hline(67,81,26,brow);
-        set(52,25,brow);set(67,25,brow);
-        hline(40,50,25,brow);hline(69,79,25,brow);
-        hline(42,48,24,brow);hline(71,77,24,brow);
-      }
+      var eyeY=34,eyeOpen=Math.max(4,Math.round(7*age.eye)),brow=hairD;
+      line(c,left+11,eyeY-5,left+24,eyeY-7,brow);line(c,right-24,eyeY-7,right-11,eyeY-5,brow);
+      fill(c,left+9,eyeY,left+25,eyeY+eyeOpen,shade(skin,16));fill(c,right-25,eyeY,right-9,eyeY+eyeOpen,shade(skin,16));
+      line(c,left+9,eyeY,left+25,eyeY,skinD);line(c,right-25,eyeY,right-9,eyeY,skinD);
+      var iris=role==="evil"?"#7b292d":"#30231c",pupil="#090705",lx=left+18,rx=right-18;
+      fill(c,lx-3,eyeY+1,lx+3,eyeY+5,iris);fill(c,rx-3,eyeY+1,rx+3,eyeY+5,iris);fill(c,lx-1,eyeY+2,lx+1,eyeY+5,pupil);fill(c,rx-1,eyeY+2,rx+1,eyeY+5,pupil);add(c,lx-2,eyeY+1,"#fff8ed");add(c,rx-2,eyeY+1,"#fff8ed");
+      if(expression==="tired"){line(c,left+10,eyeY+eyeOpen+2,left+25,eyeY+eyeOpen+1,skinD);line(c,right-25,eyeY+eyeOpen+1,right-10,eyeY+eyeOpen+2,skinD)}
+      if(expression==="angry"){line(c,left+10,eyeY-5,left+23,eyeY-8,hairDD);line(c,right-23,eyeY-8,right-10,eyeY-5,hairDD)}
     }
 
-    if(style!=="mask"){
-      var eyeW="#f8f4ee";
-      var iris=role==="evil"?"#8a3030":"#2a2018";
-      var pupil="#080604";
-      fill(40,30,52,42,eyeW);
-      fill(42,32,50,40,iris);
-      fill(44,34,48,38,pupil);
-      set(48,32,"#ffffff");set(49,33,"#ffffff");
-      hline(40,52,42,skinD);
-      set(38,32,skinM);set(39,34,skinM);
-      fill(67,30,79,42,eyeW);
-      fill(69,32,77,40,iris);
-      fill(71,34,75,38,pupil);
-      set(75,32,"#ffffff");set(76,33,"#ffffff");
-      hline(67,79,42,skinD);
-      set(80,32,skinM);set(81,34,skinM);
-    }
+    /* 6. 鼻梁、鼻翼与面部体积 */
+    var cx=60;line(c,cx,41,cx-2,55,skinL);line(c,cx+2,42,cx+1,56,skinD);line(c,cx-2,56,cx+4,58,skinD);add(c,cx+5,57,skinDD);add(c,cx-4,57,skinM);line(c,left+7,51,left+11,59,skinL);line(c,right-7,51,right-11,59,skinD);
 
-    if(acc==="scar"){
-      set(56,28,skinD);set(58,30,"#8a4a4a");set(60,32,skinD);
-      set(57,29,"#8a4a4a");set(59,31,skinD);
-    }
-    if(acc==="burn"){fill(78,50,84,56,"#a06040");set(82,54,"#8a5040");}
-    if(acc==="blood"){set(56,56,"#6a2020");set(58,58,"#8a3030");set(57,57,"#6a2020");}
+    /* 7. 嘴型 */
+    var mouthY=65;
+    if(expression==="smile"){line(c,cx-9,mouthY,cx-2,mouthY+2,skinD);line(c,cx+2,mouthY+2,cx+9,mouthY,skinD);line(c,cx-6,mouthY+3,cx+6,mouthY+3,"#9d5d5c")}
+    else if(expression==="cold"){line(c,cx-8,mouthY+1,cx+8,mouthY+1,"#8e5b54");line(c,cx-4,mouthY+2,cx+4,mouthY+2,skinDD)}
+    else{line(c,cx-8,mouthY,cx+8,mouthY,"#a76862");line(c,cx-5,mouthY+2,cx+5,mouthY+2,shade(skin,-35))}
 
-    set(58,46,skinD);set(60,46,skinM);
-    set(60,48,skinD);set(58,48,skinM);
-    set(59,50,skinD);
+    /* 8. 年龄纹理 */
+    if(age.wrinkle>=1){line(c,left+8,eyeY+10,left+16,eyeY+12,skinD);line(c,right-16,eyeY+12,right-8,eyeY+10,skinD);line(c,left+10,58,left+16,59,skinD);line(c,right-16,59,right-10,58,skinD)}
+    if(age.wrinkle>=2){line(c,left+9,eyeY-2,left+15,eyeY-1,skinD);line(c,right-15,eyeY-1,right-9,eyeY-2,skinD);line(c,left+13,67,left+19,68,skinD);line(c,right-19,68,right-13,67,skinD);fill(c,left+10,16,left+15,18,hairL);fill(c,right-15,16,right-10,18,hairL)}
 
-    if(g==="女"){
-      hline(52,67,58,"#c07070");
-      set(58,58,"#d08080");set(60,58,"#d08080");
-      hline(54,65,59,"#b06060");
-    }else{
-      hline(52,67,58,"#a06858");
-      set(54,58,"#8a5848");set(65,58,"#8a5848");
-      hline(54,65,59,"#8a5848");
-    }
+    /* 9. 胡须、前景发丝与配饰 */
+    var beard=preset.beard!=null?preset.beard:(style==="elder"?2:0);
+    if(beard>=1){fill(c,left+11,70,right-11,78,hairD);line(c,left+16,76,cx,87,hairL);line(c,right-16,76,cx,87,hairL);if(beard>=2){fill(c,cx-7,78,cx+7,88,hairL);line(c,cx,79,cx,91,hairD)}}
+    if(style!=="mask"){line(c,left+4,22,left+8,45,hair);line(c,right-4,22,right-8,45,hairD);line(c,left+14,15,left+12,32,hairL);line(c,right-14,15,right-12,32,hairL)}
+    var acc=preset.acc||"none";
+    if(acc==="scar"){line(c,left+28,27,left+24,39,"#8d4b4b");line(c,left+27,31,left+23,42,skinD)}
+    if(acc==="burn"){fill(c,right-9,47,right-4,54,"#a15f45");add(c,right-7,55,"#8b5140")}
+    if(acc==="blood"){add(c,cx-2,57,"#762326");add(c,cx,59,"#8e3034")}
+    if(acc==="leaf"){add(c,cx-2,5,"#6b9957");add(c,cx,3,"#79a965");add(c,cx+2,5,"#5b8a4c")}
+    if(acc==="flower"){add(c,left+2,18,"#e39a9a");add(c,left+4,20,"#d27e7e");add(c,left,20,"#d27e7e");add(c,left+2,20,"#e8ca79")}
+    if(acc==="pearl"){fill(c,left+3,42,left+5,44,"#e8dfce");fill(c,right-5,42,right-3,44,"#e8dfce")}
+    if(acc==="tassel"){line(c,right+3,27,right+3,61,"#d9ad62");line(c,right+5,29,right+5,58,"#9d7b48")}
+    if(acc==="shell"){add(c,100,92,"#74a7b7");add(c,102,94,"#96c1cc");add(c,101,93,"#84b6c3")}
 
-    if(beard>=1){
-      fill(48,62,71,74,hair);
-      if(beard>=2){fill(44,68,75,80,hairL);fill(50,74,69,84,hairL);}
-    }
+    /* 10. 定向高光 */
+    if(light==="upperRight"){line(c,right-16,28,right-10,44,skinL);line(c,right-13,48,right-10,55,skinL);line(c,right-8,92,right-18,109,robeL)}
+    else{line(c,left+10,28,left+5,44,skinL);line(c,left+13,48,left+10,55,skinL);line(c,left+8,92,left+18,109,robeL)}
 
-    if(acc==="tassel"){
-      vline(100,28,58,"#d9ad62");vline(101,28,58,"#c49a50");
-      set(100,60,"#8a6a45");set(102,32,"#d9ad62");
-    }
-    if(acc==="leaf"){
-      set(56,4,"#5a8a4a");set(58,2,"#6a9a5a");set(60,4,"#5a8a4a");
-      set(57,3,"#6a9a5a");set(59,3,"#5a8a4a");
-    }
-    if(acc==="flower"){
-      set(32,18,"#e8a0a0");set(30,20,"#d08080");set(34,20,"#d08080");
-      set(32,20,"#e8c878");set(32,22,"#d08080");
-    }
-    if(acc==="pearl"){
-      set(34,40,"#e8e0d0");set(85,40,"#e8e0d0");
-      set(34,41,"#d0c8b8");set(85,41,"#d0c8b8");
-    }
-    if(acc==="shell"){
-      set(96,92,"#6a9eae");set(98,94,"#8ab8c8");set(97,93,"#7aacbc");
-    }
-    if(g==="女"&&acc==="none"){
-      set(34,40,"#d9ad62");set(85,40,"#d9ad62");
-    }
-
-    var svg=cellsToMergedSvg(cells,W,H);
-
-    /* 缓存，超限淘汰一半 */
-    var ck=Object.keys(_svgCache);
-    if(ck.length>=_CACHE_LIMIT){
-      for(var ci=0;ci<(ck.length>>1);ci++)delete _svgCache[ck[ci]];
-    }
-    _svgCache[cacheKey]=svg;
-    return svg;
+    var svg=mergeSvg(c),ks=Object.keys(CACHE);if(ks.length>=CACHE_LIMIT)for(var z=0;z<Math.floor(ks.length/2);z++)delete CACHE[ks[z]];CACHE[cacheKey]=svg;return svg;
   }
 
   function roleForNpc(npc){
-    if(!npc)return"npc";
-    var id=npc.id||"";
+    if(!npc)return"npc";var id=npc.id||"",title=(npc.title||"")+(npc.desc||"");
     if(PRESETS[id]&&PRESETS[id].role)return PRESETS[id].role;
-    var title=(npc.title||"")+(npc.desc||"");
     if(/僧|寺|方丈/.test(title)||/monk|kong_|liao_|wuxiang|jing/.test(id))return"monk";
     if(/影|雀|蒙面|机关|遗迹/.test(title)||/^que_|shadow|cave_guard|reef/.test(id))return"shadow";
     if(/隐士|云叟/.test(title)||id==="hermit")return"elder";
@@ -449,139 +166,29 @@
     return"npc";
   }
 
-  function avatarHtml(seed,gender,role,size,presetId){
-    size=size||"md";
-    var svg=pixelAvatarSvg({seed:seed,gender:gender,role:role||"npc",presetId:presetId||seed});
-    return '<span class="px-avatar '+size+'">'+svg+'</span>';
+  function avatarHtml(seed,gender,role,size,presetId,extra){
+    size=size||"md";var svg=pixelAvatarSvg({seed:seed,gender:gender||"其他",role:role||"npc",presetId:presetId||seed,age:extra&&extra.age,expression:extra&&extra.expression,light:extra&&extra.light});
+    return '<span class="px-avatar '+size+'" data-avatar-id="'+String(presetId||seed).replace(/[^a-zA-Z0-9_-]/g,"_")+'">'+svg+'</span>';
   }
-
-  window.pixelAvatarSvg=pixelAvatarSvg;
-  window.avatarHtml=avatarHtml;
-  window.roleForNpc=roleForNpc;
-  window.clearAvatarCache=function(){ _svgCache=Object.create(null); };
-
-  function playerAvatar(p,size){
-    var g=p.gender||"男";
-    return avatarHtml(p.name||"player",g,"player",size||"md","hero_ref");
-  }
+  function playerAvatar(p,size){p=p||{};return avatarHtml(p.name||"player",p.gender||"男","player",size||"md","hero_ref",{age:p.age})}
   function npcAvatar(npc,size){
-    var g="其他";
-    if(typeof getNpcProfile==="function"){
-      var pr=getNpcProfile(npc);
-      if(pr&&pr.gender){
-        var gg=String(pr.gender);
-        if(gg.indexOf("女")>=0)g="女";
-        else if(gg.indexOf("男")>=0)g="男";
-      }
-    }
-    if(PRESETS[npc.id]&&PRESETS[npc.id].gender)g=PRESETS[npc.id].gender;
-    return avatarHtml(npc.id||npc.name,g,roleForNpc(npc),size||"md",npc.id);
-  }
-  window.playerAvatar=playerAvatar;
-  window.npcAvatar=npcAvatar;
-
-  /* HUD 头像：仅在缺失时插入，避免每帧重建 */
-  var _hudAvatarKey="";
-  var _rg=renderGame;
-  renderGame=function(){
-    _rg();
-    var p=state&&state.player;if(!p)return;
-    var hud=document.querySelector(".hud");
-    if(hud){
-      var key=(p.name||"")+"|"+(p.gender||"");
-      var old=hud.querySelector(".px-avatar");
-      if(!old||_hudAvatarKey!==key){
-        if(old&&old.parentNode)old.parentNode.removeChild(old);
-        var wrap=document.createElement("span");
-        wrap.innerHTML=playerAvatar(p,"md");
-        hud.insertBefore(wrap.firstChild,hud.firstChild);
-        _hudAvatarKey=key;
-      }
-    }
-    qsa(".npc-btn").forEach(function(btn){
-      if(btn.querySelector(".px-avatar"))return;
-      var npc=typeof findPerson==="function"?findPerson(btn.dataset.id):null;
-      if(!npc)return;
-      btn.classList.add("px-npc-btn");
-      var av=document.createElement("span");
-      av.innerHTML=npcAvatar(npc,"sm");
-      btn.insertBefore(av.firstChild,btn.firstChild);
-    });
-  };
-
-  function patchModalNpc(){
-    if(typeof modalNpc!=="function")return;
-    var _m=modalNpc;
-    modalNpc=function(npcId,opts){
-      _m(npcId,opts);
-      var npc=findPerson(npcId);if(!npc)return;
-      var panel=qs("#modalPanel");if(!panel)return;
-      var head=panel.querySelector(".modal-head");
-      if(!head||head.querySelector(".px-avatar"))return;
-      var title=head.querySelector(".section-title");if(!title)return;
-      var box=document.createElement("div");
-      box.className="px-modal-head";
-      box.innerHTML=npcAvatar(npc,"lg");
-      title.parentNode.insertBefore(box,title);
-      box.appendChild(title);
-    };
-  }
-  patchModalNpc();setTimeout(patchModalNpc,0);
-
-  var _mc=typeof modalChar==="function"?modalChar:null;
-  if(_mc){
-    modalChar=function(){
-      _mc();
-      var p=ensurePlayer(state.player);
-      var panel=qs("#modalPanel");if(!panel)return;
-      var exist=panel.querySelector(".px-char-avatar");
-      if(exist)exist.parentNode.removeChild(exist);
-      var head=panel.querySelector(".modal-head");if(!head)return;
-      var title=head.querySelector(".section-title");
-      var box=document.createElement("div");
-      box.className="px-modal-head px-char-avatar";
-      box.innerHTML=playerAvatar(p,"xl");
-      if(title){head.insertBefore(box,title);box.appendChild(title);}
-      else head.insertBefore(box,head.firstChild);
-    };
+    npc=npc||{};var id=npc.id||npc.name||"unknown",g="其他";
+    if(typeof getNpcProfile==="function"){try{var pr=getNpcProfile(npc);if(pr&&pr.gender){var gg=String(pr.gender);if(gg.indexOf("女")>=0)g="女";else if(gg.indexOf("男")>=0)g="男"}}catch(e){}}
+    if(PRESETS[id]&&PRESETS[id].gender)g=PRESETS[id].gender;return avatarHtml(id,g,roleForNpc(npc),size||"md",id);
   }
 
-  var _mr=typeof modalRelations==="function"?modalRelations:null;
-  if(_mr){
-    modalRelations=function(){
-      _mr();
-      var panel=qs("#modalPanel");if(!panel)return;
-      qsa("[data-npc]",panel).forEach(function(card){
-        if(card.querySelector(".px-avatar"))return;
-        var npc=findPerson(card.dataset.npc);if(!npc)return;
-        var head=card.querySelector(".quest-head");if(!head)return;
-        var av=document.createElement("span");
-        av.innerHTML=npcAvatar(npc,"sm");
-        head.insertBefore(av.firstChild,head.firstChild);
-      });
-    };
-  }
+  window.pixelAvatarSvg=pixelAvatarSvg;window.avatarHtml=avatarHtml;window.roleForNpc=roleForNpc;window.playerAvatar=playerAvatar;window.npcAvatar=npcAvatar;
+  window.PIXEL_AVATAR_PRESETS=PRESETS;window.PIXEL_AVATAR_AGES=AGE;window.clearAvatarCache=function(){CACHE=Object.create(null)};
 
-  var _rs=typeof renderStart==="function"?renderStart:null;
-  if(_rs){
-    renderStart=function(){
-      _rs();
-      var hero=document.querySelector(".hero-card");
-      if(hero&&!hero.querySelector(".px-title-avatars")){
-        var row=document.createElement("div");
-        row.className="px-title-avatars row";
-        row.style.cssText="justify-content:center;margin:8px 0;gap:6px";
-        row.innerHTML=
-          avatarHtml("hero_ref","男","player","lg","hero_ref")+
-          avatarHtml("aqing","女","npc","lg","aqing")+
-          avatarHtml("luyun","男","npc","lg","luyun")+
-          avatarHtml("que_shadow","其他","shadow","lg","que_shadow")+
-          avatarHtml("monk_jing","男","monk","lg","monk_jing");
-        var title=hero.querySelector(".title");
-        if(title&&title.nextSibling)hero.insertBefore(row,title.nextSibling);
-        else hero.appendChild(row);
-      }
-    };
+  /* 兼容旧 HUD/NPC 按钮，不要求 renderGame 必须存在。 */
+  var hooked=false;
+  function hookRender(){
+    if(hooked||typeof window.renderGame!=="function")return;hooked=true;var old=window.renderGame;
+    window.renderGame=function(){var r=old.apply(this,arguments);try{
+      var p=window.state&&state.player,hud=document.querySelector(".hud");
+      if(hud&&p&&!hud.querySelector(".px-avatar")){var w=document.createElement("span");w.innerHTML=playerAvatar(p,"md");hud.insertBefore(w.firstChild,hud.firstChild)}
+      document.querySelectorAll(".npc-btn").forEach(function(btn){if(btn.querySelector(".px-avatar"))return;var npc=typeof findPerson==="function"?findPerson(btn.dataset.id):null;if(!npc)return;var q=document.createElement("span");q.innerHTML=npcAvatar(npc,"sm");btn.insertBefore(q.firstChild,btn.firstChild);btn.classList.add("px-npc-btn")});
+    }catch(e){}return r};
   }
-
+  hookRender();if(typeof document!=="undefined"){if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",hookRender);else setTimeout(hookRender,0)}
 })();
