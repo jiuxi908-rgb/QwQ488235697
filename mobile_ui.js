@@ -2,6 +2,7 @@
  * mobile_ui.js
  * 手机二级界面增强层
  * 人物页：真实数据适配 + 移动端展示。
+ * 武学页：移动端卡片/触控增强。
  * 原桌面业务逻辑不替换，只在手机端追加增强层。
  * ========================================= */
 (function (g) {
@@ -64,7 +65,6 @@
     return { current: calculateCombatPower(player), next: null, need: 0, percent: 0 };
   }
 
-  /* 人物数据适配器：唯一职责是把真实游戏状态转换成 MobileUI 使用的数据结构。 */
   MOBILE_UI.getPlayerData = function () {
     const player = getPlayer() || {};
     const realm = getRealm(player);
@@ -133,6 +133,46 @@
     document.head.appendChild(style);
   }
 
+  function injectSkillMobileStyle() {
+    if (document.getElementById('mobile-skill-ui-style')) return;
+    const style = document.createElement('style');
+    style.id = 'mobile-skill-ui-style';
+    style.textContent = `
+      @media(max-width:600px){
+        .modal-panel:has(.skill-card) .skill-card{margin:8px 0!important;padding:11px!important;border-radius:8px!important;overflow:hidden}
+        .modal-panel:has(.skill-card) .skill-card .quest-head{display:flex;align-items:center;gap:5px;flex-wrap:wrap;line-height:1.4}
+        .modal-panel:has(.skill-card) .skill-card .small{line-height:1.55;margin:5px 0}
+        .modal-panel:has(.skill-card) .skill-card .quest-bar{height:7px!important;margin-top:8px!important}
+        .modal-panel:has(.skill-card) .skill-card .row{display:block!important;margin-top:8px!important}
+        .modal-panel:has(.skill-card) .skill-card .train{display:flex!important;align-items:center;justify-content:center;width:100%!important;min-height:44px!important;height:44px!important;padding:0 14px!important;font-size:14px!important;box-sizing:border-box}
+        .modal-panel:has(.skill-card) .skill-card .train:disabled{display:none!important}
+        .modal-panel:has(.skill-card) .skill-tab{min-height:44px!important;padding:0 12px!important;margin:3px 3px 3px 0!important;white-space:nowrap}
+        .modal-panel:has(.skill-card) .stat-grid{grid-template-columns:1fr 1fr!important;gap:6px!important}
+        .modal-panel:has(.skill-card) .stat{min-height:44px!important;padding:8px!important}
+        .modal-panel:has(.skill-card) .modal-head{position:sticky;top:0;z-index:3;padding-bottom:7px;background:inherit}
+        .modal-panel:has(.skill-card) .quest-list{display:block!important}
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function enhanceSkillModal() {
+    if (!isMobile()) return false;
+    const panel = document.querySelector('.modal-panel');
+    if (!panel || !panel.querySelector('.skill-card')) return false;
+    panel.classList.add('mobile-skill-panel');
+    panel.querySelectorAll('.train').forEach(btn => {
+      btn.style.minWidth = '100%';
+      btn.style.minHeight = '44px';
+      btn.style.touchAction = 'manipulation';
+    });
+    panel.querySelectorAll('.skill-tab').forEach(btn => {
+      btn.style.minHeight = '44px';
+      btn.style.touchAction = 'manipulation';
+    });
+    return true;
+  }
+
   function avatarHtml(data) {
     try {
       if (typeof g.playerAvatar === 'function') return g.playerAvatar(data.id || data.name || 'player', 'lg');
@@ -187,16 +227,30 @@
     g.Game.on('skill:learned', refresh);
     g.Game.on('skill:trained', refresh);
     g.Game.on('character:changed', refresh);
+    if (typeof g.Game.hook === 'function') {
+      g.Game.hook('openModal', function(next){
+        return function(){
+          const result = next.apply(this, arguments);
+          setTimeout(enhanceSkillModal, 0);
+          return result;
+        };
+      });
+    }
   }
 
   injectCharacterStyle();
+  injectSkillMobileStyle();
   installHooks();
   MOBILE_UI.renderCharacterMobile = renderCharacterMobile;
   MOBILE_UI.refreshCharacterMobile = refreshCharacterMobile;
+  MOBILE_UI.enhanceSkillModal = enhanceSkillModal;
   MOBILE_UI.isMobile = isMobile;
   window.MobileUI = MOBILE_UI;
 
-  window.addEventListener('resize', () => setTimeout(refreshCharacterMobile, 0));
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(refreshCharacterMobile, 0));
-  else setTimeout(refreshCharacterMobile, 0);
+  window.addEventListener('resize', () => setTimeout(() => { refreshCharacterMobile(); enhanceSkillModal(); }, 0));
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => setTimeout(() => { refreshCharacterMobile(); enhanceSkillModal(); }, 0));
+  } else {
+    setTimeout(() => { refreshCharacterMobile(); enhanceSkillModal(); }, 0);
+  }
 })(typeof window !== 'undefined' ? window : this);
