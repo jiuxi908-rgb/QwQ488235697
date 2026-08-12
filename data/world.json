@@ -2,21 +2,47 @@
   "world": {
     "title": "一剑一蓑烟雨录",
     "background": "大雍末年，朝廷以缉武司统辖江湖，商路、盐铁与漕运被诸侯暗中争夺。武人不再只问胜负，也要在门规、恩义、名声与生计之间做选择。",
-    "states": [
-      "大雍朝廷",
-      "北庭节镇",
-      "南海商盟"
-    ],
-    "rules": [
-      "杀人留痕",
-      "拜师有门",
-      "武无定法",
-      "无唯一主线"
-    ],
-    "factions": [
-      "守序正道",
-      "逐利中道",
-      "幽暗邪道"
-    ]
+    "states": ["大雍朝廷", "北庭节镇", "南海商盟"],
+    "rules": ["杀人留痕", "拜师有门", "武无定法", "无唯一主线"],
+    "factions": ["守序正道", "逐利中道", "幽暗邪道"],
+    "mapModel": {
+      "layers": ["city", "spot"],
+      "city": "州府级长途节点，负责天下旅行与区域入口",
+      "spot": "清河、山门、秘境等江湖节点，继续使用现有短途地图",
+      "travelRule": "城际边的 cost 按日计算，并乘 TIME_COST.move",
+      "legacySave": "旧档 location 保持不变，通过 maps.json 的 parent 推导所属州府"
+    },
+    "worldMap": {
+      "cities": {
+        "kaifeng":{"name":"开封","alias":"东京","region":"中原核心","tag":"缉武司","children":["qinghe","market","hearth","sparrow_den","secret_cave","blood_ravine"]},
+        "luoyang":{"name":"洛阳","alias":"西京","region":"中原西部","tag":"寺观","children":["herb_valley","void_temple","cloud_peak"]},
+        "yingtian":{"name":"应天","alias":"商丘","region":"中原东部","tag":"官道","children":[]},
+        "yangzhou":{"name":"扬州","alias":"淮扬","region":"漕运","tag":"盐银","children":["ferry","salt_road","whale_port","secret_reef"]},
+        "jiankang":{"name":"建康","alias":"江东","region":"江东","tag":"江防","children":[]},
+        "hangzhou":{"name":"杭州","alias":"临安","region":"两浙","tag":"湖山","children":["bamboo","mist_gate"]},
+        "suzhou":{"name":"苏州","alias":"姑苏","region":"两浙","tag":"丝织","children":[]},
+        "mingzhou":{"name":"明州","alias":"宁波","region":"海路","tag":"市舶","children":[]},
+        "quanzhou":{"name":"泉州","alias":"刺桐","region":"海路","tag":"海贸","children":[]},
+        "guangzhou":{"name":"广州","alias":"岭南","region":"海路","tag":"南海商盟","children":[]},
+        "ezhou":{"name":"鄂州","alias":"江汉","region":"荆湖","tag":"长江","children":[]},
+        "changsha":{"name":"长沙","alias":"潭州","region":"荆湖","tag":"湘江","children":[]},
+        "chengdu":{"name":"成都","alias":"蜀中","region":"川峡","tag":"蜀道","children":[]}
+      },
+      "edges": [
+        ["kaifeng","luoyang",2,"road"],
+        ["kaifeng","yingtian",2,"road"],
+        ["luoyang","yingtian",3,"road"],
+        ["yingtian","yangzhou",2,"canal"],
+        ["yangzhou","jiankang",2,"canal"],
+        ["jiankang","hangzhou",2,"canal"],
+        ["hangzhou","suzhou",1,"canal"],
+        ["yangzhou","ezhou",4,"river"],
+        ["hangzhou","mingzhou",2,"sea"],
+        ["mingzhou","quanzhou",4,"sea"],
+        ["quanzhou","guangzhou",5,"sea"],
+        ["ezhou","changsha",2,"river"],
+        ["changsha","chengdu",8,"mountain"]
+      ]
+    }
   }
 }
