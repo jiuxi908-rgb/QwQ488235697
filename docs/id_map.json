@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "note": "与网页 location / npc / action 对齐；Unity TextAsset 可直接读",
+  "locations": {
+    "qinghe": { "name": "清河镇", "type": "城镇", "parent": "kaifeng" },
+    "bamboo": { "name": "听雨竹径", "type": "野外", "parent": "hangzhou" },
+    "ferry": { "name": "白沙渡", "type": "渡口", "parent": "yangzhou" },
+    "market": { "name": "旧瓦市", "type": "城镇", "parent": "kaifeng" },
+    "hearth": { "name": "赤炉山庄", "type": "门派", "parent": "kaifeng" },
+    "kaifeng": { "name": "开封（东京）", "type": "州府", "tier": "city" }
+  },
+  "qingheHotspots": [
+    { "id": "inn", "label": "客栈·市井", "action": "explore" },
+    { "id": "zhou", "label": "老周", "action": "npc", "target": "zhou" },
+    { "id": "clinic", "label": "医馆", "action": "npc", "target": "su" },
+    { "id": "yard", "label": "拳场·学艺", "action": "learn" },
+    { "id": "gate", "label": "官道·出城", "action": "exit" }
+  ],
+  "npcsQinghe": [
+    { "id": "zhou", "name": "老周", "title": "客栈掌柜" },
+    { "id": "su", "name": "苏半仙", "title": "医馆大夫" },
+    { "id": "shishu", "name": "王说书", "title": "茶棚说书人" }
+  ],
+  "localSkills": {
+    "qinghe": ["basic_fist", "basic_sword", "basic_neigong", "crush_leg"]
+  },
+  "playerRanks": [
+    { "id": 0, "name": "未入流", "min": 0 },
+    { "id": 1, "name": "三流", "min": 45 },
+    { "id": 2, "name": "二流", "min": 90 },
+    { "id": 3, "name": "一流", "min": 140 },
+    { "id": 4, "name": "超一流", "min": 210 },
+    { "id": 5, "name": "宗师", "min": 290 }
+  ],
+  "qualityNeedRank": {
+    "黄阶": 0,
+    "玄阶": 1,
+    "地阶": 2,
+    "天阶": 3
+  },
+  "saveFields": [
+    "location", "explored", "mapRow", "mapCol",
+    "skills", "stats", "hp", "maxHp", "mp", "maxMp", "silver", "day",
+    "sect", "contrib", "sectRank", "rankId", "rankName",
+    "flags"
+  ]
+}
