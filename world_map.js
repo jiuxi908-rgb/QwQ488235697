@@ -1,4 +1,4 @@
-/** 两层地图：州府 + 江湖节点。第2步：运河/江路线（苏州·建康·鄂州·应天） */
+/** 两层地图第3步：海路（明州·泉州·广州）+ 荆湖/西南（长沙·成都） */
 (function(){
   var CITIES={
     kaifeng:{id:"kaifeng",name:"开封（东京）",short:"开封",type:"州府",tier:"city",region:"中原",icon:"京",tag:"缉武司",
@@ -40,6 +40,31 @@
       desc:"归德故地，官道与驿站的中转。东京与淮扬之间，人马在此换脚、换马。",
       events:["驿卒换马的蹄声很急。","有人说开封的公文昨夜刚过。","茶棚里过路客商交换路况。"],
       explore:[{text:"你在驿站帮人牵马，得几文赏钱。",type:"silver",value:11},{text:"官道上练了一趟脚力。",type:"exp",value:10},{text:"茶棚听来开封与扬州的近闻。",type:"log"},{text:"荒郊遇小股劫道，你且战且走。",type:"damage",value:13,diff:30,kind:"combat"}],
+      children:[]},
+    mingzhou:{id:"mingzhou",name:"明州（宁波）",short:"明州",type:"州府",tier:"city",region:"两浙",icon:"明",tag:"市舶",
+      desc:"浙东近海口，市舶司与海驿并立。有人说东洋商船有时泊此，风声比货更杂。",
+      events:["市舶吏清点舶货。","有人低声说倭商又来了。","海风灌进窄巷。"],
+      explore:[{text:"你在海驿帮人卸货，得几文船脚钱。",type:"silver",value:16},{text:"听船工讲海上风向。",type:"log"},{text:"岸边练步，浪声拍脚。",type:"exp",value:12},{text:"浪打湿了衣，你险些滑倒。",type:"damage",value:10,diff:24}],
+      children:[]},
+    quanzhou:{id:"quanzhou",name:"泉州",short:"泉州",type:"州府",tier:"city",region:"海路",icon:"泉",tag:"海丝",
+      desc:"海丝大港，蕃坊香料与海船桅杆交织。话本里的「刺桐」即指此处，商货比刀客更响。",
+      events:["蕃坊里传出异域曲调。","香料味顺着风飘。","有人雇护船下南洋。"],
+      explore:[{text:"你在码头帮点了半日货，银子到手。",type:"silver",value:18},{text:"蕃坊外听来一段海外见闻。",type:"log"},{text:"香气入鼻，精神一振。",type:"mp",value:14},{text:"港口混混抢货，你不得不出手。",type:"damage",value:16,diff:36,kind:"combat"}],
+      children:[]},
+    guangzhou:{id:"guangzhou",name:"广州",short:"广州",type:"州府",tier:"city",region:"海路",icon:"广",tag:"南海",
+      desc:"南海商货汇集处，热风与潮气长年不散。再往南便是更远的洋面，城中多是海商与水手。",
+      events:["热风卷起码头尘土。","有人叫卖南洋珠贝。","夜潮声比人声还大。"],
+      explore:[{text:"你替海商看了一夜仓，换得碎银。",type:"silver",value:17},{text:"热风里走了一程，内息略闷。",type:"mp",value:10},{text:"听水手讲南海风浪。",type:"log"},{text:"仓边有人劫货，你被迫动手。",type:"damage",value:18,diff:40,kind:"combat"}],
+      children:[]},
+    changsha:{id:"changsha",name:"长沙",short:"长沙",type:"州府",tier:"city",region:"荆湖",icon:"沙",tag:"湘米",
+      desc:"荆湖舟船与湘米汇聚。北接鄂州江路，西望川峡，市井里多是米商与脚夫。",
+      events:["米行伙计吆喝新谷。","有人议价雇船去鄂州。","江雾早起。"],
+      explore:[{text:"你在米行帮搬了一袋，得几文。",type:"silver",value:12},{text:"江边听舟子讲上游。",type:"log"},{text:"湿气入骨，你调息片刻。",type:"heal",value:10},{text:"码头有人闹事，你退了两步仍被波及。",type:"damage",value:12,diff:28,kind:"combat"}],
+      children:[]},
+    chengdu:{id:"chengdu",name:"成都",short:"成都",type:"州府",tier:"city",region:"川峡",icon:"成",tag:"锦官",
+      desc:"西南锦官城，蜀道尽头的繁华。来此已是远行，城中丝锦与茶马混杂，出门仍是山。",
+      events:["有人叹息蜀道难。","锦官坊里梭声细密。","茶马客商谈起北上的路。"],
+      explore:[{text:"你在锦坊外看了半日织样。",type:"log"},{text:"帮茶马帮运了一小包货。",type:"silver",value:14},{text:"山气清冽，内息略畅。",type:"mp",value:15},{text:"城外小径遇剪径，你且战且退。",type:"damage",value:15,diff:35,kind:"combat"}],
       children:[]}
   };
   var CITY_EDGES=[
@@ -53,7 +78,12 @@
     {from:"yangzhou",to:"jiankang",cost:3,kind:"road",label:"江东官道"},
     {from:"jiankang",to:"hangzhou",cost:3,kind:"canal",label:"江东→两浙"},
     {from:"hangzhou",to:"suzhou",cost:2,kind:"canal",label:"江南近水"},
-    {from:"yangzhou",to:"ezhou",cost:5,kind:"river",label:"长江西上"}
+    {from:"yangzhou",to:"ezhou",cost:5,kind:"river",label:"长江西上"},
+    {from:"hangzhou",to:"mingzhou",cost:3,kind:"sea",label:"浙东近海"},
+    {from:"mingzhou",to:"quanzhou",cost:6,kind:"sea",label:"海路南下",req:{silver:20},msg:"海路需船资银两≥20"},
+    {from:"quanzhou",to:"guangzhou",cost:6,kind:"sea",label:"南海航线",req:{silver:25},msg:"南海船资银两≥25"},
+    {from:"ezhou",to:"changsha",cost:4,kind:"river",label:"湘江一线"},
+    {from:"changsha",to:"chengdu",cost:7,kind:"road",label:"蜀道",req:{silver:15},msg:"入川盘缠银两≥15"}
   ];
   var PARENT={};
   Object.keys(CITIES).forEach(function(cid){(CITIES[cid].children||[]).forEach(function(sid){PARENT[sid]=cid;});});
@@ -65,12 +95,20 @@
   function getCityNeighbors(cityId){
     var out=[];
     CITY_EDGES.forEach(function(e){
-      if(e.from===cityId)out.push({id:e.to,cost:e.cost,kind:e.kind,label:e.label});
-      else if(e.to===cityId)out.push({id:e.from,cost:e.cost,kind:e.kind,label:e.label});
+      if(e.from===cityId)out.push({id:e.to,cost:e.cost,kind:e.kind,label:e.label,req:e.req,msg:e.msg});
+      else if(e.to===cityId)out.push({id:e.from,cost:e.cost,kind:e.kind,label:e.label,req:e.req,msg:e.msg});
     });
     return out;
   }
-  function kindLabel(k){if(k==="canal")return"漕运";if(k==="river")return"江路";return"官道";}
+  function kindLabel(k){if(k==="canal")return"漕运";if(k==="river")return"江路";if(k==="sea")return"海路";return"官道";}
+  function checkEdgeReq(player,edge){
+    if(!edge||!edge.req)return{ok:true};
+    if(edge.req.silver!=null&&(player.silver|0)<edge.req.silver)
+      return{ok:false,msg:edge.msg||("需银两≥"+edge.req.silver)};
+    if(edge.req.agi!=null&&(player.stats&&(player.stats.agi|0)<edge.req.agi))
+      return{ok:false,msg:edge.msg||("需身法≥"+edge.req.agi)};
+    return{ok:true};
+  }
   function injectCityMaps(){
     if(typeof maps==="undefined")return;
     Object.keys(CITIES).forEach(function(cid){
@@ -136,13 +174,17 @@
     if(fromId===toCityId)return{ok:false,msg:"已在此城"};
     var edge=EDGE_MAP[cityEdgeKey(fromId,toCityId)];
     if(!edge)return{ok:false,msg:"无直达官道/水路，请改道"};
+    var req=checkEdgeReq(player,edge);
+    if(!req.ok)return req;
     var dest=getCity(toCityId);if(!dest)return{ok:false,msg:"未知目的地"};
     var cost=edge.cost||3;
+    if(edge.req&&edge.req.silver)player.silver=(player.silver|0)-edge.req.silver;
     var tmsgs=advanceDays(player,cost);
     player.location=toCityId;
     if(Array.isArray(player.explored)&&player.explored.indexOf(toCityId)<0)player.explored.push(toCityId);
     var clock=typeof formatClockShort==="function"?formatClockShort(player)+" · ":"";
-    var msg=clock+"经"+kindLabel(edge.kind)+(edge.label?("「"+edge.label+"」"):"")+"，赶路"+cost+"程，抵达【"+dest.name+"】。";
+    var fee=edge.req&&edge.req.silver?("（船资/盘缠"+edge.req.silver+"两）"):"";
+    var msg=clock+"经"+kindLabel(edge.kind)+(edge.label?("「"+edge.label+"」"):"")+fee+"，赶路"+cost+"程，抵达【"+dest.name+"】。";
     var ev=(dest.events&&dest.events.length)?dest.events[Math.floor(Math.random()*dest.events.length)]:"";
     if(ev)msg+=ev;
     player.logs.unshift(msg);tmsgs.forEach(function(m){player.logs.unshift(m);});player.logs=player.logs.slice(0,50);
@@ -167,10 +209,11 @@
       : '<p class="small">本城暂无线索，先在城中游历，或走长途往他处。</p>';
     var neigh=getCityNeighbors(c.id).map(function(n){
       var dest=getCity(n.id);var lab=dest?dest.short:n.id;
-      return '<button class="btn sm city-travel" data-id="'+n.id+'">赴'+lab+'（'+n.cost+'程·'+kindLabel(n.kind)+'）</button>';
+      var fee=n.req&&n.req.silver?("·资"+n.req.silver):"";
+      return '<button class="btn sm city-travel" data-id="'+n.id+'">赴'+lab+'（'+n.cost+'程·'+kindLabel(n.kind)+fee+')</button>';
     }).join("");
     var tag=c.tag?('<span class="tag">'+c.tag+'</span>'):'';
-    return '<div class="city-panel"><div class="loc-head"><h2 class="section-title">'+c.icon+' '+c.name+'</h2><span class="tag">州府</span> '+tag+'</div><p class="small">'+c.desc+'</p><p class="small" style="color:var(--gold)">话本借宋世地名，实指大雍山河。</p><h3 class="section-title" style="font-size:13px;margin-top:8px">下辖江湖</h3><div class="row compact-block">'+childrenHtml+'</div><h3 class="section-title" style="font-size:13px;margin-top:8px">长途</h3><div class="row compact-block">'+neigh+'</div><p class="small">城际耗时更长；下辖地点出城后仍走原有山河网。</p></div>';
+    return '<div class="city-panel"><div class="loc-head"><h2 class="section-title">'+c.icon+' '+c.name+'</h2><span class="tag">州府</span> '+tag+'</div><p class="small">'+c.desc+'</p><p class="small" style="color:var(--gold)">话本借宋世地名，实指大雍山河。</p><h3 class="section-title" style="font-size:13px;margin-top:8px">下辖江湖</h3><div class="row compact-block">'+childrenHtml+'</div><h3 class="section-title" style="font-size:13px;margin-top:8px">长途</h3><div class="row compact-block">'+neigh+'</div><p class="small">城际耗时更长；海路/蜀道或需船资盘缠。下辖出城后仍走原山河网。</p></div>';
   }
   function injectWorldChrome(player){
     var locPanel=document.querySelectorAll(".panel")[1];if(!locPanel)return;
