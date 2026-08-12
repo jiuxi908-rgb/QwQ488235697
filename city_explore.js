@@ -3,7 +3,7 @@
  */
 (function(g){
   "use strict";
-  var TYPE_LABEL={silver:"银两",exp:"经验",heal:"气血",damage:"气血",mp:"内力",stat:"属性",log:"见闻"};
+  var TYPE_LABEL={silver:"银两",exp:"经验",heal:"气血",damage:"气血",mp:"内力",stat:"属性",log:"见闻",item:"物品",encounter:"遭遇"};
 
   function player(){return(g.state&&g.state.player)||g.player||null;}
   function content(id){return typeof g.getCityContent==="function"?g.getCityContent(id):((g.cityContent||{})[id]||{explore:[]});}
@@ -22,7 +22,7 @@
   function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
   function ensureStats(p){if(!p.stats)p.stats={arm:5,agi:5,bone:5,qi:5,wit:5,luck:5};}
   function apply(p,event){
-    var r=event.result||{}, parts=[], key, val;
+    var r=event.result||{},parts=[],key,val;
     if(r.silver){p.silver=Math.max(0,(p.silver||0)+Number(r.silver));parts.push((r.silver>0?"获得 ":"损失 ")+Math.abs(r.silver)+"银");}
     if(r.hp){p.hp=clamp((p.hp==null?p.maxHp||100:p.hp)+Number(r.hp),1,p.maxHp||100);parts.push((r.hp>0?"恢复 ":"损失 ")+Math.abs(r.hp)+"气血");}
     if(r.mp){p.mp=clamp((p.mp==null?p.maxMp||60:p.mp)+Number(r.mp),0,p.maxMp||60);parts.push((r.mp>0?"恢复 ":"损失 ")+Math.abs(r.mp)+"内力");}
@@ -35,11 +35,23 @@
       ensureStats(p);
       Object.keys(r.stat).forEach(function(k){val=Number(r.stat[k])||0;p.stats[k]=(p.stats[k]||0)+val;parts.push((g.STAT_LABELS&&g.STAT_LABELS[k]||k)+(val>0?"+":"")+val);});
     }
+    if(r.item){
+      var itemId=typeof r.item==="string"?r.item:r.item.id;
+      var count=Math.max(1,Number(typeof r.item==="object"?r.item.count:1)||1);
+      if(itemId&&typeof g.addItem==="function"){
+        var added=g.addItem(p,itemId,count);
+        if(added!==false)parts.push("获得物品");
+      }else if(itemId&&Array.isArray(p.bag)){
+        var stack=p.bag.find(function(x){return x&&x.id===itemId;});
+        if(stack)stack.count=(stack.count||1)+count;else p.bag.push({id:itemId,count:count});
+        parts.push("获得物品");
+      }
+    }
     if(r.log)parts.push(r.log);
     var summary=parts.length?"（"+parts.join("、")+"）":"";
     var line="【"+(event.title||"游历")+"】"+(event.text||"")+summary;
     log(p,line);
-    if(g.Game&&Game.emit)Game.emit("city:explore",{cityId:p.worldLocation,event:event,result:r,player:p});
+    if(g.Game&&Game.emit)Game.emit("city:explore",{cityId:event.cityId||p.worldLocation||null,event:event,result:r,player:p});
     return{ok:true,event:event,message:line};
   }
   function normalizeEvent(e,i){
@@ -52,10 +64,11 @@
     else if(e.type==="mp")r.mp=Math.abs(Number(e.value)||0);
     else if(e.type==="exp")r.exp=Math.abs(Number(e.value)||0);
     else if(e.type==="stat"){r.stat={};r.stat[e.key]=Number(e.value)||0;}
+    else if(e.type==="item")r.item=e.item||e.itemId;
     else if(e.type==="log")r.log=e.text||"";
     return Object.assign({},e,{id:e.id||"event_"+i,weight:e.weight==null?1:e.weight,title:e.title||TYPE_LABEL[e.type]||"游历",result:r});
   }
-  function events(id){return (content(id).explore||[]).map(normalizeEvent);}
+  function events(id){return (content(id).explore||[]).map(normalizeEvent).map(function(e){e.cityId=id;return e;});}
   function explore(id){
     var p=player();if(!p)return{ok:false,msg:"没有可用玩家存档。"};
     var list=events(id||p.worldLocation);if(!list.length)return{ok:false,msg:"本城暂时没有可游历内容。"};
@@ -68,14 +81,17 @@
     var list=events(cityId),root=document.getElementById("modalRoot");if(!root)return;
     var esc=function(s){return String(s==null?"":s).replace(/[&<>\"']/g,function(x){return{"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[x];});};
     var html='<div class="modal-mask" id="cityExploreModal"><div class="modal-panel"><div class="modal-head"><h3 class="section-title">'+esc(c?c.name:cityId)+' · 游历</h3><button class="modal-close" onclick="cityExploreClose()">关闭</button></div>';
-    html+='<div class="small">随机事件按 weight 抽取；结果会直接写入玩家状态与日志。</div><div class="city-explore-list">';
-    list.forEach(function(e,i){html+='<button class="city-explore-option" onclick="cityExploreRun(\''+esc(cityId)+'\','+i+')"><b>'+esc(e.title)+'</b><span>'+esc(e.text)+'</span><small>权重 '+e.weight+' · '+esc(TYPE_LABEL[e.type]||e.type||"效果")+'</small></button>';});
-    html+='</div></div></div>';root.innerHTML=html;
+    html+='<div class="small">每次探索按 weight 随机抽取一项，结果会直接写入玩家状态、背包与日志。</div>';
+    html+='<div class="city-explore-list">';
+    list.forEach(function(e){html+='<div class="city-explore-option"><b>'+esc(e.title)+'</b><span>'+esc(e.text)+'</span><small>权重 '+e.weight+' · '+esc(TYPE_LABEL[e.type]||e.type||"效果")+'</small></div>';});
+    html+='</div><button class="btn primary" style="width:100%;min-height:44px;margin-top:9px" onclick="cityExploreRun(\''+esc(cityId)+'\',-1)">开始探索</button></div></div>';
+    root.innerHTML=html;
     g.__CITY_EXPLORE_CACHE=list;
   }
   function run(id,index){
-    var list=g.__CITY_EXPLORE_CACHE||events(id),e=list[index];if(!e)return;
-    var p=player();var r=apply(p,e);if(!r.ok)return;
+    var list=g.__CITY_EXPLORE_CACHE||events(id),e=index<0?pick(list):list[index];if(!e)return;
+    var p=player();if(!p)return;
+    var r=apply(p,e);if(!r.ok)return;
     if(typeof renderGame==="function")renderGame();
     open(id);
     if(typeof showToast==="function")showToast(r.message);
