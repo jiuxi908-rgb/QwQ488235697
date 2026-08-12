@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "note": "与网页 docs/id_map.json 同步；Unity TextAsset",
+  "sceneVersion": "0.1",
+  "sceneLocations": ["qinghe", "bamboo", "mist_gate", "kaifeng"],
+  "hotspots": {
+    "qinghe": [
+      { "id": "inn", "label": "客栈·市井", "action": "explore" },
+      { "id": "zhou", "label": "老周", "action": "npc", "target": "zhou" },
+      { "id": "clinic", "label": "医馆", "action": "npc", "target": "su" },
+      { "id": "yard", "label": "拳场·学艺", "action": "learn" },
+      { "id": "gate", "label": "官道·出城", "action": "exit" }
+    ]
+  },
+  "localSkills": {
+    "qinghe": ["basic_fist", "basic_sword", "basic_neigong", "crush_leg"]
+  }
+}
