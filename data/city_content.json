@@ -1,0 +1,36 @@
+{
+  "cities": {
+    "suzhou": {
+      "tag": "丝织·机坊",
+      "explore": [
+        {"text":"参观丝坊，听机杼声中打探商路消息。","type":"silver","value":12},
+        {"text":"替机坊护送一批细绢到河埠。","type":"silver","value":18},
+        {"text":"在茶楼听见杭州商人与北方客商争论。","type":"log"}
+      ]
+    },
+    "jiankang": {
+      "tag": "江防·金陵气",
+      "explore": [
+        {"text":"沿江观看水军操练，增长见闻。","type":"exp","value":20},
+        {"text":"替渡口传递一封军需文书。","type":"silver","value":15},
+        {"text":"夜游旧都城墙，偶遇一位佩剑客。","type":"stat","key":"luck","value":1}
+      ]
+    },
+    "ezhou": {
+      "tag": "江泊·货船",
+      "explore": [
+        {"text":"帮货船整理缆绳，赚取脚力钱。","type":"silver","value":16},
+        {"text":"在江驿听船工讲起上游水寨。","type":"log"},
+        {"text":"随船练习水上步法，略有所得。","type":"exp","value":22}
+      ]
+    },
+    "yingtian": {
+      "tag": "归德·官道驿",
+      "explore": [
+        {"text":"替驿卒照看一匹疲马，得到路费。","type":"silver","value":10},
+        {"text":"在驿站查看南北行商留下的路书。","type":"exp","value":18},
+        {"text":"官道突遇盘查，谨慎应对后平安脱身。","type":"log"}
+      ]
+    }
+  }
+}
