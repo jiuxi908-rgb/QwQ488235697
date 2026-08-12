@@ -1,5 +1,7 @@
-/* 简易 Service Worker：缓存外壳，便于「添加到主屏幕」与弱网 */
-const CACHE = "yujian-shell-v1";
+/* 简易 Service Worker：缓存外壳，便于「添加到主屏幕」与弱网。
+ * 每次发布静态代码结构变更时递增 CACHE，避免手机继续命中旧 JS。
+ */
+const CACHE = "yujian-shell-v2";
 const PRECACHE = [
   "./",
   "./index.html",
