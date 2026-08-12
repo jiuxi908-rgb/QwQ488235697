@@ -69,10 +69,9 @@ public class QingheBootstrap : MonoBehaviour
 
     void CreateHotspots(Transform parent)
     {
-        // 百分比近似网页 SCENES.qinghe（左上为 0,0 的 UI 需换算：top → 从下锚点）
-        // 简化为竖直一列 + 底栏，保证必能点到；有底图后再用手动坐标微调
         string[] actions = QingheActions.All;
         float[] anchorY = { 0.72f, 0.58f, 0.44f, 0.30f, 0.16f };
+        Font font = LoadUiFont();
 
         for (int i = 0; i < actions.Length; i++)
         {
@@ -102,13 +101,20 @@ public class QingheBootstrap : MonoBehaviour
             text.text = label + "  [" + action + "]";
             text.alignment = TextAnchor.MiddleCenter;
             text.color = new Color(0.96f, 0.91f, 0.81f);
-            text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            text.font = font;
             text.fontSize = 22;
 
             var hot = go.AddComponent<HotspotAction>();
             hot.actionId = action;
             btn.onClick.AddListener(hot.OnClick);
         }
+    }
+
+    static Font LoadUiFont()
+    {
+        Font f = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        if (f == null) f = Resources.GetBuiltinResource<Font>("Arial.ttf");
+        return f;
     }
 
     static void StretchFull(RectTransform rt)
