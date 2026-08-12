@@ -15,19 +15,20 @@
         "jiankang":{"name":"建康","alias":"金陵","region":"江东","tag":"江防","desc":"江东重镇，城防森严，旧都气象与江湖风声并存。","children":[]},
         "hangzhou":{"name":"杭州","alias":"临安","region":"两浙","tag":"湖山","desc":"湖山清丽而商旅不绝，茶、丝与江湖消息沿水路汇聚。","children":["bamboo","mist_gate"]},
         "suzhou":{"name":"苏州","alias":"姑苏","region":"两浙","tag":"丝织·机坊","desc":"水巷纵横，丝织机坊昼夜作响，商贾与工匠往来不绝。","children":[]},
-        "mingzhou":{"name":"明州","alias":"宁波","region":"海路","tag":"市舶","desc":"海舶渐盛的港口，远洋商旅带来异域货物与江湖传闻。","children":[]},
-        "quanzhou":{"name":"泉州","alias":"刺桐","region":"海路","tag":"海贸","desc":"海商汇聚之地，货栈、船队与南海商盟关系盘根错节。","children":[]},
-        "guangzhou":{"name":"广州","alias":"岭南","region":"海路","tag":"南海商盟","desc":"南海商路尽头，异域货物与商盟势力在此交汇。","children":[]},
+        "mingzhou":{"name":"明州","alias":"宁波","region":"海路","tag":"市舶","desc":"海舶渐盛的港口，远洋商旅带来异域货物与江湖传闻。","children":["haizhan"]},
+        "quanzhou":{"name":"泉州","alias":"刺桐","region":"海路","tag":"海贸·蕃坊","desc":"海商汇聚的大港，蕃坊、香料与海船带来异域消息。","children":["quanzhou_wharf"]},
+        "guangzhou":{"name":"广州","alias":"岭南","region":"海路","tag":"南海商货","desc":"南海商路尽头，热风裹着异域货香，商盟势力盘根错节。","children":[]},
         "ezhou":{"name":"鄂州","alias":"江汉","region":"荆湖","tag":"江泊·货船","desc":"江汉水路的中游枢纽，货船、江泊与水寨消息汇成一处。","children":[]},
-        "changsha":{"name":"长沙","alias":"潭州","region":"荆湖","tag":"湘江","desc":"湘江贯城，南北商路在此转折，江湖势力逐渐南下。","children":[]},
-        "chengdu":{"name":"成都","alias":"蜀中","region":"川峡","tag":"蜀道","desc":"群山阻隔的富庶之地，入蜀道路漫长而险峻。","children":[]}
+        "changsha":{"name":"长沙","alias":"潭州","region":"荆湖","tag":"湘米·舟船","desc":"湘江贯城，米船往来不绝，荆湖江路在此转折。","children":[]},
+        "chengdu":{"name":"成都","alias":"蜀中","region":"川峡","tag":"锦官·蜀道难","desc":"锦官城富庶而群山险阻，入蜀道路漫长，远行者多在此歇脚。","children":[]}
       },
       "edges": [
         ["kaifeng","luoyang",2,"road"],["kaifeng","yingtian",3,"road"],["luoyang","yingtian",3,"road"],["yingtian","yangzhou",3,"canal"],["kaifeng","yangzhou",5,"canal"],
         ["yangzhou","jiankang",3,"river"],["jiankang","hangzhou",3,"river"],["hangzhou","suzhou",2,"canal"],["yangzhou","ezhou",5,"river"],
-        ["hangzhou","mingzhou",2,"sea"],["mingzhou","quanzhou",4,"sea"],["quanzhou","guangzhou",5,"sea"],["ezhou","changsha",2,"river"],["changsha","chengdu",8,"mountain"]
+        ["hangzhou","mingzhou",3,"sea"],["mingzhou","quanzhou",5,"sea"],["quanzhou","guangzhou",6,"sea"],["ezhou","changsha",4,"river"],["changsha","chengdu",7,"mountain"]
       ],
-      "phase2": {"cities":["suzhou","jiankang","ezhou","yingtian"],"primaryRoute":["kaifeng","yingtian","yangzhou","jiankang","hangzhou","suzhou"],"riverRoute":["yangzhou","ezhou"],"deferred":["mingzhou","quanzhou","guangzhou","changsha","chengdu"]}
+      "phase2": {"cities":["suzhou","jiankang","ezhou","yingtian"],"primaryRoute":["kaifeng","yingtian","yangzhou","jiankang","hangzhou","suzhou"],"riverRoute":["yangzhou","ezhou"],"deferred":["mingzhou","quanzhou","guangzhou","changsha","chengdu"]},
+      "phase3": {"seaRoute":["hangzhou","mingzhou","quanzhou","guangzhou"],"jinghuRoute":["ezhou","changsha"],"southwestRoute":["changsha","chengdu"],"directSeaRoute":false,"notes":"海路采用较高 cost 制造远行感；不额外开放杭州直达泉州。长沙、成都保持少边高耗时。"}
     }
   }
 }
