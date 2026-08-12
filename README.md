@@ -1,88 +1,61 @@
 # 一剑一蓑烟雨录
 
-像素风文字武侠 RPG（浏览器单页）
+像素风文字武侠 RPG（浏览器单页）· 规则原型机
 
 ## 在线游玩
 
 **https://jiuxi908-rgb.github.io/QwQ488235697/**
 
-> 若打不开：仓库 → **Settings → Pages** → Build and deployment 选 **GitHub Actions**，保存后等 1～2 分钟；也可点 Actions 里 `Deploy to GitHub Pages` 手动 Run。
+> 若打不开：仓库 → **Settings → Pages** → Build and deployment 选 **GitHub Actions**。
 
-已提供：
-- `.github/workflows/pages.yml` 自动部署
-- 根目录 `.nojekyll`（避免 Jekyll 干扰静态资源）
+## Unity 迁移（进行中）
+
+表现层计划迁到 Unity；**浏览器继续可玩，并作为数值/规则唯一试验场**。
+
+- 说明与里程碑：[`docs/UNITY_MIGRATION.md`](docs/UNITY_MIGRATION.md)
+- id 对照（可给 Unity TextAsset）：[`docs/id_map.json`](docs/id_map.json)
+- 浏览器场景扩写已 **冻结**（清河热区仅作参考，不复制开封/门派场景）
+
+```
+浏览器 = 规则是否好玩
+Unity   = 好不好看、好不好走
+共享   = data/*.json 与同一套 location / npc / skill id
+```
 
 ## 本地怎么玩
-
-### 推荐：本地服务器（可热改 JSON）
 
 ```bash
 git clone https://github.com/jiuxi908-rgb/QwQ488235697.git
 cd QwQ488235697
 python -m http.server 8080
-# 浏览器打开 http://localhost:8080
+# http://localhost:8080
 ```
 
-### 离线 / 双击 `index.html`（file://）
-
-可以玩。数据来自：
-
-| 模块 | 文件 |
-|------|------|
-| 地图 / 门派 | `data1_maps_*.js`、`data1_sects_*.js` |
-| 武学 / 出身 | `data2.js` + **`data_tables_skills.js`**（与 `data/*.json` 同步） |
-
-改了 `data/*.json` 后若要离线生效，需同步更新对应 `data_tables_*.js`（或继续用本地服务器）。
+离线可双击 `index.html`（file://）；完整热数据建议用本地服务器加载 `data/*.json`。
 
 ### 存档
 
 - 三槽 + 临时档（localStorage）
-- 存档弹窗底部：**导出备份** / **导入备份**（JSON 文件）
-- 旧档自动迁移（家园、经脉、时辰等）
+- **导出备份** / **导入备份**
+- 旧档自动迁移
 
-## 目录结构
+## 目录（节选）
 
 ```
 ├── index.html
-├── .nojekyll
-├── .github/workflows/pages.yml   # GitHub Pages 部署
-├── data/                         # 可编辑 JSON（在线热加载）
-│   ├── world.json / maps.json / sects.json
-│   ├── skills.json / origins.json
-│   └── README.md
-├── data_loader.js                # http(s) fetch JSON
-├── data_tables.js                # 离线打包说明
-├── data_tables_skills.js         # 离线：武学/出身（与 JSON 同步）
-├── data1_*.js                    # 离线：世界/地图/门派
-├── data2.js                      # 逻辑 + 表回退
-├── assets/avatars/
-├── save_slots.js / save_io.js
-├── world_map.js                  # 州府长途层
-├── map_grid.js                   # 江湖 X 网
-└── …（core / logic / ui 等）
+├── data/                 # 可编辑 JSON（数值源）
+├── docs/
+│   ├── UNITY_MIGRATION.md
+│   └── id_map.json
+├── assets/scenes/qinghe.svg   # 清河场景参考
+├── scene_view.js              # 清河热区外壳（冻结扩写）
+├── world_map.js / map_grid.js / realm.js
+└── …
 ```
-
-## 数据怎么改
-
-1. 编辑 `data/*.json`
-2. 用 **http** 打开（Pages 或 `python -m http.server`）并强制刷新
-3. `data_loader.js` 拉取 JSON 并 `DB.rebuild()`
-
-详见 [`data/README.md`](data/README.md)。
-
-## 架构分层
-
-| 层 | 文件 | 职责 |
-|----|------|------|
-| **数据** | `data1_*` → `data2` → `data_tables_skills` → `db` → `data_loader` | 表 + 索引 + 热覆盖 |
-| **核心** | `core` | 事件 / 钩子 / ensurePlayer |
-| **逻辑** | `logic` `map_grid` `world_map` `combat` `save_*` | 主流程与存档 |
-| **系统** | `*_ui` `home_*` `quest` … | 玩法界面 |
-| **体验** | `ui_smooth` | **最后加载** |
 
 ## 主要系统
 
-六大门派 · X 型江湖网 + 州府长途（中原 → 运河线 → 海路/西南） · 战力分级遇敌 · 武学/经脉/装备 · 好感/结缘/家园 · 像素头像 · 三槽存档与导出导入
+六大门派 · X 型江湖网 + 州府长途 · 人物境界 · 武学/经脉/装备 · 好感/结缘/家园 · 清河场景热区（参考）· 三槽存档
 
 ### 州府层（简图）
 
@@ -92,5 +65,3 @@ python -m http.server 8080
 | 运河/江路 | 扬州、建康、杭州、苏州、鄂州 |
 | 海路 | 明州、泉州、广州（船资） |
 | 荆湖/西南 | 长沙、成都（蜀道盘缠） |
-
-江湖节点（清河、门派、秘境）仍挂在对应州府下，走原有 X 网。
