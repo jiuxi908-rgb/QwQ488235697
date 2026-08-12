@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "sceneDescriptions": {
+    "qinghe": {
+      "summary": "清河镇是玩家最初接触江湖的地方。这里不强调战斗强度，而强调人物关系、学武入口、商路和第一批江湖传闻。",
+      "atmosphere": "雨后青石路、客栈灯火、渡口水声和茶棚说书声交织在一起。",
+      "tips": [
+        "初入江湖不要急着挑战高境界人物。",
+        "老周适合获取本地消息与生计线索。",
+        "苏半仙的医馆是早期恢复与药材系统入口。",
+        "拳场不仅提供基础武学，也承担新手教学功能。"
+      ]
+    },
+    "bamboo": {
+      "summary": "听雨竹径连接清河与烟岚山门，是低风险的野外探索区。",
+      "atmosphere": "竹影、细雨、石径和偶尔响起的剑鸣构成这里的主要意象。",
+      "tips": [
+        "适合练习轻功与探索事件。",
+        "阿青的关系线可以作为采药、草药与野外事件的入口。"
+      ]
+    },
+    "mist_gate": {
+      "summary": "烟岚山门是第一个真正意义上的门派场景，负责把散人玩法逐渐引向门派成长。",
+      "atmosphere": "云海、石阶、剑坪和晨钟组成冷清而克制的山门氛围。",
+      "tips": [
+        "先观察门派要求，再决定是否拜师。",
+        "门派贡献、师父好感和武学获取应保持独立存档字段。"
+      ]
+    },
+    "kaifeng": {
+      "summary": "开封是州府级枢纽，承担长途路线、城市生活和更高等级任务。",
+      "atmosphere": "御街繁华、寺院钟声、官署巡骑与商旅人潮形成强烈对比。",
+      "tips": [
+        "开封适合作为后续州府系统与主线汇合点。",
+        "长途旅行消耗时间与资源，应与普通地图移动区分。"
+      ]
+    }
+  },
+  "relationshipTiers": [
+    { "id": "stranger", "name": "陌路", "min": -100, "max": 9, "note": "普通路人关系，信息有限。" },
+    { "id": "acquaintance", "name": "相识", "min": 10, "max": 29, "note": "愿意提供基础帮助。" },
+    { "id": "friend", "name": "朋友", "min": 30, "max": 59, "note": "开放更多对白、交易和委托。" },
+    { "id": "trusted", "name": "知交", "min": 60, "max": 89, "note": "可以触发更深层个人剧情。" },
+    { "id": "bonded", "name": "生死之交", "min": 90, "max": 100, "note": "重大选择会受到彼此关系影响。" }
+  ],
+  "travelEvents": [
+    { "id": "rain", "weight": 18, "text": "突降细雨，你在路边茶棚避雨，听到了一段陌生人的江湖传闻。" },
+    { "id": "merchant", "weight": 15, "text": "一支商队与你擦肩而过，领队询问你是否愿意护送货物。" },
+    { "id": "wounded", "weight": 8, "text": "林间发现受伤旅人。救助会增加善名，但可能耽误行程。" },
+    { "id": "trace", "weight": 6, "text": "你发现一串新鲜脚印消失在岔路口，似乎有人刻意隐藏行踪。" },
+    { "id": "quiet", "weight": 53, "text": "一路平静无事，你抓紧时间调整气息。" }
+  ],
+  "newGameTips": [
+    "属性不是越平均越好。根据你想走的武学路线决定初始倾向。",
+    "悟性影响学习效率，福缘影响奇遇，但二者都不直接等于战斗力。",
+    "存档后再进行高风险探索，能减少误操作造成的损失。",
+    "NPC会记住部分关键行为，后续对白和任务可能因此变化。"
+  ],
+  "browserRules": {
+    "dataSource": "data/*.json",
+    "fallbackSource": "data1_*.js + data2.js + data_tables_skills.js",
+    "saveVersion": 3,
+    "locationSceneIds": ["qinghe", "bamboo", "mist_gate", "kaifeng"],
+    "priority": ["data_consistency", "save_compatibility", "logic", "ui", "visuals"]
+  }
+}
