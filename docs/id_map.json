@@ -1,28 +1,66 @@
 {
-  "version": 1,
-  "note": "与网页 location / npc / action 对齐；Unity TextAsset 可直接读",
+  "version": 2,
+  "note": "与网页 location / npc / action 对齐；Unity TextAsset 可直接读。场景 v0.1 仅四站。",
+  "sceneVersion": "0.1",
+  "sceneLocations": ["qinghe", "bamboo", "mist_gate", "kaifeng"],
   "locations": {
-    "qinghe": { "name": "清河镇", "type": "城镇", "parent": "kaifeng" },
-    "bamboo": { "name": "听雨竹径", "type": "野外", "parent": "hangzhou" },
+    "qinghe": { "name": "清河镇", "type": "城镇", "parent": "kaifeng", "scene": true },
+    "bamboo": { "name": "听雨竹径", "type": "野外", "parent": "hangzhou", "scene": true },
+    "mist_gate": { "name": "烟岚山门", "type": "门派", "parent": "hangzhou", "scene": true },
+    "kaifeng": { "name": "开封（东京）", "type": "州府", "tier": "city", "scene": true },
     "ferry": { "name": "白沙渡", "type": "渡口", "parent": "yangzhou" },
     "market": { "name": "旧瓦市", "type": "城镇", "parent": "kaifeng" },
-    "hearth": { "name": "赤炉山庄", "type": "门派", "parent": "kaifeng" },
-    "kaifeng": { "name": "开封（东京）", "type": "州府", "tier": "city" }
+    "hearth": { "name": "赤炉山庄", "type": "门派", "parent": "kaifeng" }
   },
-  "qingheHotspots": [
-    { "id": "inn", "label": "客栈·市井", "action": "explore" },
-    { "id": "zhou", "label": "老周", "action": "npc", "target": "zhou" },
-    { "id": "clinic", "label": "医馆", "action": "npc", "target": "su" },
-    { "id": "yard", "label": "拳场·学艺", "action": "learn" },
-    { "id": "gate", "label": "官道·出城", "action": "exit" }
-  ],
-  "npcsQinghe": [
-    { "id": "zhou", "name": "老周", "title": "客栈掌柜" },
-    { "id": "su", "name": "苏半仙", "title": "医馆大夫" },
-    { "id": "shishu", "name": "王说书", "title": "茶棚说书人" }
-  ],
+  "hotspots": {
+    "qinghe": [
+      { "id": "inn", "label": "客栈·市井", "action": "explore" },
+      { "id": "zhou", "label": "老周", "action": "npc", "target": "zhou" },
+      { "id": "clinic", "label": "医馆", "action": "npc", "target": "su" },
+      { "id": "yard", "label": "拳场·学艺", "action": "learn" },
+      { "id": "gate", "label": "官道·出城", "action": "exit" }
+    ],
+    "bamboo": [
+      { "id": "path", "label": "竹径游历", "action": "explore" },
+      { "id": "aqing", "label": "阿青", "action": "npc", "target": "aqing" },
+      { "id": "yard", "label": "练剑坪", "action": "learn" },
+      { "id": "jian", "label": "竹间", "action": "npc", "target": "jian_tong" },
+      { "id": "gate", "label": "山门方向", "action": "exit" }
+    ],
+    "mist_gate": [
+      { "id": "explore", "label": "山门游历", "action": "explore" },
+      { "id": "luyun", "label": "陆云", "action": "npc", "target": "luyun" },
+      { "id": "shen", "label": "沈疏", "action": "npc", "target": "shen_wai" },
+      { "id": "learn", "label": "练剑坪·学武", "action": "learn" },
+      { "id": "sect", "label": "剑斋门派", "action": "sect" },
+      { "id": "exit", "label": "下山", "action": "exit" }
+    ],
+    "kaifeng": [
+      { "id": "street", "label": "御街·市井", "action": "explore" },
+      { "id": "temple", "label": "相国寺外", "action": "explore" },
+      { "id": "spots", "label": "出城·下辖", "action": "city_spots" },
+      { "id": "travel", "label": "长途官道", "action": "city_travel" }
+    ]
+  },
+  "npcs": {
+    "qinghe": [
+      { "id": "zhou", "name": "老周", "title": "客栈掌柜" },
+      { "id": "su", "name": "苏半仙", "title": "医馆大夫" },
+      { "id": "shishu", "name": "王说书", "title": "茶棚说书人" }
+    ],
+    "bamboo": [
+      { "id": "aqing", "name": "阿青", "title": "采药人" },
+      { "id": "jian_tong", "name": "竹间", "title": "练剑少年" }
+    ],
+    "mist_gate": [
+      { "id": "luyun", "name": "陆云", "title": "外门弟子" },
+      { "id": "shen_wai", "name": "沈疏", "title": "外门执事" }
+    ]
+  },
   "localSkills": {
-    "qinghe": ["basic_fist", "basic_sword", "basic_neigong", "crush_leg"]
+    "qinghe": ["basic_fist", "basic_sword", "basic_neigong", "crush_leg"],
+    "bamboo": ["basic_qinggong", "basic_blade", "flow_sword"],
+    "mist_gate": ["yanlan_sword", "basic_qinggong", "cloud_step"]
   },
   "playerRanks": [
     { "id": 0, "name": "未入流", "min": 0 },
