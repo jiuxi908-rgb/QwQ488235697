@@ -137,9 +137,29 @@ input,select{
 .bottom-nav button.active{color:var(--gold)}
 .bottom-nav button.active .ico{transform:scale(1.08)}
 
-/* page shells */
-.page-shell{display:none}
-.page-shell.active{display:block}
+/* equip grid for bag */
+.equip-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:6px 0}
+.equip-slot{border:1px solid var(--line);border-radius:var(--radius-sm);padding:8px;background:var(--panel-dark);min-height:64px}
+.equip-slot.filled{border-color:var(--gold-dim)}
+.equip-slot-label{font-size:var(--fs-xs);color:var(--muted);margin-bottom:4px}
+.equip-slot-body{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.item-icon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:2px solid var(--line);border-radius:6px;font-size:16px;flex-shrink:0}
+.item-icon.sm{width:28px;height:28px;font-size:13px}
+.item-row{display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px dashed var(--line);min-height:52px;cursor:pointer}
+.item-row.equipped{background:rgba(217,173,98,.08)}
+.item-meta{flex:1;min-width:0}
+.item-detail{margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--panel-dark)}
+
+/* combat shell */
+.combat-shell{background:linear-gradient(180deg,#1a1210,#0e0b09);border:1px solid var(--danger);border-radius:var(--radius-lg);padding:14px;margin:8px 0}
+.combat-vs{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;text-align:center;margin:12px 0}
+.combat-name{font-weight:800;color:var(--gold)}
+.combat-bar{height:10px;background:#100d0b;border:1px solid #3d3027;overflow:hidden;border-radius:2px;margin-top:4px}
+.combat-bar i{display:block;height:100%;background:var(--danger)}
+.combat-bar.ally i{background:var(--success)}
+.combat-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.combat-actions .btn{min-height:48px;font-size:var(--fs-md)}
+.combat-log{max-height:120px;overflow-y:auto;font-size:var(--fs-sm);color:var(--muted);margin-top:10px;padding:8px;background:#120f0d;border-radius:6px;border:1px solid var(--line)}
 
 @media(max-width:600px){
   .title{font-size:24px}
@@ -147,6 +167,7 @@ input,select{
   .panel{padding:8px 10px}
   .modal-mask{align-items:flex-start;padding-top:max(48px,env(safe-area-inset-top,0px) + 36px)}
   .modal-panel{max-height:68vh;border-radius:var(--radius-lg)}
+  .equip-grid{grid-template-columns:1fr 1fr;gap:6px}
 }
 </style>
 </head>
@@ -188,9 +209,16 @@ input,select{
 <script src="./world_map_v2.js"></script>
 <script src="./city_explore.js"></script>
 <script src="./city_save_bridge.js"></script>
+<script src="./pixel_ui.js"></script>
+<script src="./items_ui.js"></script>
+<script src="./skill_ui.js"></script>
+<script src="./favor_ui.js"></script>
+<script src="./combat.js"></script>
+<script src="./combat_fx.js"></script>
 <script src="./mobile_ui.js"></script>
 <script src="./mobile_npc_ui.js"></script>
 <script src="./ui_nav.js"></script>
+<script src="./ui_smooth.js"></script>
 <script>
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
