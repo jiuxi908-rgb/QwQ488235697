@@ -7,7 +7,11 @@
 
   function esc(t) {
     return String(t == null ? "" : t)
-      .replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">");
+      .replace(/&/g, "&")
+      .replace(/</g, "<")
+      .replace(/>/g, ">")
+      .replace(/"/g, """)
+      .replace(/'/g, "&#39;");
   }
 
   function bar(pct, cls) {
