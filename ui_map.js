@@ -9,7 +9,8 @@
       .replace(/&/g, "&")
       .replace(/</g, "<")
       .replace(/>/g, ">")
-      .replace(/"/g, """);
+      .replace(/"/g, """)
+      .replace(/'/g, "&#39;");
   }
 
   function inject() {
