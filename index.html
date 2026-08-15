@@ -9,7 +9,6 @@
 <title>一剑一蓑烟雨录</title>
 <style>
 :root{
-  /* ===== Design System ===== */
   --bg:#15120f;
   --panel:#241d18;
   --panel-light:#30261f;
@@ -43,34 +42,22 @@
 html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:var(--font)}
 body{padding-bottom:var(--safe)}
 .app{max-width:720px;margin:auto;padding:8px 8px var(--safe)}
-
-/* panels */
 .hero-card,.panel{
   background:linear-gradient(180deg,rgba(48,38,31,.96),rgba(29,23,19,.96));
-  border:1px solid var(--line);
-  box-shadow:var(--shadow);
-  border-radius:var(--radius);
-  padding:10px 12px;
-  margin-bottom:8px;
+  border:1px solid var(--line);box-shadow:var(--shadow);border-radius:var(--radius);
+  padding:10px 12px;margin-bottom:8px;
 }
 .title{font-size:var(--fs-title);letter-spacing:4px;color:var(--gold);text-shadow:0 2px #000}
 .subtitle,.small{color:var(--muted);font-size:var(--fs-sm);line-height:1.5}
 .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-
-/* buttons */
 .btn{
-  min-height:var(--touch);
-  background:#3b2b21;color:var(--text);
-  border:1px solid var(--line-strong);
-  border-radius:var(--radius-sm);
-  padding:8px 11px;cursor:pointer;font-size:var(--fs-sm);
-  touch-action:manipulation;
+  min-height:var(--touch);background:#3b2b21;color:var(--text);
+  border:1px solid var(--line-strong);border-radius:var(--radius-sm);
+  padding:8px 11px;cursor:pointer;font-size:var(--fs-sm);touch-action:manipulation;
 }
 .btn:hover,.btn.primary{background:#6b4630;border-color:var(--gold)}
 .btn:disabled{opacity:.45}
 .btn.sm{min-height:36px;padding:6px 10px;font-size:var(--fs-xs)}
-
-/* form */
 .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 label{display:grid;gap:3px;color:var(--muted);font-size:var(--fs-sm)}
 input,select{
@@ -79,15 +66,11 @@ input,select{
 }
 .choice{border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--panel-dark);cursor:pointer}
 .choice.active{border-color:var(--gold)}
-
-/* stats & hud */
 .stat{display:flex;justify-content:space-between;border-bottom:1px dashed var(--line);padding:5px 0;font-size:var(--fs-sm)}
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 12px}
 .hud{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:var(--fs-sm)}
 .hud b,.power{color:var(--gold)}
 .toolbar{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-
-/* map */
 .pixel-map{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
 .map-node{
   border:1px solid var(--line);border-radius:var(--radius-sm);background:#1a1512;
@@ -101,8 +84,6 @@ input,select{
 .log{height:120px;overflow-y:auto;background:#120f0d;border:1px solid var(--line);border-radius:8px;padding:5px 7px;color:#d8c6aa;font-size:11px}
 .section-title{color:var(--gold);margin:0 0 6px;font-size:var(--fs-md)}
 .loc-head{display:flex;justify-content:space-between;align-items:center;gap:6px}
-
-/* modal */
 .modal-mask{
   position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;
   display:flex;align-items:center;justify-content:center;
@@ -117,16 +98,12 @@ input,select{
 .modal-close{min-width:var(--touch);min-height:var(--touch);background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:var(--radius-sm)}
 .talk-bubble,.main-obj{background:var(--panel-dark);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:8px 0;line-height:1.5}
 .hp-warn{color:var(--danger);font-weight:700}
-
-/* ===== Bottom Nav ===== */
 .bottom-nav{
   position:fixed;left:0;right:0;bottom:0;z-index:900;
   display:grid;grid-template-columns:repeat(5,1fr);
-  height:var(--nav-h);
-  padding-bottom:env(safe-area-inset-bottom,0px);
+  height:var(--nav-h);padding-bottom:env(safe-area-inset-bottom,0px);
   background:linear-gradient(180deg,#2a211b,#1a1512);
-  border-top:1px solid var(--line);
-  box-shadow:0 -6px 20px rgba(0,0,0,.35);
+  border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(0,0,0,.35);
 }
 .bottom-nav button{
   appearance:none;border:0;background:transparent;color:var(--muted);
@@ -136,8 +113,6 @@ input,select{
 .bottom-nav button .ico{font-size:18px;line-height:1}
 .bottom-nav button.active{color:var(--gold)}
 .bottom-nav button.active .ico{transform:scale(1.08)}
-
-/* equip grid for bag */
 .equip-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:6px 0}
 .equip-slot{border:1px solid var(--line);border-radius:var(--radius-sm);padding:8px;background:var(--panel-dark);min-height:64px}
 .equip-slot.filled{border-color:var(--gold-dim)}
@@ -149,8 +124,6 @@ input,select{
 .item-row.equipped{background:rgba(217,173,98,.08)}
 .item-meta{flex:1;min-width:0}
 .item-detail{margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--panel-dark)}
-
-/* combat shell */
 .combat-shell{background:linear-gradient(180deg,#1a1210,#0e0b09);border:1px solid var(--danger);border-radius:var(--radius-lg);padding:14px;margin:8px 0}
 .combat-vs{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;text-align:center;margin:12px 0}
 .combat-name{font-weight:800;color:var(--gold)}
@@ -160,7 +133,6 @@ input,select{
 .combat-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
 .combat-actions .btn{min-height:48px;font-size:var(--fs-md)}
 .combat-log{max-height:120px;overflow-y:auto;font-size:var(--fs-sm);color:var(--muted);margin-top:10px;padding:8px;background:#120f0d;border-radius:6px;border:1px solid var(--line)}
-
 @media(max-width:600px){
   .title{font-size:24px}
   .pixel-map{grid-template-columns:repeat(3,1fr)}
@@ -215,6 +187,8 @@ input,select{
 <script src="./combat.js"></script>
 <script src="./combat_fx.js"></script>
 <script src="./ui_combat.js"></script>
+<script src="./ui_npc.js"></script>
+<script src="./ui_map.js"></script>
 <script src="./mobile_ui.js"></script>
 <script src="./mobile_npc_ui.js"></script>
 <script src="./ui_nav.js"></script>
