@@ -9,61 +9,32 @@
 <title>一剑一蓑烟雨录</title>
 <style>
 :root{
-  --bg:#15120f;
-  --panel:#241d18;
-  --panel-light:#30261f;
-  --panel-dark:#1b1512;
-  --gold:#d9ad62;
-  --gold-dim:#8a6a45;
-  --text:#f5e8cf;
-  --muted:#b9a58a;
-  --danger:#b85b53;
-  --success:#7aae6a;
-  --info:#6c91b9;
-  --line:#4b3a2d;
-  --line-strong:#6b503a;
-  --shadow:0 8px 28px rgba(0,0,0,.35);
-  --shadow-sm:2px 3px 0 #0a0806;
-  --radius:10px;
-  --radius-sm:6px;
-  --radius-lg:12px;
+  --bg:#15120f;--panel:#241d18;--panel-light:#30261f;--panel-dark:#1b1512;
+  --gold:#d9ad62;--gold-dim:#8a6a45;--text:#f5e8cf;--muted:#b9a58a;
+  --danger:#b85b53;--success:#7aae6a;--info:#6c91b9;
+  --line:#4b3a2d;--line-strong:#6b503a;
+  --shadow:0 8px 28px rgba(0,0,0,.35);--shadow-sm:2px 3px 0 #0a0806;
+  --radius:10px;--radius-sm:6px;--radius-lg:12px;
   --font:"Microsoft YaHei",system-ui,sans-serif;
-  --fs-xs:10px;
-  --fs-sm:12px;
-  --fs-md:14px;
-  --fs-lg:16px;
-  --fs-xl:19px;
-  --fs-title:28px;
-  --touch:44px;
-  --nav-h:56px;
+  --fs-xs:10px;--fs-sm:12px;--fs-md:14px;--fs-lg:16px;--fs-xl:19px;--fs-title:28px;
+  --touch:44px;--nav-h:56px;
   --safe:max(calc(var(--nav-h) + 24px), env(safe-area-inset-bottom,0px) + var(--nav-h) + 12px);
 }
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:var(--font)}
 body{padding-bottom:var(--safe)}
 .app{max-width:720px;margin:auto;padding:8px 8px var(--safe)}
-.hero-card,.panel{
-  background:linear-gradient(180deg,rgba(48,38,31,.96),rgba(29,23,19,.96));
-  border:1px solid var(--line);box-shadow:var(--shadow);border-radius:var(--radius);
-  padding:10px 12px;margin-bottom:8px;
-}
+.hero-card,.panel{background:linear-gradient(180deg,rgba(48,38,31,.96),rgba(29,23,19,.96));border:1px solid var(--line);box-shadow:var(--shadow);border-radius:var(--radius);padding:10px 12px;margin-bottom:8px}
 .title{font-size:var(--fs-title);letter-spacing:4px;color:var(--gold);text-shadow:0 2px #000}
 .subtitle,.small{color:var(--muted);font-size:var(--fs-sm);line-height:1.5}
 .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.btn{
-  min-height:var(--touch);background:#3b2b21;color:var(--text);
-  border:1px solid var(--line-strong);border-radius:var(--radius-sm);
-  padding:8px 11px;cursor:pointer;font-size:var(--fs-sm);touch-action:manipulation;
-}
+.btn{min-height:var(--touch);background:#3b2b21;color:var(--text);border:1px solid var(--line-strong);border-radius:var(--radius-sm);padding:8px 11px;cursor:pointer;font-size:var(--fs-sm);touch-action:manipulation}
 .btn:hover,.btn.primary{background:#6b4630;border-color:var(--gold)}
 .btn:disabled{opacity:.45}
 .btn.sm{min-height:36px;padding:6px 10px;font-size:var(--fs-xs)}
 .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 label{display:grid;gap:3px;color:var(--muted);font-size:var(--fs-sm)}
-input,select{
-  min-height:var(--touch);background:#17120f;color:var(--text);
-  border:1px solid var(--line);border-radius:var(--radius-sm);padding:7px;
-}
+input,select{min-height:var(--touch);background:#17120f;color:var(--text);border:1px solid var(--line);border-radius:var(--radius-sm);padding:7px}
 .choice{border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--panel-dark);cursor:pointer}
 .choice.active{border-color:var(--gold)}
 .stat{display:flex;justify-content:space-between;border-bottom:1px dashed var(--line);padding:5px 0;font-size:var(--fs-sm)}
@@ -72,10 +43,7 @@ input,select{
 .hud b,.power{color:var(--gold)}
 .toolbar{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .pixel-map{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
-.map-node{
-  border:1px solid var(--line);border-radius:var(--radius-sm);background:#1a1512;
-  padding:6px;cursor:pointer;font-size:var(--fs-xs);line-height:1.25;min-height:var(--touch);
-}
+.map-node{border:1px solid var(--line);border-radius:var(--radius-sm);background:#1a1512;padding:6px;cursor:pointer;font-size:var(--fs-xs);line-height:1.25;min-height:var(--touch)}
 .map-node b{font-size:11px;display:block}
 .map-node.current{border-color:var(--gold);background:#34271e}
 .map-node.near{border-color:var(--gold-dim)}
@@ -84,32 +52,14 @@ input,select{
 .log{height:120px;overflow-y:auto;background:#120f0d;border:1px solid var(--line);border-radius:8px;padding:5px 7px;color:#d8c6aa;font-size:11px}
 .section-title{color:var(--gold);margin:0 0 6px;font-size:var(--fs-md)}
 .loc-head{display:flex;justify-content:space-between;align-items:center;gap:6px}
-.modal-mask{
-  position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;
-  display:flex;align-items:center;justify-content:center;
-  padding:16px 12px calc(var(--safe) + 16px);
-}
-.modal-panel{
-  width:100%;max-width:480px;max-height:78vh;overflow:auto;
-  background:linear-gradient(180deg,rgba(48,38,31,.98),rgba(29,23,19,.98));
-  border:1px solid var(--line);border-radius:var(--radius-lg);padding:12px 14px;
-}
+.modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px 12px calc(var(--safe) + 16px)}
+.modal-panel{width:100%;max-width:480px;max-height:78vh;overflow:auto;background:linear-gradient(180deg,rgba(48,38,31,.98),rgba(29,23,19,.98));border:1px solid var(--line);border-radius:var(--radius-lg);padding:12px 14px}
 .modal-head{display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#2b221b;padding:4px 0 8px;z-index:1}
 .modal-close{min-width:var(--touch);min-height:var(--touch);background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:var(--radius-sm)}
 .talk-bubble,.main-obj{background:var(--panel-dark);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:8px 0;line-height:1.5}
 .hp-warn{color:var(--danger);font-weight:700}
-.bottom-nav{
-  position:fixed;left:0;right:0;bottom:0;z-index:900;
-  display:grid;grid-template-columns:repeat(5,1fr);
-  height:var(--nav-h);padding-bottom:env(safe-area-inset-bottom,0px);
-  background:linear-gradient(180deg,#2a211b,#1a1512);
-  border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(0,0,0,.35);
-}
-.bottom-nav button{
-  appearance:none;border:0;background:transparent;color:var(--muted);
-  font-size:var(--fs-xs);display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:2px;min-height:var(--nav-h);cursor:pointer;touch-action:manipulation;
-}
+.bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:900;display:grid;grid-template-columns:repeat(5,1fr);height:var(--nav-h);padding-bottom:env(safe-area-inset-bottom,0px);background:linear-gradient(180deg,#2a211b,#1a1512);border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(0,0,0,.35)}
+.bottom-nav button{appearance:none;border:0;background:transparent;color:var(--muted);font-size:var(--fs-xs);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:var(--nav-h);cursor:pointer;touch-action:manipulation}
 .bottom-nav button .ico{font-size:18px;line-height:1}
 .bottom-nav button.active{color:var(--gold)}
 .bottom-nav button.active .ico{transform:scale(1.08)}
@@ -155,6 +105,7 @@ input,select{
   <button type="button" data-tab="more"><span class="ico">···</span><span>更多</span></button>
 </nav>
 
+<!-- 数据层 -->
 <script src="./data1_world.js"></script>
 <script src="./data1_maps_a.js"></script>
 <script src="./data1_maps_b.js"></script>
@@ -170,28 +121,54 @@ input,select{
 <script src="./items.js"></script>
 <script src="./db.js"></script>
 <script src="./data_loader.js"></script>
+<!-- 核心 / 逻辑 -->
 <script src="./core.js"></script>
 <script src="./npc_logic.js"></script>
 <script src="./time.js"></script>
 <script src="./logic.js"></script>
 <script src="./state_bridge.js"></script>
 <script src="./realm.js"></script>
+<script src="./combat.js"></script>
+<script src="./combat_fx.js"></script>
+<script src="./quest.js"></script>
+<script src="./main_quest.js"></script>
+<script src="./sect_quest.js"></script>
+<script src="./dialog_acts.js"></script>
+<script src="./dialog_opt.js"></script>
+<script src="./npc_profile.js"></script>
+<script src="./npc_story.js"></script>
+<script src="./romance.js"></script>
+<script src="./romance_orient.js"></script>
+<script src="./meridian.js"></script>
+<script src="./skill_paths.js"></script>
+<script src="./save_io.js"></script>
+<script src="./save_slots.js"></script>
+<script src="./tutorial.js"></script>
+<!-- 地图 -->
 <script src="./world_map.js"></script>
 <script src="./world_map_v2.js"></script>
+<script src="./world_map_bridge.js"></script>
+<script src="./map_grid.js"></script>
 <script src="./city_explore.js"></script>
 <script src="./city_save_bridge.js"></script>
+<script src="./scene_view.js"></script>
+<!-- 家园 -->
+<script src="./home_companion.js"></script>
+<script src="./home_resident.js"></script>
+<script src="./home_trade.js"></script>
+<!-- UI 层 -->
 <script src="./pixel_ui.js"></script>
 <script src="./items_ui.js"></script>
 <script src="./skill_ui.js"></script>
 <script src="./favor_ui.js"></script>
-<script src="./combat.js"></script>
-<script src="./combat_fx.js"></script>
+<script src="./time_ui.js"></script>
 <script src="./ui_combat.js"></script>
 <script src="./ui_npc.js"></script>
 <script src="./ui_map.js"></script>
 <script src="./mobile_ui.js"></script>
 <script src="./mobile_npc_ui.js"></script>
 <script src="./ui_nav.js"></script>
+<script src="./ui_bridge.js"></script>
 <script src="./ui_smooth.js"></script>
 <script>
 if('serviceWorker' in navigator){
