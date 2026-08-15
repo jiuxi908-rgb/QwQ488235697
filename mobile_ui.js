@@ -26,6 +26,9 @@
   const esc = MOBILE_UI.esc.bind(MOBILE_UI);
   const isMobile = () => window.matchMedia ? window.matchMedia('(max-width:600px)').matches : window.innerWidth <= 600;
 
+  // 人物页是否处于“全页模式”（底部导航·人物）
+  let charPageActive = false;
+
   function getPlayer() { return (g.state && g.state.player) || (g.game && g.game.player) || g.playerData || null; }
   function getSkills(player) {
     if (!player) return [];
@@ -103,74 +106,79 @@
     const style = document.createElement('style');
     style.id = 'mobile-character-ui-style';
     style.textContent = `
-      .mui-character-mobile{display:none}
-      @media(max-width:600px){
-        .mui-character-mobile{display:block;width:100%;padding:8px 0 80px}
-        .mui-character-mobile .mc-card{
-          background:linear-gradient(180deg,var(--panel-light,#30261f),#211a15);
-          border:1px solid var(--line,#4b3a2d);
-          border-radius:var(--radius-sm,8px);
-          padding:12px;
-          margin:0 0 10px;
-          box-shadow:var(--shadow-sm,2px 3px 0 #0a0806);
-        }
-        .mui-character-mobile .mc-hero{
-          display:grid;grid-template-columns:84px 1fr;gap:12px;align-items:center;
-        }
-        .mui-character-mobile .mc-avatar{
-          width:80px;height:80px;image-rendering:pixelated;
-          border:2px solid var(--line-strong,#6b503a);background:#090705;overflow:hidden;border-radius:6px;
-        }
-        .mui-character-mobile .mc-avatar>*{display:block;width:100%;height:100%}
-        .mui-character-mobile .mc-name{font-size:var(--fs-xl,19px);font-weight:800;color:var(--text,#f5e8cf);line-height:1.25}
-        .mui-character-mobile .mc-realm{
-          display:inline-block;margin-top:5px;padding:3px 8px;
-          border:1px solid var(--gold-dim,#8a6a45);color:var(--gold,#d9ad62);
-          border-radius:4px;font-size:var(--fs-sm,12px);font-weight:700;
-        }
-        .mui-character-mobile .mc-power{float:right;color:var(--gold,#d9ad62);font-weight:800;font-size:16px}
-        .mui-character-mobile .mc-label{font-size:11px;color:var(--muted,#b9a58a)}
-        .mui-character-mobile .mc-value{font-size:15px;font-weight:800;color:var(--text,#f5e8cf)}
-        .mui-character-mobile .mc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-        .mui-character-mobile .mc-stat{
-          min-height:48px;padding:10px;background:#191310;
-          border:1px solid #3d3027;border-radius:6px;
-        }
-        .mui-character-mobile .mc-row{
-          display:flex;align-items:center;justify-content:space-between;
-          min-height:44px;gap:8px;
-        }
-        .mui-character-mobile .mc-bar{
-          height:8px;margin-top:6px;background:#100d0b;
-          border:1px solid #3d3027;overflow:hidden;border-radius:2px;
-        }
-        .mui-character-mobile .mc-bar i{display:block;height:100%;background:var(--success,#7aae6a);transition:width .2s ease}
-        .mui-character-mobile .mc-bar.mp i{background:var(--info,#6c91b9)}
-        .mui-character-mobile .mc-progress{
-          height:7px;margin-top:8px;background:#100d0b;
-          border:1px solid #3d3027;overflow:hidden;border-radius:2px;
-        }
-        .mui-character-mobile .mc-progress i{display:block;height:100%;background:var(--gold,#d9ad62)}
-        .mui-character-mobile .mc-section{
-          font-size:13px;color:var(--gold,#d9ad62);font-weight:800;margin-bottom:8px;
-          letter-spacing:1px;
-        }
-        .mui-character-mobile .mc-skill{
-          display:flex;align-items:center;justify-content:space-between;gap:8px;
-          min-height:44px;border-top:1px dashed var(--line,#4b3a2d);padding:6px 0;
-        }
-        .mui-character-mobile .mc-skill-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-        .mui-character-mobile .mc-skill-realm{text-align:right;color:var(--gold,#d9ad62);font-size:12px;white-space:nowrap}
-        .mui-character-mobile .mc-note{font-size:11px;color:#9f8c75;line-height:1.5}
-        .mui-character-mobile .mc-equip-row{
-          display:flex;align-items:center;justify-content:space-between;
-          min-height:44px;padding:6px 0;border-top:1px dashed var(--line,#4b3a2d);
-        }
-        .mui-character-mobile .mc-equip-name{font-weight:700}
-        .mui-character-mobile .mc-equip-empty{color:var(--muted,#b9a58a);font-weight:400}
-        .mui-character-mobile .mc-stars{color:var(--gold,#d9ad62);font-size:12px;margin-left:6px}
+      /* 全页人物模式：独占 #app，不混入江湖主界面 */
+      .mui-character-mobile{
+        display:none;
+        width:100%;
+        padding:8px 0 80px;
+        box-sizing:border-box;
       }
-      @media(min-width:601px){.mui-character-mobile{display:none!important}}
+      .mui-character-mobile.is-page{
+        display:block !important;
+      }
+      .mui-character-mobile .mc-card{
+        background:linear-gradient(180deg,var(--panel-light,#30261f),#211a15);
+        border:1px solid var(--line,#4b3a2d);
+        border-radius:var(--radius-sm,8px);
+        padding:12px;
+        margin:0 0 10px;
+        box-shadow:var(--shadow-sm,2px 3px 0 #0a0806);
+      }
+      .mui-character-mobile .mc-hero{
+        display:grid;grid-template-columns:84px 1fr;gap:12px;align-items:center;
+      }
+      .mui-character-mobile .mc-avatar{
+        width:80px;height:80px;image-rendering:pixelated;
+        border:2px solid var(--line-strong,#6b503a);background:#090705;overflow:hidden;border-radius:6px;
+      }
+      .mui-character-mobile .mc-avatar>*{display:block;width:100%;height:100%}
+      .mui-character-mobile .mc-name{font-size:var(--fs-xl,19px);font-weight:800;color:var(--text,#f5e8cf);line-height:1.25}
+      .mui-character-mobile .mc-realm{
+        display:inline-block;margin-top:5px;padding:3px 8px;
+        border:1px solid var(--gold-dim,#8a6a45);color:var(--gold,#d9ad62);
+        border-radius:4px;font-size:var(--fs-sm,12px);font-weight:700;
+      }
+      .mui-character-mobile .mc-power{float:right;color:var(--gold,#d9ad62);font-weight:800;font-size:16px}
+      .mui-character-mobile .mc-label{font-size:11px;color:var(--muted,#b9a58a)}
+      .mui-character-mobile .mc-value{font-size:15px;font-weight:800;color:var(--text,#f5e8cf)}
+      .mui-character-mobile .mc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+      .mui-character-mobile .mc-stat{
+        min-height:48px;padding:10px;background:#191310;
+        border:1px solid #3d3027;border-radius:6px;
+      }
+      .mui-character-mobile .mc-row{
+        display:flex;align-items:center;justify-content:space-between;
+        min-height:44px;gap:8px;
+      }
+      .mui-character-mobile .mc-bar{
+        height:8px;margin-top:6px;background:#100d0b;
+        border:1px solid #3d3027;overflow:hidden;border-radius:2px;
+      }
+      .mui-character-mobile .mc-bar i{display:block;height:100%;background:var(--success,#7aae6a);transition:width .2s ease}
+      .mui-character-mobile .mc-bar.mp i{background:var(--info,#6c91b9)}
+      .mui-character-mobile .mc-progress{
+        height:7px;margin-top:8px;background:#100d0b;
+        border:1px solid #3d3027;overflow:hidden;border-radius:2px;
+      }
+      .mui-character-mobile .mc-progress i{display:block;height:100%;background:var(--gold,#d9ad62)}
+      .mui-character-mobile .mc-section{
+        font-size:13px;color:var(--gold,#d9ad62);font-weight:800;margin-bottom:8px;
+        letter-spacing:1px;
+      }
+      .mui-character-mobile .mc-skill{
+        display:flex;align-items:center;justify-content:space-between;gap:8px;
+        min-height:44px;border-top:1px dashed var(--line,#4b3a2d);padding:6px 0;
+      }
+      .mui-character-mobile .mc-skill-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .mui-character-mobile .mc-skill-realm{text-align:right;color:var(--gold,#d9ad62);font-size:12px;white-space:nowrap}
+      .mui-character-mobile .mc-note{font-size:11px;color:#9f8c75;line-height:1.5}
+      .mui-character-mobile .mc-equip-row{
+        display:flex;align-items:center;justify-content:space-between;
+        min-height:44px;padding:6px 0;border-top:1px dashed var(--line,#4b3a2d);
+      }
+      .mui-character-mobile .mc-equip-name{font-weight:700}
+      .mui-character-mobile .mc-equip-empty{color:var(--muted,#b9a58a);font-weight:400}
+      .mui-character-mobile .mc-stars{color:var(--gold,#d9ad62);font-size:12px;margin-left:6px}
     `;
     document.head.appendChild(style);
   }
@@ -311,13 +319,7 @@
     return data.avatar ? `<img src="${esc(data.avatar)}" alt="">` : '';
   }
 
-  function findCharacterTarget() {
-    return document.querySelector('#characterPanel,.character-panel,[data-page="character"],[data-panel="character"],.modal-panel') || document.querySelector('#app');
-  }
-
-  function renderCharacterMobile(target, data) {
-    const el = typeof target === 'string' ? document.querySelector(target) : (target || findCharacterTarget());
-    if (!el) return false;
+  function buildCharacterHtml(data) {
     data = data || MOBILE_UI.getPlayerData();
     const stats = data.stats || {};
     const hp = Math.max(0, Number(data.hp || 0));
@@ -328,8 +330,6 @@
     const skills = Array.isArray(data.skills) ? data.skills : [];
     const equip = Array.isArray(data.equip) ? data.equip : [];
 
-    el.querySelectorAll('.mui-character-mobile').forEach(n => n.remove());
-
     const equipHtml = equip.map(e => {
       const empty = e.name === '空';
       return `<div class="mc-equip-row">
@@ -338,9 +338,8 @@
       </div>`;
     }).join('');
 
-    const host = document.createElement('div');
-    host.innerHTML = `
-      <div class="mui-character-mobile">
+    return `
+      <div class="mui-character-mobile is-page">
         <section class="mc-card mc-hero">
           <div class="mc-avatar">${avatarHtml(data)}</div>
           <div>
@@ -414,30 +413,44 @@
             : '<div class="mc-note">尚未习得武学</div>'}
         </section>
       </div>`;
-    el.appendChild(host.firstElementChild);
-    return true;
   }
 
-  function refreshCharacterMobile() {
-    return renderCharacterMobile(findCharacterTarget(), MOBILE_UI.getPlayerData());
-  }
-
+  /** 全页人物：清空 #app 再写入，绝不和江湖主界面混在一起 */
   MOBILE_UI.showCharacterPage = function () {
     const app = document.querySelector('#app');
     if (!app) return;
-    const existing = app.querySelector('.mui-character-mobile');
-    if (existing) existing.remove();
-    renderCharacterMobile(app, MOBILE_UI.getPlayerData());
-    const panel = app.querySelector('.mui-character-mobile');
-    if (panel) panel.style.display = 'block';
+    charPageActive = true;
+    if (typeof g.closeModal === 'function') g.closeModal();
+    app.innerHTML = buildCharacterHtml(MOBILE_UI.getPlayerData());
   };
+
+  /** 仅在人物页激活时刷新数据，不往江湖主界面塞面板 */
+  function refreshCharacterMobile() {
+    if (!charPageActive) return false;
+    const app = document.querySelector('#app');
+    if (!app) return false;
+    // 已在人物页：只更新内容
+    if (app.querySelector('.mui-character-mobile.is-page')) {
+      app.innerHTML = buildCharacterHtml(MOBILE_UI.getPlayerData());
+      return true;
+    }
+    return false;
+  }
+
+  function leaveCharacterPage() {
+    charPageActive = false;
+  }
 
   function installHooks() {
     if (!g.Game || typeof g.Game.on !== 'function') return;
     if (MOBILE_UI._characterHooksInstalled) return;
     MOBILE_UI._characterHooksInstalled = true;
+
     const refresh = () => setTimeout(refreshCharacterMobile, 0);
-    ['render:after', 'realm:up', 'player:loaded', 'save:after', 'skill:learned', 'skill:trained', 'character:changed'].forEach(ev => g.Game.on(ev, refresh));
+    ['realm:up', 'player:loaded', 'save:after', 'skill:learned', 'skill:trained', 'character:changed'].forEach(ev => g.Game.on(ev, refresh));
+
+    // 不再监听 render:after —— 那会把人物面板塞进江湖主界面
+
     if (typeof g.Game.hook === 'function') {
       g.Game.hook('openModal', function (next) {
         return function () {
@@ -447,8 +460,13 @@
         };
       });
     }
+
     g.Game.on('nav:change', function (tab) {
-      if (tab === 'char') MOBILE_UI.showCharacterPage();
+      if (tab === 'char') {
+        MOBILE_UI.showCharacterPage();
+      } else {
+        leaveCharacterPage();
+      }
     });
   }
 
@@ -457,31 +475,20 @@
   injectBagMobileStyle();
   installHooks();
 
-  MOBILE_UI.renderCharacterMobile = renderCharacterMobile;
+  MOBILE_UI.renderCharacterMobile = function () { return MOBILE_UI.showCharacterPage(); };
   MOBILE_UI.refreshCharacterMobile = refreshCharacterMobile;
   MOBILE_UI.enhanceSkillModal = enhanceSkillModal;
   MOBILE_UI.getBagData = MOBILE_UI.getBagData;
   MOBILE_UI.renderBagMobile = renderBagMobile;
   MOBILE_UI.isMobile = isMobile;
+  MOBILE_UI.leaveCharacterPage = leaveCharacterPage;
   window.MobileUI = MOBILE_UI;
 
   window.addEventListener('resize', () => setTimeout(() => {
-    refreshCharacterMobile();
+    if (charPageActive) refreshCharacterMobile();
     enhanceSkillModal();
     renderBagMobile();
   }, 0));
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => setTimeout(() => {
-      refreshCharacterMobile();
-      enhanceSkillModal();
-      renderBagMobile();
-    }, 0));
-  } else {
-    setTimeout(() => {
-      refreshCharacterMobile();
-      enhanceSkillModal();
-      renderBagMobile();
-    }, 0);
-  }
+  // 初始不自动往 #app 塞人物面板
 })(typeof window !== 'undefined' ? window : this);
