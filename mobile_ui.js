@@ -12,7 +12,14 @@
   const MOBILE_UI = g.MobileUI || {
     minTouch: 44,
     init() {}, injectStyle() {}, bindDelegates() {},
-    esc(text) { return String(text == null ? '' : text).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/\"/g,'"').replace(/'/g,'&#39;'); },
+    esc(text) {
+      return String(text == null ? '' : text)
+        .replace(/&/g, '&')
+        .replace(/</g, '<')
+        .replace(/>/g, '>')
+        .replace(/"/g, '"')
+        .replace(/'/g, '&#39;');
+    },
     renderSkills() { return ''; },
     closeSheet(sheet) { if (sheet) sheet.remove(); }
   };
@@ -311,7 +318,6 @@
   function renderCharacterMobile(target, data) {
     const el = typeof target === 'string' ? document.querySelector(target) : (target || findCharacterTarget());
     if (!el) return false;
-    // 人物页在手机强制显示，桌面也允许（底部导航触发时）
     data = data || MOBILE_UI.getPlayerData();
     const stats = data.stats || {};
     const hp = Math.max(0, Number(data.hp || 0));
@@ -416,15 +422,12 @@
     return renderCharacterMobile(findCharacterTarget(), MOBILE_UI.getPlayerData());
   }
 
-  // 给底部导航用的强制打开人物页
   MOBILE_UI.showCharacterPage = function () {
     const app = document.querySelector('#app');
     if (!app) return;
-    // 清空主区域只显示人物卡片（避免和江湖主界面抢）
     const existing = app.querySelector('.mui-character-mobile');
     if (existing) existing.remove();
     renderCharacterMobile(app, MOBILE_UI.getPlayerData());
-    // 强制显示（覆盖桌面隐藏规则）
     const panel = app.querySelector('.mui-character-mobile');
     if (panel) panel.style.display = 'block';
   };
@@ -444,7 +447,6 @@
         };
       });
     }
-    // 导航事件
     g.Game.on('nav:change', function (tab) {
       if (tab === 'char') MOBILE_UI.showCharacterPage();
     });
