@@ -17,7 +17,6 @@
     qsa("#bottomNav button").forEach(btn => {
       btn.classList.toggle("active", btn.dataset.tab === tab);
     });
-    // 触发对应页面逻辑（优先用现有 modal / 函数）
     try {
       if (tab === "world") {
         if (typeof g.renderGame === "function") g.renderGame();
@@ -39,13 +38,15 @@
   }
 
   function openChar() {
-    // 优先走现有人物面板 / 移动端增强
+    // 新人物页优先
+    if (g.MobileUI && typeof g.MobileUI.showCharacterPage === "function") {
+      return g.MobileUI.showCharacterPage();
+    }
     if (typeof g.showCharacter === "function") return g.showCharacter();
     if (typeof g.openCharacterPanel === "function") return g.openCharacterPanel();
     if (g.MobileUI && typeof g.MobileUI.refreshCharacterMobile === "function") {
       g.MobileUI.refreshCharacterMobile();
     }
-    // 兜底：尝试点现有人物按钮
     const btn = qs('[data-action="character"], .btn-char, button[onclick*="character"]');
     if (btn) btn.click();
   }
@@ -65,9 +66,7 @@
   }
 
   function openMore() {
-    // 更多：任务 / 门派 / 存档 / 设置 入口占位
     if (typeof g.showMoreMenu === "function") return g.showMoreMenu();
-    // 简单兜底弹层
     const root = qs("#modalRoot");
     if (!root) return;
     root.innerHTML = `
@@ -112,7 +111,6 @@
     });
   }
 
-  // 暴露
   g.UINav = {
     setActive,
     getCurrent: () => current,
