@@ -1,6 +1,5 @@
 /* ui_nav.js — 底部五大导航控制器
  * 江湖 / 人物 / 武学 / 背包 / 更多
- * 不替换现有 renderGame，只挂接入口，避免推倒重来。
  */
 (function (g) {
   "use strict";
@@ -19,6 +18,7 @@
     });
     try {
       if (tab === "world") {
+        if (typeof g.closeModal === "function") g.closeModal();
         if (typeof g.renderGame === "function") g.renderGame();
       } else if (tab === "char") {
         openChar();
@@ -38,30 +38,24 @@
   }
 
   function openChar() {
-    // 新人物页优先
     if (g.MobileUI && typeof g.MobileUI.showCharacterPage === "function") {
       return g.MobileUI.showCharacterPage();
     }
+    if (typeof g.modalChar === "function") return g.modalChar();
     if (typeof g.showCharacter === "function") return g.showCharacter();
-    if (typeof g.openCharacterPanel === "function") return g.openCharacterPanel();
-    if (g.MobileUI && typeof g.MobileUI.refreshCharacterMobile === "function") {
-      g.MobileUI.refreshCharacterMobile();
-    }
-    const btn = qs('[data-action="character"], .btn-char, button[onclick*="character"]');
-    if (btn) btn.click();
   }
 
   function openSkill() {
+    if (typeof g.modalSkills === "function") return g.modalSkills();
     if (typeof g.showSkills === "function") return g.showSkills();
-    if (typeof g.openSkillPanel === "function") return g.openSkillPanel();
-    const btn = qs('[data-action="skill"], .btn-skill, button[onclick*="skill"]');
+    const btn = qs('[data-action="skill"], .btn-skill');
     if (btn) btn.click();
   }
 
   function openBag() {
+    if (typeof g.modalBag === "function") return g.modalBag();
     if (typeof g.showBag === "function") return g.showBag();
-    if (typeof g.openBagPanel === "function") return g.openBagPanel();
-    const btn = qs('[data-action="bag"], .btn-bag, button[onclick*="bag"], button[onclick*="item"]');
+    const btn = qs("#bagBtn, [data-action=\"bag\"]");
     if (btn) btn.click();
   }
 
@@ -80,6 +74,7 @@
             <button class="btn" data-more="quest">任务</button>
             <button class="btn" data-more="sect">门派</button>
             <button class="btn" data-more="favor">关系</button>
+            <button class="btn" data-more="map">天下地图</button>
             <button class="btn" data-more="save">存档</button>
             <button class="btn" data-more="setting">设置</button>
           </div>
@@ -91,12 +86,18 @@
       b.onclick = () => {
         const k = b.dataset.more;
         root.innerHTML = "";
-        if (k === "quest" && typeof g.showQuests === "function") g.showQuests();
+        if (k === "quest" && typeof g.modalQuests === "function") g.modalQuests();
+        else if (k === "quest" && typeof g.showQuests === "function") g.showQuests();
+        else if (k === "sect" && typeof g.modalSect === "function") g.modalSect();
         else if (k === "sect" && typeof g.showSect === "function") g.showSect();
+        else if (k === "favor" && typeof g.modalFavor === "function") g.modalFavor();
         else if (k === "favor" && typeof g.showFavor === "function") g.showFavor();
+        else if (k === "map" && typeof g.openWorldMap === "function") g.openWorldMap();
+        else if (k === "map" && typeof g.renderWorldMap === "function") g.renderWorldMap();
+        else if (k === "save" && typeof g.modalSaveSlots === "function") g.modalSaveSlots();
         else if (k === "save" && typeof g.showSaveSlots === "function") g.showSaveSlots();
-        else if (k === "setting") alert("设置页稍后接入");
-        else alert(k + " 入口稍后接入现有逻辑");
+        else if (k === "setting") alert("设置页：主题/音效/清除缓存 后续接入");
+        else alert(k + " 入口稍后接入");
       };
     });
   }
