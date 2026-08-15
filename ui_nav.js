@@ -1,6 +1,4 @@
-/* ui_nav.js — 底部五大导航控制器
- * 江湖 / 人物 / 武学 / 背包 / 更多
- */
+/* ui_nav.js — 底部五大导航控制器 */
 (function (g) {
   "use strict";
 
@@ -20,47 +18,30 @@
       if (tab === "world") {
         if (typeof g.closeModal === "function") g.closeModal();
         if (typeof g.renderGame === "function") g.renderGame();
-      } else if (tab === "char") {
-        openChar();
-      } else if (tab === "skill") {
-        openSkill();
-      } else if (tab === "bag") {
-        openBag();
-      } else if (tab === "more") {
-        openMore();
-      }
+      } else if (tab === "char") openChar();
+      else if (tab === "skill") openSkill();
+      else if (tab === "bag") openBag();
+      else if (tab === "more") openMore();
     } catch (e) {
       console.warn("[ui_nav]", e);
     }
-    if (g.Game && typeof g.Game.emit === "function") {
-      g.Game.emit("nav:change", tab);
-    }
+    if (g.Game && typeof g.Game.emit === "function") g.Game.emit("nav:change", tab);
   }
 
   function openChar() {
-    if (g.MobileUI && typeof g.MobileUI.showCharacterPage === "function") {
-      return g.MobileUI.showCharacterPage();
-    }
+    if (g.MobileUI && typeof g.MobileUI.showCharacterPage === "function") return g.MobileUI.showCharacterPage();
     if (typeof g.modalChar === "function") return g.modalChar();
-    if (typeof g.showCharacter === "function") return g.showCharacter();
   }
 
   function openSkill() {
     if (typeof g.modalSkills === "function") return g.modalSkills();
-    if (typeof g.showSkills === "function") return g.showSkills();
-    const btn = qs('[data-action="skill"], .btn-skill');
-    if (btn) btn.click();
   }
 
   function openBag() {
     if (typeof g.modalBag === "function") return g.modalBag();
-    if (typeof g.showBag === "function") return g.showBag();
-    const btn = qs("#bagBtn, [data-action=\"bag\"]");
-    if (btn) btn.click();
   }
 
   function openMore() {
-    if (typeof g.showMoreMenu === "function") return g.showMoreMenu();
     const root = qs("#modalRoot");
     if (!root) return;
     root.innerHTML = `
@@ -75,6 +56,7 @@
             <button class="btn" data-more="sect">门派</button>
             <button class="btn" data-more="favor">关系</button>
             <button class="btn" data-more="map">天下地图</button>
+            <button class="btn" data-more="loc">当前地点</button>
             <button class="btn" data-more="save">存档</button>
             <button class="btn" data-more="setting">设置</button>
           </div>
@@ -86,18 +68,32 @@
       b.onclick = () => {
         const k = b.dataset.more;
         root.innerHTML = "";
-        if (k === "quest" && typeof g.modalQuests === "function") g.modalQuests();
-        else if (k === "quest" && typeof g.showQuests === "function") g.showQuests();
-        else if (k === "sect" && typeof g.modalSect === "function") g.modalSect();
-        else if (k === "sect" && typeof g.showSect === "function") g.showSect();
-        else if (k === "favor" && typeof g.modalFavor === "function") g.modalFavor();
-        else if (k === "favor" && typeof g.showFavor === "function") g.showFavor();
-        else if (k === "map" && typeof g.openWorldMap === "function") g.openWorldMap();
-        else if (k === "map" && typeof g.renderWorldMap === "function") g.renderWorldMap();
-        else if (k === "save" && typeof g.modalSaveSlots === "function") g.modalSaveSlots();
-        else if (k === "save" && typeof g.showSaveSlots === "function") g.showSaveSlots();
-        else if (k === "setting") alert("设置页：主题/音效/清除缓存 后续接入");
-        else alert(k + " 入口稍后接入");
+        if (k === "quest") {
+          if (typeof g.modalQuests === "function") g.modalQuests();
+          else if (typeof g.showQuests === "function") g.showQuests();
+          else alert("任务入口稍后接入");
+        } else if (k === "sect") {
+          if (typeof g.modalSect === "function") g.modalSect();
+          else if (typeof g.showSect === "function") g.showSect();
+          else alert("门派入口稍后接入");
+        } else if (k === "favor") {
+          if (g.MobileUI && typeof g.MobileUI.openNPCRelationPage === "function") g.MobileUI.openNPCRelationPage();
+          else if (typeof g.openNpcProfile === "function") g.openNpcProfile();
+          else if (typeof g.modalFavor === "function") g.modalFavor();
+        } else if (k === "map") {
+          if (typeof g.openWorldMap === "function") g.openWorldMap();
+          else if (typeof g.renderWorldMap === "function") g.renderWorldMap();
+          else if (typeof g.renderGame === "function") g.renderGame();
+        } else if (k === "loc") {
+          const loc = (g.state && g.state.player && g.state.player.location) || "qinghe";
+          if (typeof g.openLocationPanel === "function") g.openLocationPanel(loc);
+        } else if (k === "save") {
+          if (typeof g.modalSaveSlots === "function") g.modalSaveSlots();
+          else if (typeof g.showSaveSlots === "function") g.showSaveSlots();
+          else alert("存档界面稍后接入");
+        } else if (k === "setting") {
+          alert("设置：主题/音效/清除缓存 — 后续版本");
+        }
       };
     });
   }
@@ -112,18 +108,8 @@
     });
   }
 
-  g.UINav = {
-    setActive,
-    getCurrent: () => current,
-    openChar,
-    openSkill,
-    openBag,
-    openMore
-  };
+  g.UINav = { setActive, getCurrent: () => current, openChar, openSkill, openBag, openMore };
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", bind);
-  } else {
-    bind();
-  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bind);
+  else bind();
 })(typeof window !== "undefined" ? window : this);
