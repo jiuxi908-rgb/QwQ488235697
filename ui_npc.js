@@ -7,8 +7,11 @@
 
   function esc(t) {
     return String(t == null ? "" : t)
-      .replace(/&/g, "&").replace(/</g, "<")
-      .replace(/>/g, ">").replace(/\"/g, """);
+      .replace(/&/g, "&")
+      .replace(/</g, "<")
+      .replace(/>/g, ">")
+      .replace(/"/g, """)
+      .replace(/'/g, "&#39;");
   }
 
   function inject() {
@@ -157,7 +160,6 @@
         const id = btn.dataset.id;
         const act = btn.dataset.npcAct;
         if (act === "talk" && typeof g.modalNpc === "function") {
-          // 回到原对话流
           g.modalNpc(id);
         } else if (act === "gift") {
           if (typeof g.modalNpc === "function") g.modalNpc(id);
@@ -171,7 +173,6 @@
   /** 打开档案页（可被导航「关系」调用） */
   function openNpcProfile(npcId) {
     if (!npcId) {
-      // 无 ID 则打开关系列表
       if (g.MobileUI && typeof g.MobileUI.openNPCRelationPage === "function") {
         return g.MobileUI.openNPCRelationPage();
       }
@@ -191,14 +192,6 @@
     const close = document.getElementById("npcProfileClose");
     if (close && typeof g.closeModal === "function") close.onclick = () => g.closeModal();
     bindProfileActions(document.querySelector(".modal-panel") || document);
-  }
-
-  // 轻量增强：原 modalNpc 打开后，在顶部插入档案摘要
-  function enhanceExistingModal() {
-    const panel = document.querySelector("#modalPanel, .modal-panel");
-    if (!panel) return;
-    if (panel.querySelector(".npc-profile")) return;
-    // 若有 NPC 标题痕迹，尝试注入
   }
 
   g.renderNpcProfile = renderProfile;
